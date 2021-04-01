@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.encryptionlayer.AESEncryptedSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-01T15:16:32" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.055">
+<testsuite name="vrielynckpieterjan.encryptionlayer.AESEncryptedSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-01T19:02:22" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.047">
   <properties/>
-  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.AESEncryptedSegmentTest" time="0.055"/>
+  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.AESEncryptedSegmentTest" time="0.047"/>
   <system-out><![CDATA[��??sr?6vrielynckpieterjan.encryptionlayer.AESEncryptedSegmentx�p.P�-�???xr?3vrielynckpieterjan.encryptionlayer.EncryptedSegment�6?"
 �{f???[??encryptedSegmentt??[Bxpur??[B��?�??T�???xp???�K�r�?�G�?��?M���]]>&#x7f;<![CDATA[4v����^���-?R��i�?!��p�?��>z)�����?�j��a���Q[�>?�t�6	{]]>&#x7f;<![CDATA[U�P���o��+J<r��W=�?�^`d�h��ġ 3�3aJ�x�3RVB�l�����FT��??��<��x��V�>���N�o_k�����?�ԕ�?���-?5b?�=5�(1?%�g%UJ�L�X?O�n?�C�����}���l32Q�P `0E`1�GP}ݷݺ�N?]?n��?�?lM�&??���?8[�)?]�����?6�H�m�2�?[Eŭ?�0;r6$,�#�-7c??�,.\���?~���|�ن�~]��gW��hsFH|�?-� �#���^ӳ��(�̻3�@jG�\Ut�?Z.Έ�?^rRl-�1�&M�(�]]>&#x7f;<![CDATA[邉�?j�g�O?+�E��h�?�G[��g���9�ݺ??H=?,���CӪ�aּ�CN�2�-Q�?:ן�???@����k���c�?+E�J?�p0���R��9�?�S^
 ]]></system-out>
-  <system-err><![CDATA[apr. 01, 2021 5:16:32 P.M. vrielynckpieterjan.encryptionlayer.AESEncryptedSegment adjustKeyLength
-INFO: [vrielynckpieterjan.encryptionlayer.AESEncryptedSegment@6ef1acc] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
-apr. 01, 2021 5:16:32 P.M. vrielynckpieterjan.encryptionlayer.AESEncryptedSegment adjustKeyLength
-INFO: [vrielynckpieterjan.encryptionlayer.AESEncryptedSegment@6ef1acc] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
+  <system-err><![CDATA[apr. 01, 2021 9:02:22 P.M. vrielynckpieterjan.encryptionlayer.AESEncryptedSegment adjustKeyLength
+INFO: [vrielynckpieterjan.encryptionlayer.AESEncryptedSegment@2c453f6a] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
+apr. 01, 2021 9:02:22 P.M. vrielynckpieterjan.encryptionlayer.AESEncryptedSegment adjustKeyLength
+INFO: [vrielynckpieterjan.encryptionlayer.AESEncryptedSegment@2c453f6a] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
 ]]></system-err>
 </testsuite>

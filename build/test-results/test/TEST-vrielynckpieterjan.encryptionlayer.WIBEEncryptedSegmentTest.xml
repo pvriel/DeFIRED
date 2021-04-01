@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.encryptionlayer.WIBEEncryptedSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-01T15:16:32" hostname="MacBook-Pro-van-Pieter-Jan.local" time="1.489">
+<testsuite name="vrielynckpieterjan.encryptionlayer.WIBEEncryptedSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-01T19:02:22" hostname="MacBook-Pro-van-Pieter-Jan.local" time="3.099">
   <properties/>
-  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.WIBEEncryptedSegmentTest" time="1.489"/>
-  <system-out><![CDATA[��??sr?7vrielynckpieterjan.encryptionlayer.WIBEEncryptedSegment0ޒ�a1�p???xr?3vrielynckpieterjan.encryptionlayer.EncryptedSegment�6?"
-�{f???[??encryptedSegmentt??[Bxpur??[B��?�??T�???xp????��??sr?6vrielynckpieterjan.encryptionlayer.IBEEncryptedSegment�Lٟ/?�a???xr?3vrielynckpieterjan.encryptionlayer.EncryptedSegment�6?"
-�{f???[??encryptedSegmentt??[Bxpur??[B��?�??T�???xp???G��??sr?"cryptid.ibe.domain.CipherTextTuple7-@?ȠTV???L??cipherUt?0Lcryptid/ellipticcurve/point/affine/AffinePoint;[??cipherVt??[B[??cipherWq?~??xpsr?.cryptid.ellipticcurve.point.affine.AffinePoint�#?U?�a???L??xt??Ljava/math/BigInteger;L??yq?~??xpsr??java.math.BigInteger���?�;�????I??bitCountI?	bitLengthI??firstNonzeroByteNumI??lowestSetBitI??signum[?	magnitudeq?~??xr??java.lang.Number���??���???xp����������������????ur??[B��?�??T�???xp???@o.0��?�EPoS�(� N�Q?��]]>&#x84;<![CDATA[aԿ�-���.�Q?M��r���7��?�?��G+�?@��`�0xb?xsq?~??����������������????uq?~?
-???@m��9�p0�>?��?ާT$��0�!ӛ?���15�O��dp�d�8TA#?�a�w��?�-�4���t�xuq?~?
-????O�v�8"%!S%Ȅ~Л(�*#�uq?~?
-???��0�E�;�Ymk͋/|�N�2?���?���,�S�$Z\I
-��AZJ�?.fq����?/����'��OH��/�:!:n�����脢j'5�ł�?�?0!�{��nJ݄o1�P��ӟ����!�[}?2q�Lg�ұ?�S0�
-��@A�.�d�D���bM�,���?�,�7�̬9oy	�a+:D�ױ2q��X�M(�O҃�	�ß|]�֏c*˿}uU?;��Wa��Zԇ��x�f�܆�?�]]>&#x7f;<![CDATA[�?���?�Gz�?�s�?Q; ��:��%�?J�?�S�?c�{ڲ]]>&#x7f;<![CDATA[��D]]>&#x98;<![CDATA[#"?k]?n'��7Ol!t����l���+??q��t?ܣ]fіa�|]��b�kHJ�;���r?��?wz?��?����׸O��x��g&̾pR�ʫϹf�o2tZ�??Y??���?�t?G!�?�?�Ӣ3�ZʫNS�teK�~?�cR��qnu??��?7qkW9��>n���'?rK�腬C�õ�*��^Ѩ�
-]]></system-out>
-  <system-err><![CDATA[apr. 01, 2021 5:16:32 P.M. vrielynckpieterjan.encryptionlayer.IBEEncryptedSegment <clinit>
-INFO: IdentityBasedEncryption (cryptid.ibe.IdentityBasedEncryption@148c4a8f) initialized.
-]]></system-err>
+  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.WIBEEncryptedSegmentTest" time="3.099"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
 </testsuite>

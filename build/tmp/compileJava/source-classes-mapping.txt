@@ -176,9 +176,9 @@ vrielynckpieterjan/encryptionlayer/RSAEncryptedSegment.java
  vrielynckpieterjan.encryptionlayer.RSAEncryptedSegment
 vrielynckpieterjan/applicationlayer/policy/PolicyRight.java
  vrielynckpieterjan.applicationlayer.policy.PolicyRight
-vrielynckpieterjan/encryptionlayer/IBEEncryptedSegment.java
- vrielynckpieterjan.encryptionlayer.IBEEncryptedSegment
 vrielynckpieterjan/applicationlayer/policy/RTreePolicy.java
  vrielynckpieterjan.applicationlayer.policy.RTreePolicy
+vrielynckpieterjan/encryptionlayer/IBEEncryptedSegment.java
+ vrielynckpieterjan.encryptionlayer.IBEEncryptedSegment
 vrielynckpieterjan/encryptionlayer/WIBEEncryptedSegment.java
  vrielynckpieterjan.encryptionlayer.WIBEEncryptedSegment
