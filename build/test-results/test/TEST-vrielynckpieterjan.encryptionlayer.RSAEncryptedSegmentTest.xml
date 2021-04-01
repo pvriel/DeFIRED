@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="vrielynckpieterjan.encryptionlayer.RSAEncryptedSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-01T15:16:33" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.061">
+  <properties/>
+  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.RSAEncryptedSegmentTest" time="0.061"/>
+  <system-out><![CDATA[��??sr?6vrielynckpieterjan.encryptionlayer.RSAEncryptedSegment
+?�X?ޒ�???L??encapsulatedAESEncryptedSegmentt?8Lvrielynckpieterjan/encryptionlayer/AESEncryptedSegment;xr?3vrielynckpieterjan.encryptionlayer.EncryptedSegment�6?"
+�{f???[??encryptedSegmentt??[Bxpur??[B��?�??T�???xp?????�kyP_?�4V]]>&#x7f;<![CDATA[��]ZڤAc�b	��5�|M�@��s��"?q6��V��O�?\0?[??���?��K�T	��-??n	�y�??	x����??]]>&#x7f;<![CDATA[����?5����??��?�5R"?ʥj8	Y�RX��?�A���,��?��??~O�.'OQt�]�Y���&���`�Ԯ�]]>&#x4e84f;<![CDATA[?��DB��?�)��;��?�k��Ѿ?���z���x��c[�=�?�tM?a��??�)=EGÎ�?&���{gK�� V8?
+��?ܘ?]]>&#x7f;<![CDATA[�?]�l�+<����6?Xsr?6vrielynckpieterjan.encryptionlayer.AESEncryptedSegmentx�p.P�-�???xq?~??uq?~?????�T�����?��	?�?m?}�6�Q�V��B�?�-��V)_ܿD?��I���T��???r�>]]>&#x9d4ab;<![CDATA[�?_o��bw4R?tK��??j)��L�fԈn?^�XE��V?�˅e@I����KmG��x�?ww��a���?�C��m?�d�Ud��2�F�-?*F-�#�0?s�[��?�ɷS?�@�ވ??kQ?m'�?����/s��*�+?���YM�(�?�C��?)?t�?ݔ?�Õ"*�???�:��׍L9�ښ�3uNE��?.�ޯ|�H׸�?'�/�.Լc����5�ٮ8+k��R[�?%f�{W?���[�,�
+>Ȋ���ǂ?��?��?�ݐM@�4��x?�5E)�^}�???�?��?Ũ� èaj��?O4�?�C�ko%�w���??�]�����i���r"�������׬�*��Y\��*�q���OG?܎h��:?��ѹr�T�;�F�?�]H��ד(�"�A�w=�הJ�<���I:�R�a����z�	1�6p�t�)�?�ڧws�A8�
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

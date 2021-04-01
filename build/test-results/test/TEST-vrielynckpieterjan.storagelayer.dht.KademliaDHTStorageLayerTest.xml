@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-01T15:16:25" hostname="MacBook-Pro-van-Pieter-Jan.local" time="6.293">
+  <properties/>
+  <testcase name="putAndRetrieve()" classname="vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayerTest" time="6.293"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[apr. 01, 2021 5:16:30 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer <init>
+INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@2d947afc] Initialized using Kademlia ID (95975109333bbae792f9) on port 12049.
+apr. 01, 2021 5:16:30 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer <init>
+INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@6a45e2cd] Initialized using Kademlia ID (db7cb9631b8fe2040791) on port 12050.
+apr. 01, 2021 5:16:30 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer bootstrap
+INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@6a45e2cd] Bootstrap with Node (3935393735313039333333626261653739326639) completed.
+apr. 01, 2021 5:16:31 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer retrieve
+WARNING: An Exception occurred while trying to retrieve stored element(s) from the DHT with identifier (ABCDEFGHIJKLMNIOPQRS) (reason: kademlia.exceptions.ContentNotFoundException: No Value was found for the given key.); an empty HashSet will be returned.
+apr. 01, 2021 5:16:31 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer put
+INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@6a45e2cd] 1 element(s) stored with identifier (ABCDEFGHIJKLMNIOPQRS).
+]]></system-err>
+</testsuite>
