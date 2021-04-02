@@ -14,22 +14,22 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
 /**
- * Class representing an AES {@link EncryptedSegment}.
+ * Class representing an AES {@link CipherEncryptedSegment}.
  * @param   <DecryptedObjectType>
  *          The type of the decrypted object.
  */
-public class AESEncryptedSegment<DecryptedObjectType extends Serializable> extends EncryptedSegment<DecryptedObjectType, String, String> {
+public class AESCipherEncryptedSegment<DecryptedObjectType extends Serializable> extends CipherEncryptedSegment<DecryptedObjectType, String, String> {
 
-    private final static Logger logger = Logger.getLogger(AESEncryptedSegment.class.getName());
+    private final static Logger logger = Logger.getLogger(AESCipherEncryptedSegment.class.getName());
 
     /**
-     * Constructor for the {@link AESEncryptedSegment} class.
+     * Constructor for the {@link AESCipherEncryptedSegment} class.
      *
      * @param originalObject The original object to encrypt.
      * @param encryptionKey              The key to encrypt the original object with.
      * @throws IllegalArgumentException If an illegal key was provided.
      */
-    public AESEncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull String encryptionKey) throws IllegalArgumentException {
+    public AESCipherEncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull String encryptionKey) throws IllegalArgumentException {
         super(originalObject, encryptionKey);
     }
 

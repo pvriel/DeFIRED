@@ -13,7 +13,7 @@ import java.security.*;
 import java.util.logging.Logger;
 
 /**
- * Class representing an RSA {@link EncryptedSegment}.
+ * Class representing an RSA {@link CipherEncryptedSegment}.
  * @param   <DecryptedObjectType>
  *          The object type of the decrypted segment.
  * @implNote
@@ -22,21 +22,21 @@ import java.util.logging.Logger;
  *          This is due to the fact that the RSA encryption scheme can't be used
  *          to encrypt objects of any length.
  */
-public class RSAEncryptedSegment<DecryptedObjectType extends Serializable>
-        extends EncryptedSegment<DecryptedObjectType, PublicKey, PrivateKey> {
+public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
+        extends CipherEncryptedSegment<DecryptedObjectType, PublicKey, PrivateKey> {
 
-    private final static Logger logger = Logger.getLogger(RSAEncryptedSegment.class.getName());
+    private final static Logger logger = Logger.getLogger(RSACipherEncryptedSegment.class.getName());
 
-    private AESEncryptedSegment<byte[]> encapsulatedAESEncryptedSegment;
+    private AESCipherEncryptedSegment<byte[]> encapsulatedAESEncryptedSegment;
 
     /**
-     * Constructor for the {@link RSAEncryptedSegment} class.
+     * Constructor for the {@link RSACipherEncryptedSegment} class.
      *
      * @param originalObject The original object to encrypt.
      * @param publicKey     The key to encrypt the original object with.
      * @throws IllegalArgumentException If an illegal key was provided.
      */
-    public RSAEncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull PublicKey publicKey) throws IllegalArgumentException {
+    public RSACipherEncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull PublicKey publicKey) throws IllegalArgumentException {
         super(originalObject, publicKey);
     }
 
@@ -45,7 +45,7 @@ public class RSAEncryptedSegment<DecryptedObjectType extends Serializable>
         // Generate random String for the AES encryption.
         String AESKey = RandomStringUtils.randomAlphanumeric(32);
         // Encrypt original object using AES encryption.
-        encapsulatedAESEncryptedSegment = new AESEncryptedSegment<>(serializedOriginalObject, AESKey);
+        encapsulatedAESEncryptedSegment = new AESCipherEncryptedSegment<>(serializedOriginalObject, AESKey);
         // Encrypt AES key using RSA encryption.
         return applyRSACipherMode(Cipher.ENCRYPT_MODE, AESKey.getBytes(StandardCharsets.UTF_8), publicKey);
     }

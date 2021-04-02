@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
 /**
- * Abstract class representing an ecrypted segment.
+ * Abstract class representing a {@link DecryptableSegment}, which is
+ * encrypted / decrypted by using {@link javax.crypto.Cipher} instances.
  * @param   <DecryptedObjectType>
  *          The type of the decrypted version of the object.
  * @param   <EncryptionKey>
@@ -14,13 +15,13 @@ import java.io.Serializable;
  * @param   <DecryptionKey>
  *          The type of the key used to decrypt the encrypted segment.
  */
-abstract class EncryptedSegment<DecryptedObjectType extends Serializable, EncryptionKey, DecryptionKey>
+abstract class CipherEncryptedSegment<DecryptedObjectType extends Serializable, EncryptionKey, DecryptionKey>
         implements DecryptableSegment<DecryptedObjectType, DecryptionKey> {
 
     private final byte[] encryptedSegment;
 
     /**
-     * Constructor for the {@link EncryptedSegment} class.
+     * Constructor for the {@link CipherEncryptedSegment} class.
      * @param   originalObject
      *          The original object to encrypt.
      * @param   encryptionKey
@@ -28,7 +29,7 @@ abstract class EncryptedSegment<DecryptedObjectType extends Serializable, Encryp
      * @throws  IllegalArgumentException
      *          If an illegal key was provided.
      */
-    public EncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull EncryptionKey encryptionKey) throws IllegalArgumentException {
+    public CipherEncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull EncryptionKey encryptionKey) throws IllegalArgumentException {
         byte[] serializedOriginalObject = SerializationUtils.serialize(originalObject);
         encryptedSegment = encrypt(serializedOriginalObject, encryptionKey);
     }

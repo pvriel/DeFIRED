@@ -25,10 +25,10 @@ import java.util.logging.Logger;
 
 /**
  * Class representing an IBE {@link DecryptableSegment}.
- * @implNote    This class does not extend the {@link EncryptedSegment} class.
- *              The {@link EncryptedSegment} requires its subclasses to be able to encrypt / decrypt byte arrays,
+ * @implNote    This class does not extend the {@link CipherEncryptedSegment} class.
+ *              The {@link CipherEncryptedSegment} requires its subclasses to be able to encrypt / decrypt byte arrays,
  *              while the used library for the IBE encryption (CryptID) only supports Strings.
- *              Even though it's theoretically possible to allow this class to extend the {@link EncryptedSegment} class,
+ *              Even though it's theoretically possible to allow this class to extend the {@link CipherEncryptedSegment} class,
  *              this would require some additional (de-)serialization and thus would cause a performance hit.
  */
 public class IBEDecryptableSegment

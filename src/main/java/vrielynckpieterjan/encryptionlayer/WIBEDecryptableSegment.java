@@ -1,9 +1,6 @@
 package vrielynckpieterjan.encryptionlayer;
 
-import cryptid.ibe.IbeClient;
-import cryptid.ibe.PrivateKeyGenerator;
 import cryptid.ibe.domain.*;
-import cryptid.ibe.exception.ComponentConstructionException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
@@ -12,17 +9,16 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.applicationlayer.policy.RTreePolicy;
 
 import java.math.BigInteger;
-import java.util.Optional;
 
 import static vrielynckpieterjan.applicationlayer.policy.PolicyRight.READ;
 import static vrielynckpieterjan.applicationlayer.policy.PolicyRight.WRITE;
 
 /**
  * Class representing a WIBE {@link DecryptableSegment}.
- * @implNote    This class does not extend the {@link EncryptedSegment} class.
- *              The {@link EncryptedSegment} requires its subclasses to be able to encrypt / decrypt byte arrays,
+ * @implNote    This class does not extend the {@link CipherEncryptedSegment} class.
+ *              The {@link CipherEncryptedSegment} requires its subclasses to be able to encrypt / decrypt byte arrays,
  *              while the used library for the IBE encryption (CryptID) only supports Strings.
- *              Even though it's theoretically possible to allow this class to extend the {@link EncryptedSegment} class,
+ *              Even though it's theoretically possible to allow this class to extend the {@link CipherEncryptedSegment} class,
  *              this would require some additional (de-)serialization and thus would cause a performance hit.
  * @implNote    Due to the similarities between the two classes, the encryption / decryption parts of this
  *              class are implemented using the methods of the {@link IBEDecryptableSegment} class.

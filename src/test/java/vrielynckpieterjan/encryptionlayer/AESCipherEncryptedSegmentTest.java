@@ -3,13 +3,11 @@ package vrielynckpieterjan.encryptionlayer;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.Test;
 
-import javax.crypto.Cipher;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AESEncryptedSegmentTest {
+class AESCipherEncryptedSegmentTest {
 
     @Test
     void encrypt() throws NoSuchAlgorithmException {
@@ -19,7 +17,7 @@ class AESEncryptedSegmentTest {
                 "cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa " +
                 "qui officia deserunt mollit anim id est laborum.";
         String key = "magicalKey";
-        AESEncryptedSegment<String> aesEncryptedSegment = new AESEncryptedSegment<>(data, key);
+        AESCipherEncryptedSegment<String> aesEncryptedSegment = new AESCipherEncryptedSegment<>(data, key);
 
         System.out.println(new String(SerializationUtils.serialize(aesEncryptedSegment))); // Debug purposes; not actually part of the test.
 
