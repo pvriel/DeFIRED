@@ -1,7 +1,9 @@
-package vrielynckpieterjan.encryptionlayer;
+package vrielynckpieterjan.encryptionlayer.schemes;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
+import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -40,6 +42,18 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
         super(originalObject, publicKey);
     }
 
+    /**
+     * Constructor for the {@link RSACipherEncryptedSegment} class.
+     *
+     * @param originalObject The original object to encrypt.
+     * @param publicEntityIdentifier     The {@link PublicEntityIdentifier} to encrypt the original object with.
+     * @throws IllegalArgumentException If an illegal key was provided.
+     */
+    public RSACipherEncryptedSegment(@NotNull DecryptedObjectType originalObject,
+                                     @NotNull PublicEntityIdentifier publicEntityIdentifier) throws IllegalArgumentException {
+        super(originalObject, publicEntityIdentifier.getRSAIdentifier());
+    }
+
     @Override
     protected byte[] encrypt(byte[] serializedOriginalObject, @NotNull PublicKey publicKey) throws IllegalArgumentException {
         // Generate random String for the AES encryption.
@@ -55,6 +69,19 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
         byte[] decryptedAESKey = applyRSACipherMode(Cipher.DECRYPT_MODE, encryptedSegment, privateKey);
         String originalAESKey = new String(decryptedAESKey, StandardCharsets.UTF_8);
         return encapsulatedAESEncryptedSegment.decrypt(originalAESKey);
+    }
+
+    /**
+     * Method to decrypt the {@link RSACipherEncryptedSegment}.
+     * @param   privateEntityIdentifier
+     *          The {@link PrivateEntityIdentifier} to decrypt the {@link RSACipherEncryptedSegment} with.
+     * @return  The decrypted and deserialized {@link RSACipherEncryptedSegment}.
+     * @throws  IllegalArgumentException
+     *          If the provided key can't be used to decrypt the {@link RSACipherEncryptedSegment}.
+     */
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier)
+            throws IllegalArgumentException {
+        return this.decrypt(privateEntityIdentifier.getRSAIdentifier());
     }
 
     /**

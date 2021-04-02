@@ -1,4 +1,4 @@
-package vrielynckpieterjan.encryptionlayer;
+package vrielynckpieterjan.encryptionlayer.schemes;
 
 import cryptid.ellipticcurve.point.affine.generator.GenerationStrategyFactory;
 import cryptid.ellipticcurve.point.affine.generator.Mod3GenerationStrategy;
@@ -13,9 +13,12 @@ import cryptid.ibe.exception.ComponentConstructionException;
 import cryptid.ibe.exception.SetupException;
 import cryptid.ibe.util.SolinasPrimeFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
+import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -69,6 +72,22 @@ public class IBEDecryptableSegment
      */
     public IBEDecryptableSegment(@NotNull String originalObject, @NotNull Pair<PublicParameters, String> publicParametersStringPair) throws IllegalArgumentException {
         encryptedSegment = encrypt(originalObject, publicParametersStringPair);
+    }
+
+    /**
+     * Constructor for the {@link IBEDecryptableSegment} class.
+     * @param   originalObject
+     *          The original object to encrypt.
+     * @param   publicEntityIdentifier
+     *          A {@link PublicEntityIdentifier} to encrypt the original object with.
+     * @param   usedIBEIdentifier
+     *          The IBE identifier used to encrypt this specific object with.
+     * @throws  IllegalArgumentException
+     *          If an invalid IBE identifier or {@link PublicEntityIdentifier} was provided.
+     */
+    public IBEDecryptableSegment(@NotNull String originalObject, @NotNull PublicEntityIdentifier publicEntityIdentifier,
+                                 @NotNull String usedIBEIdentifier) throws IllegalArgumentException {
+        this(originalObject, new ImmutablePair<>(publicEntityIdentifier.getIBEIdentifier(), usedIBEIdentifier));
     }
 
     /**
@@ -131,5 +150,21 @@ public class IBEDecryptableSegment
         } catch (ComponentConstructionException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    /**
+     * Method to decrypt the {@link IBEDecryptableSegment}.
+     * @param   privateEntityIdentifier
+     *          The {@link PrivateEntityIdentifier} to decrypt the {@link IBEDecryptableSegment} with.
+     * @param   ibeIdentifier
+     *          The IBE identifier to decrypt the {@link IBEDecryptableSegment} with.
+     * @return  The decrypted and deserialized {@link IBEDecryptableSegment}.
+     * @throws  IllegalArgumentException
+     *          If the provided key or IBE identifier can't be used to decrypt the {@link IBEDecryptableSegment}.
+     */
+    public @NotNull String decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, String ibeIdentifier)
+        throws IllegalArgumentException {
+        return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
+                privateEntityIdentifier.getIBEIdentifier().getRight(), ibeIdentifier));
     }
 }

@@ -1,4 +1,4 @@
-package vrielynckpieterjan.encryptionlayer;
+package vrielynckpieterjan.encryptionlayer.schemes;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.jetbrains.annotations.NotNull;

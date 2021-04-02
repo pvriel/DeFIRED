@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-02T14:42:51" hostname="MacBook-Pro-van-Pieter-Jan.local" time="6.362">
+<testsuite name="vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-02T18:08:58" hostname="MacBook-Pro-van-Pieter-Jan.local" time="6.318">
   <properties/>
-  <testcase name="putAndRetrieve()" classname="vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayerTest" time="6.362"/>
+  <testcase name="putAndRetrieve()" classname="vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayerTest" time="6.318"/>
   <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[apr. 02, 2021 4:42:56 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer <init>
-INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@4f19d32f] Initialized using Kademlia ID (95975109333bbae792f9) on port 12049.
-apr. 02, 2021 4:42:57 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer <init>
-INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@f542523] Initialized using Kademlia ID (db7cb9631b8fe2040791) on port 12050.
-apr. 02, 2021 4:42:57 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer bootstrap
-INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@f542523] Bootstrap with Node (3935393735313039333333626261653739326639) completed.
-apr. 02, 2021 4:42:57 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer retrieve
+  <system-err><![CDATA[apr. 02, 2021 8:09:03 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer <init>
+INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@6c55b012] Initialized using Kademlia ID (95975109333bbae792f9) on port 12049.
+apr. 02, 2021 8:09:03 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer <init>
+INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@314e2243] Initialized using Kademlia ID (db7cb9631b8fe2040791) on port 12050.
+apr. 02, 2021 8:09:03 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer bootstrap
+INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@314e2243] Bootstrap with Node (3935393735313039333333626261653739326639) completed.
+apr. 02, 2021 8:09:03 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer retrieve
 WARNING: An Exception occurred while trying to retrieve stored element(s) from the DHT with identifier (ABCDEFGHIJKLMNIOPQRS) (reason: kademlia.exceptions.ContentNotFoundException: No Value was found for the given key.); an empty HashSet will be returned.
-apr. 02, 2021 4:42:57 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer put
-INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@f542523] 1 element(s) stored with identifier (ABCDEFGHIJKLMNIOPQRS).
+apr. 02, 2021 8:09:03 P.M. vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer put
+INFO: [vrielynckpieterjan.storagelayer.dht.KademliaDHTStorageLayer@314e2243] 1 element(s) stored with identifier (ABCDEFGHIJKLMNIOPQRS).
 ]]></system-err>
 </testsuite>

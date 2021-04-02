@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-04-02T18:09:08" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.916">
+  <properties/>
+  <testcase name="RSAIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.004"/>
+  <testcase name="WIBEIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.241"/>
+  <testcase name="IBEIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.236"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

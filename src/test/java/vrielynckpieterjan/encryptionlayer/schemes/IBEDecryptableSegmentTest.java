@@ -1,4 +1,4 @@
-package vrielynckpieterjan.encryptionlayer;
+package vrielynckpieterjan.encryptionlayer.schemes;
 
 import cryptid.ibe.domain.PublicParameters;
 import org.apache.commons.lang3.SerializationUtils;
@@ -6,6 +6,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
+import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;

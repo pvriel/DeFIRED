@@ -1,4 +1,4 @@
-package vrielynckpieterjan.encryptionlayer;
+package vrielynckpieterjan.encryptionlayer.schemes;
 
 import org.jetbrains.annotations.NotNull;
 

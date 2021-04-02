@@ -1,4 +1,4 @@
-package vrielynckpieterjan.encryptionlayer;
+package vrielynckpieterjan.encryptionlayer.schemes;
 
 import cryptid.ibe.domain.PublicParameters;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -7,6 +7,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import vrielynckpieterjan.applicationlayer.policy.PolicyRight;
 import vrielynckpieterjan.applicationlayer.policy.RTreePolicy;
+import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
+import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
 
 import java.math.BigInteger;
 
@@ -26,6 +28,11 @@ class WIBEDecryptableSegmentTest {
                 "cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa " +
                 "qui officia deserunt mollit anim id est laborum.";
         Pair<PublicParameters, BigInteger> pkg = IBEDecryptableSegment.generatePKG();
+
+        // User who knows policy WRITE://A/B/C/D, trying to decrypt a segment encrypted with WRITE://A/B/C/D: OK
+        WIBEDecryptableSegment originalWIBEEncryptedSegment = new WIBEDecryptableSegment(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyTwo));
+        String originalDecrypted = originalWIBEEncryptedSegment.decrypt(new ImmutableTriple<>(pkg.getLeft(), pkg.getRight(), rTreePolicyTwo));
+        assertEquals(data, originalDecrypted);
 
         // User who knows policy WRITE://A/B/C/D, trying to decrypt a segment encrypted with WRITE://A : OK
         WIBEDecryptableSegment wibeEncryptedSegment = new WIBEDecryptableSegment(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyOne));

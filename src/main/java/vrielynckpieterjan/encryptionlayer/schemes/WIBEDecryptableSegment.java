@@ -1,4 +1,4 @@
-package vrielynckpieterjan.encryptionlayer;
+package vrielynckpieterjan.encryptionlayer.schemes;
 
 import cryptid.ibe.domain.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -7,6 +7,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.applicationlayer.policy.RTreePolicy;
+import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
+import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 
 import java.math.BigInteger;
 
@@ -40,6 +42,20 @@ public class WIBEDecryptableSegment
         Pair<PublicParameters, String> ibeEncryptionParameters = new ImmutablePair<>(
                 publicParametersRTreePolicyPair.getLeft(), publicParametersRTreePolicyPair.getRight().toString());
         encryptedSegment = new IBEDecryptableSegment(originalObject, ibeEncryptionParameters);
+    }
+
+    /**
+     * Constructor for the {@link WIBEDecryptableSegment} class.
+     *
+     * @param originalObject             The original object to encrypt.
+     * @param publicEntityIdentifier The {@link PublicEntityIdentifier} to encrypt the original object with.
+     * @param   rTreePolicy
+     *          The {@link RTreePolicy} to encrypt the original object with.
+     * @throws IllegalArgumentException If an illegal key was provided.
+     */
+    public WIBEDecryptableSegment(@NotNull String originalObject, @NotNull PublicEntityIdentifier publicEntityIdentifier,
+                                  @NotNull RTreePolicy rTreePolicy) throws IllegalArgumentException {
+        this(originalObject, new ImmutablePair<>(publicEntityIdentifier.getWIBEIdentifier(), rTreePolicy));
     }
 
     @Override
@@ -83,5 +99,21 @@ public class WIBEDecryptableSegment
         }
 
         throw new IllegalArgumentException("WIBEEncryptedSegment could not be decrypted with the provided arguments.");
+    }
+
+    /**
+     * Method to decrypt the {@link WIBEDecryptableSegment}.
+     * @param   privateEntityIdentifier
+     *          The {@link PrivateEntityIdentifier} to decrypt the {@link WIBEDecryptableSegment} with.
+     * @param   rTreePolicy
+     *          The WIBE identifier to decrypt the {@link WIBEDecryptableSegment} with.
+     * @return  The decrypted and deserialized {@link WIBEDecryptableSegment}.
+     * @throws  IllegalArgumentException
+     *          If the provided key or WIBE identifier can't be used to decrypt the {@link WIBEDecryptableSegment}.
+     */
+    public @NotNull String decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, @NotNull RTreePolicy rTreePolicy)
+        throws IllegalArgumentException {
+        return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getWIBEIdentifier().getLeft(),
+                privateEntityIdentifier.getWIBEIdentifier().getRight(), rTreePolicy));
     }
 }
