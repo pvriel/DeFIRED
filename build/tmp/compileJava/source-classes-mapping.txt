@@ -1,8 +1,8 @@
 kademlia/util/serializer/JsonDHTSerializer.java
  kademlia.util.serializer.JsonDHTSerializer
  kademlia.util.serializer.JsonDHTSerializer$1
-vrielynckpieterjan/encryptionlayer/EncryptedSegment.java
- vrielynckpieterjan.encryptionlayer.EncryptedSegment
+vrielynckpieterjan/applicationlayer/policy/PolicyRight.java
+ vrielynckpieterjan.applicationlayer.policy.PolicyRight
 kademlia/message/KademliaMessageFactory.java
  kademlia.message.KademliaMessageFactory
 kademlia/dht/StorageEntryMetadata.java
@@ -156,8 +156,8 @@ kademlia/operation/BucketRefreshOperation.java
  kademlia.operation.BucketRefreshOperation$1
 kademlia/message/MessageFactory.java
  kademlia.message.MessageFactory
-vrielynckpieterjan/encryptionlayer/AESEncryptedSegment.java
- vrielynckpieterjan.encryptionlayer.AESEncryptedSegment
+vrielynckpieterjan/applicationlayer/policy/RTreePolicy.java
+ vrielynckpieterjan.applicationlayer.policy.RTreePolicy
 kademlia/operation/ConnectOperation.java
  kademlia.operation.ConnectOperation
 kademlia/simulations/SimpleMessageTest.java
@@ -172,13 +172,15 @@ kademlia/simulations/ContentSendingTest.java
  kademlia.simulations.ContentSendingTest
 kademlia/simulations/RoutingTableStateTesting.java
  kademlia.simulations.RoutingTableStateTesting
+vrielynckpieterjan/encryptionlayer/IBEDecryptableSegment.java
+ vrielynckpieterjan.encryptionlayer.IBEDecryptableSegment
+vrielynckpieterjan/encryptionlayer/WIBEDecryptableSegment.java
+ vrielynckpieterjan.encryptionlayer.WIBEDecryptableSegment
 vrielynckpieterjan/encryptionlayer/RSAEncryptedSegment.java
  vrielynckpieterjan.encryptionlayer.RSAEncryptedSegment
-vrielynckpieterjan/applicationlayer/policy/PolicyRight.java
- vrielynckpieterjan.applicationlayer.policy.PolicyRight
-vrielynckpieterjan/applicationlayer/policy/RTreePolicy.java
- vrielynckpieterjan.applicationlayer.policy.RTreePolicy
-vrielynckpieterjan/encryptionlayer/IBEEncryptedSegment.java
- vrielynckpieterjan.encryptionlayer.IBEEncryptedSegment
-vrielynckpieterjan/encryptionlayer/WIBEEncryptedSegment.java
- vrielynckpieterjan.encryptionlayer.WIBEEncryptedSegment
+vrielynckpieterjan/encryptionlayer/AESEncryptedSegment.java
+ vrielynckpieterjan.encryptionlayer.AESEncryptedSegment
+vrielynckpieterjan/encryptionlayer/EncryptedSegment.java
+ vrielynckpieterjan.encryptionlayer.EncryptedSegment
+vrielynckpieterjan/encryptionlayer/DecryptableSegment.java
+ vrielynckpieterjan.encryptionlayer.DecryptableSegment

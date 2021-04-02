@@ -12,7 +12,6 @@ import cryptid.ibe.domain.*;
 import cryptid.ibe.exception.ComponentConstructionException;
 import cryptid.ibe.exception.SetupException;
 import cryptid.ibe.util.SolinasPrimeFactory;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -25,15 +24,17 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
- * Class representing an IBE {@link EncryptedSegment}.
- * @implSpec    Unlike the other {@link EncryptedSegment} implementations,
- *              this class can only be used to encrypt Strings due to the limitations
- *              of the used IBE encryption library.
+ * Class representing an IBE {@link DecryptableSegment}.
+ * @implNote    This class does not extend the {@link EncryptedSegment} class.
+ *              The {@link EncryptedSegment} requires its subclasses to be able to encrypt / decrypt byte arrays,
+ *              while the used library for the IBE encryption (CryptID) only supports Strings.
+ *              Even though it's theoretically possible to allow this class to extend the {@link EncryptedSegment} class,
+ *              this would require some additional (de-)serialization and thus would cause a performance hit.
  */
-public class IBEEncryptedSegment
-        extends EncryptedSegment<String, Pair<PublicParameters, String>, Triple<PublicParameters, BigInteger, String>> {
+public class IBEDecryptableSegment
+        implements DecryptableSegment<String, Triple<PublicParameters, BigInteger, String>> {
 
-    private final static Logger logger = Logger.getLogger(IBEEncryptedSegment.class.getName());
+    private final static Logger logger = Logger.getLogger(IBEDecryptableSegment.class.getName());
     private static SecureRandom secureRandom;
     private static SolinasPrimeFactory solinasPrimeFactory;
     private static GenerationStrategyFactory<Mod3GenerationStrategy> generationStrategyFactory;
@@ -57,15 +58,17 @@ public class IBEEncryptedSegment
         }
     }
 
+    private final CipherTextTuple encryptedSegment;
+
     /**
-     * Constructor for the {@link IBEEncryptedSegment} class.
+     * Constructor for the {@link IBEDecryptableSegment} class.
      *
      * @param originalObject             The original object to encrypt.
      * @param publicParametersStringPair The key to encrypt the original object with.
      * @throws IllegalArgumentException If an illegal key was provided.
      */
-    public IBEEncryptedSegment(@NotNull String originalObject, @NotNull Pair<PublicParameters, String> publicParametersStringPair) throws IllegalArgumentException {
-        super(originalObject, publicParametersStringPair);
+    public IBEDecryptableSegment(@NotNull String originalObject, @NotNull Pair<PublicParameters, String> publicParametersStringPair) throws IllegalArgumentException {
+        encryptedSegment = encrypt(originalObject, publicParametersStringPair);
     }
 
     /**
@@ -86,28 +89,33 @@ public class IBEEncryptedSegment
         }
     }
 
-    @Override
-    protected byte[] encrypt(byte[] serializedOriginalObject,
+    /**
+     * Method to encrypt a String using the provided {@link PublicParameters} instance and identifier.
+     * @param   originalObject
+     *          The original object to encrypt.
+     * @param   publicParametersStringPair
+     *          A {@link Pair}, containing the necessary objects to encrypt the original object with.
+     * @return  The encrypted object as a {@link CipherTextTuple}.
+     * @throws  IllegalArgumentException
+     *          If the original object could not be encrypted using the provided arguments.
+     */
+    private CipherTextTuple encrypt(@NotNull String originalObject,
                              @NotNull Pair<PublicParameters, String> publicParametersStringPair)
             throws IllegalArgumentException {
-        // TODO: optimize this. serializedOriginalObject is already a serialized String.
-        String originalObject = SerializationUtils.deserialize(serializedOriginalObject);
-
         try {
             // Construct the necessary part of the PKG to encrypt the String.
             IbeClient ibeClient = componentFactory.obtainClient(publicParametersStringPair.getLeft());
             // Actual encryption part.
             CipherTextTuple cipherTextTuple = ibeClient.encrypt(originalObject, publicParametersStringPair.getRight());
-            return SerializationUtils.serialize(cipherTextTuple);
+            return cipherTextTuple;
         } catch (ComponentConstructionException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
     @Override
-    protected byte[] decrypt(byte[] encryptedSegment, @NotNull Triple<PublicParameters, BigInteger, String> publicParametersBigIntegerStringTriple) throws IllegalArgumentException {
-        CipherTextTuple cipherTextTuple = SerializationUtils.deserialize(encryptedSegment);
-
+    public @NotNull String decrypt(@NotNull Triple<PublicParameters, BigInteger, String> publicParametersBigIntegerStringTriple)
+            throws IllegalArgumentException {
         try {
             // Construct the necessary part of the PKG to decrypt the CipherTextTuple.
             IbeClient ibeClient = componentFactory.obtainClient(publicParametersBigIntegerStringTriple.getLeft());
@@ -115,12 +123,11 @@ public class IBEEncryptedSegment
                     publicParametersBigIntegerStringTriple.getLeft(), publicParametersBigIntegerStringTriple.getMiddle());
             // Actual decryption part.
             PrivateKey privateKey = privateKeyGenerator.extract(publicParametersBigIntegerStringTriple.getRight());
-            Optional<String> optionalDecryptedString = ibeClient.decrypt(privateKey, cipherTextTuple);
+            Optional<String> optionalDecryptedString = ibeClient.decrypt(privateKey, encryptedSegment);
 
             if (optionalDecryptedString.isEmpty())
                 throw new IllegalArgumentException("IBEEncryptedSegment could not be decrypted using the provided arguments.");
-            String decryptedString = optionalDecryptedString.get();
-            return SerializationUtils.serialize(decryptedString);
+            return optionalDecryptedString.get();
         } catch (ComponentConstructionException e) {
             throw new IllegalArgumentException(e);
         }

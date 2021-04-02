@@ -14,7 +14,8 @@ import java.io.Serializable;
  * @param   <DecryptionKey>
  *          The type of the key used to decrypt the encrypted segment.
  */
-abstract class EncryptedSegment<DecryptedObjectType extends Serializable, EncryptionKey, DecryptionKey> implements Serializable {
+abstract class EncryptedSegment<DecryptedObjectType extends Serializable, EncryptionKey, DecryptionKey>
+        implements DecryptableSegment<DecryptedObjectType, DecryptionKey> {
 
     private final byte[] encryptedSegment;
 
@@ -44,15 +45,8 @@ abstract class EncryptedSegment<DecryptedObjectType extends Serializable, Encryp
      */
     protected abstract byte[] encrypt(byte[] serializedOriginalObject, @NotNull EncryptionKey encryptionKey) throws IllegalArgumentException;
 
-    /**
-     * Method to decrypt the {@link EncryptedSegment}.
-     * @param   decryptionKey
-     *          The key to decrypt the {@link EncryptedSegment} with.
-     * @return  The decrypted and deserialized {@link EncryptedSegment}.
-     * @throws  IllegalArgumentException
-     *          If the provided key can't be used to decrypt the {@link EncryptedSegment}.
-     */
-    public DecryptedObjectType decrypt(@NotNull DecryptionKey decryptionKey) throws IllegalArgumentException {
+    @Override
+    public @NotNull DecryptedObjectType decrypt(@NotNull DecryptionKey decryptionKey) throws IllegalArgumentException {
         byte[] decryptedSegmentByteArray = decrypt(encryptedSegment, decryptionKey);
         return SerializationUtils.deserialize(decryptedSegmentByteArray);
     }

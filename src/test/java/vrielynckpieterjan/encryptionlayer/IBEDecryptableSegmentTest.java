@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class IBEEncryptedSegmentTest {
+class IBEDecryptableSegmentTest {
 
     @Test
     void encrypt() {
@@ -21,14 +21,14 @@ class IBEEncryptedSegmentTest {
                 "ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse " +
                 "cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa " +
                 "qui officia deserunt mollit anim id est laborum.";
-        Pair<PublicParameters, BigInteger> pkg = IBEEncryptedSegment.generatePKG();
+        Pair<PublicParameters, BigInteger> pkg = IBEDecryptableSegment.generatePKG();
         String identity = "WRITE://A/B";
-        IBEEncryptedSegment ibeEncryptedSegment = new IBEEncryptedSegment(data,
+        IBEDecryptableSegment ibeDecryptableSegment = new IBEDecryptableSegment(data,
                 new ImmutablePair<>(pkg.getLeft(), identity));
 
-        System.out.println(new String(SerializationUtils.serialize(ibeEncryptedSegment), StandardCharsets.UTF_8)); // Debug purposes.
+        System.out.println(new String(SerializationUtils.serialize(ibeDecryptableSegment), StandardCharsets.UTF_8)); // Debug purposes.
 
-        String decrypted = ibeEncryptedSegment.decrypt(new ImmutableTriple<>(pkg.getLeft(), pkg.getRight(), identity));
+        String decrypted = ibeDecryptableSegment.decrypt(new ImmutableTriple<>(pkg.getLeft(), pkg.getRight(), identity));
         assertEquals(data, decrypted);
     }
 }
