@@ -13,9 +13,9 @@ repositories {
 dependencies {
 
     implementation files("lib/cryptid-core-1.0.0-jar-with-dependencies.jar")
+    implementation files("lib/kademlia-1.0-SNAPSHOT-all.jar")
     implementation("com.google.guava:guava:30.1-jre")
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-    implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.jetbrains:annotations:20.1.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'

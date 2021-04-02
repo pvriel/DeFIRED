@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-02T18:09:08" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.041">
+<testsuite name="vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-02T18:19:04" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.042">
   <properties/>
-  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegmentTest" time="0.041"/>
+  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegmentTest" time="0.042"/>
   <system-out><![CDATA[��??sr?Dvrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment����^D/�???xr?Avrielynckpieterjan.encryptionlayer.schemes.CipherEncryptedSegment�e��]]>&#x7f;<![CDATA[�bF???[??encryptedSegmentt??[Bxpur??[B��?�??T�???xp???�K�r�?�G�?��?M���]]>&#x7f;<![CDATA[4v����^���-?R��i�?!��p�?��>z)�����?�j��a���Q[�>?�t�6	{]]>&#x7f;<![CDATA[U�P���o��+J<r��W=�?�^`d�h��ġ 3�3aJ�x�3RVB�l�����FT��??��<��x��V�>���N�o_k�����?�ԕ�?���-?5b?�=5�(1?%�g%UJ�L�X?O�n?�C�����}���l32Q�P `0E`1�GP}ݷݺ�N?]?n��?�?lM�&??���?8[�)?]�����?6�H�m�2�?[Eŭ?�0;r6$,�#�-7c??�,.\���?~���|�ن�~]��gW��hsFH|�?-� �#���^ӳ��(�̻3�@jG�\Ut�?Z.Έ�?^rRl-�1�&M�(�]]>&#x7f;<![CDATA[邉�?j�g�O?+�E��h�?�G[��g���9�ݺ??H=?,���CӪ�aּ�CN�2�-Q�?:ן�???@����k���c�?+E�J?�p0���R��9�?�S^
 ]]></system-out>
-  <system-err><![CDATA[apr. 02, 2021 8:09:08 P.M. vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment adjustKeyLength
-INFO: [vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment@2bf7ec45] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
-apr. 02, 2021 8:09:08 P.M. vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment adjustKeyLength
-INFO: [vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment@2bf7ec45] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
+  <system-err><![CDATA[apr. 02, 2021 8:19:04 P.M. vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment adjustKeyLength
+INFO: [vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment@e4e54d4] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
+apr. 02, 2021 8:19:04 P.M. vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment adjustKeyLength
+INFO: [vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment@e4e54d4] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
 ]]></system-err>
 </testsuite>
