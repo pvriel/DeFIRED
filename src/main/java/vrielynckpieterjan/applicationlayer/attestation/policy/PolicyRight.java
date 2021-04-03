@@ -1,4 +1,4 @@
-package vrielynckpieterjan.applicationlayer.policy;
+package vrielynckpieterjan.applicationlayer.attestation.policy;
 
 /**
  * Enumeration expressing the access right for an {@link RTreePolicy}.

@@ -1,5 +1,6 @@
 package vrielynckpieterjan.encryptionlayer.schemes;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.BadPaddingException;
@@ -103,5 +104,12 @@ public class AESCipherEncryptedSegment<DecryptedObjectType extends Serializable>
             originalKey = originalKey.repeat(amountOfRepetitionRequired);
             return originalKey.substring(0, 32);
         }
+    }
+
+    /**
+     * Method to return a random AES key of 32 bytes.
+     */
+    public static String generateAESKey() {
+        return RandomStringUtils.randomAlphanumeric(32);
     }
 }

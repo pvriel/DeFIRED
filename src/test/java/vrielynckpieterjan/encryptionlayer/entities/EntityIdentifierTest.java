@@ -2,8 +2,8 @@ package vrielynckpieterjan.encryptionlayer.entities;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
-import vrielynckpieterjan.applicationlayer.policy.PolicyRight;
-import vrielynckpieterjan.applicationlayer.policy.RTreePolicy;
+import vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight;
+import vrielynckpieterjan.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.encryptionlayer.schemes.RSACipherEncryptedSegment;
 import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
@@ -29,7 +29,7 @@ class EntityIdentifierTest {
     @Test
     void IBEIdentifierTest() {
         String usedIBEIdentifier = "WRITE://A/B/C";
-        IBEDecryptableSegment decryptableSegment = new IBEDecryptableSegment(data, entityIdentifierPair.getRight(), usedIBEIdentifier);
+        IBEDecryptableSegment<String> decryptableSegment = new IBEDecryptableSegment<>(data, entityIdentifierPair.getRight(), usedIBEIdentifier);
         String decrypted = decryptableSegment.decrypt(entityIdentifierPair.getLeft(), usedIBEIdentifier);
         assertEquals(data, decrypted);
     }
@@ -37,7 +37,7 @@ class EntityIdentifierTest {
     @Test
     void WIBEIdentifierTest() {
         RTreePolicy usedWIBEIdentifier = new RTreePolicy(PolicyRight.WRITE, "A", "B");
-        WIBEDecryptableSegment decryptableSegment = new WIBEDecryptableSegment(data, entityIdentifierPair.getRight(), usedWIBEIdentifier);
+        WIBEDecryptableSegment<String>  decryptableSegment = new WIBEDecryptableSegment<>(data, entityIdentifierPair.getRight(), usedWIBEIdentifier);
         String decrypted = decryptableSegment.decrypt(entityIdentifierPair.getLeft(), usedWIBEIdentifier);
         assertEquals(data, decrypted);
     }

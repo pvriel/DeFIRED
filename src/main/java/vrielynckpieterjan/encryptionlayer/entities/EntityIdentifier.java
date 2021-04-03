@@ -11,46 +11,61 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyPair;
+import java.util.Objects;
 
 /**
  * Abstract class representing a public / private entity identifier.
  * @param   <RSAEncryptionKeyType>
- *          The subtype of the {@link Key} used to represent the RSA part of the identifier.
+ *          The subtype of the {@link Key} used to represent the first RSA part of the identifier.
+ * @param   <RSADecryptionKeyType>
+ *          The subtype of the {@link Key} used to represent the second RSA part of the identifier.
  * @param   <IBEEncryptionKeyType>
  *          The type used to represent the IBE part of the identifier.
  * @param   <WIBEEncryptionKeyType>
  *          The type used to represent the WIBE part of the identifier.
  */
-public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, IBEEncryptionKeyType, WIBEEncryptionKeyType>
-        implements Serializable {
+public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecryptionKeyType extends Key,
+        IBEEncryptionKeyType, WIBEEncryptionKeyType> implements Serializable {
 
-    private final RSAEncryptionKeyType rsaIdentifier;
+    private final RSAEncryptionKeyType rsaIdentifierOne;
+    private final RSADecryptionKeyType rsaIdentifierTwo;
     private final IBEEncryptionKeyType ibeIdentifier;
     private final WIBEEncryptionKeyType wibeIdentifier;
 
     /**
      * Constructor for the {@link EntityIdentifier} class.
-     * @param   rsaIdentifier
-     *          The {@link Key} used to represent the RSA part of the identifier.
+     * @param   rsaEncryptionIdentifier
+     *          The {@link Key} used to represent the first RSA part of the identifier.
+     * @param   rsaDecryptionIdentifier
+     *          The {@link Key} used to represent the second RSA part of the identifier.
      * @param   ibeIdentifier
      *          The IBE part of the identifier.
      * @param   wibeIdentifier
      *          The WIBE part of the identifier.
      */
-    public EntityIdentifier(@NotNull RSAEncryptionKeyType rsaIdentifier, @NotNull IBEEncryptionKeyType ibeIdentifier,
+    public EntityIdentifier(@NotNull RSAEncryptionKeyType rsaEncryptionIdentifier,
+                            @NotNull RSADecryptionKeyType rsaDecryptionIdentifier,
+                            @NotNull IBEEncryptionKeyType ibeIdentifier,
                             @NotNull WIBEEncryptionKeyType wibeIdentifier) {
-        this.rsaIdentifier = rsaIdentifier;
+        this.rsaIdentifierOne = rsaEncryptionIdentifier;
+        this.rsaIdentifierTwo = rsaDecryptionIdentifier;
         this.ibeIdentifier = ibeIdentifier;
         this.wibeIdentifier = wibeIdentifier;
     }
 
     /**
-     * Getter for the {@link Key} used to represent the RSA part of the identifier.
+     * Getter for the {@link Key} used to represent the first RSA part of the identifier.
      * @return  The RSA {@link Key}.
      */
-    public RSAEncryptionKeyType getRSAIdentifier() {
-        return rsaIdentifier;
+    public RSAEncryptionKeyType getRSAEncryptionIdentifier() {
+        return rsaIdentifierOne;
     }
+
+    /**
+     * Getter for the {@link Key} used to represent the second RSA part of the identifier.
+     * @return  The RSA {@link Key}.
+     */
+    public RSADecryptionKeyType getRSADecryptionIdentifier() {return rsaIdentifierTwo;}
 
     /**
      * Getter for the IBE part of the identifier.
@@ -74,14 +89,29 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, IBEEncr
      * @return  The combination as a {@link Pair}.
      */
     public static Pair<PrivateEntityIdentifier, PublicEntityIdentifier> generateEntityIdentifierPair() {
-        KeyPair rsaKeyPair = RSACipherEncryptedSegment.generateKeyPair();
+        KeyPair rsaKeyPairOne = RSACipherEncryptedSegment.generateKeyPair();
+        KeyPair rsaKeyPairTwo = RSACipherEncryptedSegment.generateKeyPair();
         Pair<PublicParameters, BigInteger> ibePKG = IBEDecryptableSegment.generatePKG();
         Pair<PublicParameters, BigInteger> wibePKG = IBEDecryptableSegment.generatePKG();
 
         PrivateEntityIdentifier privateEntityIdentifier = new PrivateEntityIdentifier(
-                rsaKeyPair.getPrivate(), ibePKG, wibePKG);
+                rsaKeyPairOne.getPrivate(), rsaKeyPairTwo.getPublic(), ibePKG, wibePKG);
         PublicEntityIdentifier publicEntityIdentifier = new PublicEntityIdentifier(
-                rsaKeyPair.getPublic(), ibePKG.getLeft(), wibePKG.getLeft());
+                rsaKeyPairOne.getPublic(), rsaKeyPairTwo.getPrivate(), ibePKG.getLeft(), wibePKG.getLeft(), "");
         return new ImmutablePair<>(privateEntityIdentifier, publicEntityIdentifier);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EntityIdentifier that = (EntityIdentifier) o;
+        return rsaIdentifierOne.equals(that.rsaIdentifierOne) && rsaIdentifierTwo.equals(that.rsaIdentifierTwo) &&
+                ibeIdentifier.equals(that.ibeIdentifier) && wibeIdentifier.equals(that.wibeIdentifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rsaIdentifierOne, rsaIdentifierTwo, ibeIdentifier, wibeIdentifier);
     }
 }

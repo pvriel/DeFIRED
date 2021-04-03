@@ -1,9 +1,9 @@
-package vrielynckpieterjan.applicationlayer.policy;
+package vrielynckpieterjan.applicationlayer.attestation.policy;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static vrielynckpieterjan.applicationlayer.policy.PolicyRight.*;
+import static vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight.*;
 
 class RTreePolicyTest {
 
@@ -49,5 +49,12 @@ class RTreePolicyTest {
     void testToString() {
         RTreePolicy rTreePolicy = new RTreePolicy(WRITE, "cloud service provider", "user");
         assertEquals(String.format("%s://cloud service provider/user", WRITE.name()), rTreePolicy.toString());
+    }
+
+    @Test
+    void testFromString() {
+        String expressedRTreePolicy = String.format("%s://A/B/C", WRITE.name());
+        RTreePolicy encapsulatedPolicy = RTreePolicy.convertStringToRTreePolicy(expressedRTreePolicy);
+        assertEquals(expressedRTreePolicy, encapsulatedPolicy.toString());
     }
 }

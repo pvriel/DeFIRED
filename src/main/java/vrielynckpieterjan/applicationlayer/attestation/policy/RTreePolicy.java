@@ -1,4 +1,4 @@
-package vrielynckpieterjan.applicationlayer.policy;
+package vrielynckpieterjan.applicationlayer.attestation.policy;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 /**
  * Class expressing an RTree policy expression.
+ * TODO: express expiry dates.
  */
 public class RTreePolicy implements Serializable, Cloneable {
 
@@ -106,5 +107,27 @@ public class RTreePolicy implements Serializable, Cloneable {
             resultBuilder.append(String.format("%s/", namespaceDirectory));
         if (namespaceDirectoryExpression.length > 0) resultBuilder.deleteCharAt(resultBuilder.length() - 1);
         return resultBuilder.toString();
+    }
+
+    /**
+     * Method to convert a String, expressing an RTree policy, to an {@link RTreePolicy} instance.
+     * @param   expressedRTreePolicy
+     *          The expressed RTree policy.
+     * @return  An {@link RTreePolicy} instance.
+     * @throws  IllegalArgumentException
+     *          If the provided RTree policy does not express a valid RTree policy.
+     */
+    public static @NotNull RTreePolicy convertStringToRTreePolicy(@NotNull String expressedRTreePolicy) throws IllegalArgumentException {
+        PolicyRight policyRight = null;
+        for (PolicyRight consideredPolicyRight : PolicyRight.values()) {
+            if (expressedRTreePolicy.startsWith(consideredPolicyRight.name())) {
+                policyRight = consideredPolicyRight;
+                expressedRTreePolicy = expressedRTreePolicy.substring(policyRight.name().length() + "://".length());
+                break;
+            }
+        }
+        if (policyRight == null) throw new IllegalArgumentException("Given String does not start with a valid PolicyRight expression.");
+
+        return new RTreePolicy(policyRight, expressedRTreePolicy.split("/"));
     }
 }

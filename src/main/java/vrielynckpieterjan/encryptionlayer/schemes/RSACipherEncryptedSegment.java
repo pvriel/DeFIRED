@@ -12,6 +12,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -51,7 +52,19 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
      */
     public RSACipherEncryptedSegment(@NotNull DecryptedObjectType originalObject,
                                      @NotNull PublicEntityIdentifier publicEntityIdentifier) throws IllegalArgumentException {
-        super(originalObject, publicEntityIdentifier.getRSAIdentifier());
+        super(originalObject, publicEntityIdentifier.getRSAEncryptionIdentifier());
+    }
+
+    /**
+     * Constructor for the {@link RSACipherEncryptedSegment} class.
+     *
+     * @param originalObject The original object to encrypt.
+     * @param privateEntityIdentifier     The {@link PrivateEntityIdentifier} to encrypt the original object with.
+     * @throws IllegalArgumentException If an illegal key was provided.
+     */
+    public RSACipherEncryptedSegment(@NotNull DecryptedObjectType originalObject,
+                                     @NotNull PrivateEntityIdentifier privateEntityIdentifier) throws IllegalArgumentException {
+        super(originalObject, privateEntityIdentifier.getRSADecryptionIdentifier());
     }
 
     @Override
@@ -81,7 +94,20 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
      */
     public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier)
             throws IllegalArgumentException {
-        return this.decrypt(privateEntityIdentifier.getRSAIdentifier());
+        return this.decrypt(privateEntityIdentifier.getRSAEncryptionIdentifier());
+    }
+
+    /**
+     * Method to decrypt the {@link RSACipherEncryptedSegment}.
+     * @param   publicEntityIdentifier
+     *          The {@link PublicEntityIdentifier} to decrypt the {@link RSACipherEncryptedSegment} with.
+     * @return  The decrypted and deserialized {@link RSACipherEncryptedSegment}.
+     * @throws  IllegalArgumentException
+     *          If the provided key can't be used to decrypt the {@link RSACipherEncryptedSegment}.
+     */
+    public @NotNull DecryptedObjectType decrypt(@NotNull PublicEntityIdentifier publicEntityIdentifier)
+        throws IllegalArgumentException {
+        return this.decrypt(publicEntityIdentifier.getRSADecryptionIdentifier());
     }
 
     /**
@@ -127,5 +153,39 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
             System.exit(1);
             return null;
         }
+    }
+
+    /**
+     * Method to check if the provided {@link PrivateKey} and {@link PublicKey} instances are actually
+     * part of an RSA {@link KeyPair}.
+     * @param   privateKey
+     *          A possible RSA {@link PrivateKey}.
+     * @param   publicKey
+     *          A possible RSA {@link PrivateKey}.
+     * @return  True if the two provided {@link Key}s were originally part of an RSA {@link KeyPair}; false otherwise.
+     */
+    public static boolean keysPartOfKeypair(@NotNull PrivateKey privateKey, @NotNull PublicKey publicKey) {
+        try {
+            String randomString = RandomStringUtils.randomAlphanumeric(32);
+            RSACipherEncryptedSegment<String> encryptedRandomString = new RSACipherEncryptedSegment<>(randomString, publicKey);
+            String decrypted = encryptedRandomString.decrypt(privateKey);
+            return randomString.equals(decrypted);
+        } catch (IllegalArgumentException ignored) {
+            return false; // Invalid RSA PrivateKey or PublicKey.
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        RSACipherEncryptedSegment<?> that = (RSACipherEncryptedSegment<?>) o;
+        return encapsulatedAESEncryptedSegment.equals(that.encapsulatedAESEncryptedSegment);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), encapsulatedAESEncryptedSegment);
     }
 }

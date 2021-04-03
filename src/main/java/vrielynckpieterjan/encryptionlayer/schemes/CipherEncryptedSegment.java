@@ -4,6 +4,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Abstract class representing a {@link DecryptableSegment}, which is
@@ -64,4 +65,16 @@ abstract class CipherEncryptedSegment<DecryptedObjectType extends Serializable, 
      */
     protected abstract byte[] decrypt(byte[] encryptedSegment, @NotNull DecryptionKey decryptionKey) throws IllegalArgumentException;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CipherEncryptedSegment<?, ?, ?> that = (CipherEncryptedSegment<?, ?, ?>) o;
+        return Arrays.equals(encryptedSegment, that.encryptedSegment);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(encryptedSegment);
+    }
 }

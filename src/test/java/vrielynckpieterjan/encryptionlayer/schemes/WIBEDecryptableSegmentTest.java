@@ -5,10 +5,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
-import vrielynckpieterjan.applicationlayer.policy.PolicyRight;
-import vrielynckpieterjan.applicationlayer.policy.RTreePolicy;
-import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
-import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
+import vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight;
+import vrielynckpieterjan.applicationlayer.attestation.policy.RTreePolicy;
 
 import java.math.BigInteger;
 
@@ -30,33 +28,33 @@ class WIBEDecryptableSegmentTest {
         Pair<PublicParameters, BigInteger> pkg = IBEDecryptableSegment.generatePKG();
 
         // User who knows policy WRITE://A/B/C/D, trying to decrypt a segment encrypted with WRITE://A/B/C/D: OK
-        WIBEDecryptableSegment originalWIBEEncryptedSegment = new WIBEDecryptableSegment(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyTwo));
+        WIBEDecryptableSegment<String> originalWIBEEncryptedSegment = new WIBEDecryptableSegment<>(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyTwo));
         String originalDecrypted = originalWIBEEncryptedSegment.decrypt(new ImmutableTriple<>(pkg.getLeft(), pkg.getRight(), rTreePolicyTwo));
         assertEquals(data, originalDecrypted);
 
         // User who knows policy WRITE://A/B/C/D, trying to decrypt a segment encrypted with WRITE://A : OK
-        WIBEDecryptableSegment wibeEncryptedSegment = new WIBEDecryptableSegment(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyOne));
+        WIBEDecryptableSegment<String> wibeEncryptedSegment = new WIBEDecryptableSegment<>(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyOne));
         String decrypted = wibeEncryptedSegment.decrypt(new ImmutableTriple<>(pkg.getLeft(), pkg.getRight(), rTreePolicyTwo));
         assertEquals(data, decrypted);
         // Other direction: NOK
-        WIBEDecryptableSegment wibeEncryptedSegmentTwo = new WIBEDecryptableSegment(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyTwo));
+        WIBEDecryptableSegment<String> wibeEncryptedSegmentTwo = new WIBEDecryptableSegment<>(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyTwo));
         assertThrows(IllegalArgumentException.class, () -> wibeEncryptedSegmentTwo.decrypt(new ImmutableTriple<>(pkg.getLeft(),
                 pkg.getRight(), rTreePolicyOne)));
 
         // User who knows policy READ://A/B/C/D, trying to decrypt a segment encrypted with WRITE://A : OK
         rTreePolicyTwo = new RTreePolicy(PolicyRight.READ, namespaceParts);
-        wibeEncryptedSegment = new WIBEDecryptableSegment(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyOne));
+        wibeEncryptedSegment = new WIBEDecryptableSegment<>(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyOne));
         decrypted = wibeEncryptedSegment.decrypt(new ImmutableTriple<>(pkg.getLeft(), pkg.getRight(), rTreePolicyTwo));
         assertEquals(data, decrypted);
         // Other direction: NOK
-        WIBEDecryptableSegment wibeEncryptedSegmentThree = new WIBEDecryptableSegment(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyTwo));
+        WIBEDecryptableSegment<String> wibeEncryptedSegmentThree = new WIBEDecryptableSegment<>(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyTwo));
         assertThrows(IllegalArgumentException.class, () -> wibeEncryptedSegmentThree.decrypt(new ImmutableTriple<>(pkg.getLeft(),
                 pkg.getRight(), rTreePolicyOne)));
 
         // User who knows policy WRITE://C/D, trying to decrypt a segment encrypted with WRITE://A/B: NOK
         RTreePolicy rTreePolicyThree = new RTreePolicy(PolicyRight.WRITE, namespaceParts[0], namespaceParts[1]);
         RTreePolicy rTreePolicyFour = new RTreePolicy(PolicyRight.WRITE, namespaceParts[2], namespaceParts[3]);
-        WIBEDecryptableSegment wibeEncryptedSegmentFour = new WIBEDecryptableSegment(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyThree));
+        WIBEDecryptableSegment<String> wibeEncryptedSegmentFour = new WIBEDecryptableSegment<>(data, new ImmutablePair<>(pkg.getLeft(), rTreePolicyThree));
         assertThrows(IllegalArgumentException.class, () -> wibeEncryptedSegmentFour.decrypt(new ImmutableTriple<>(pkg.getLeft(),
                 pkg.getRight(), rTreePolicyFour)));
     }

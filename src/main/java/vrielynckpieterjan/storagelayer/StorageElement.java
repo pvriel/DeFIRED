@@ -10,13 +10,22 @@ import java.io.Serializable;
  */
 public abstract class StorageElement implements Serializable {
 
-    private final String identifier;
+    private final StorageElementIdentifier identifier;
 
-    public StorageElement(@NotNull String identifier) {
+    /**
+     * Constructor for the {@link StorageElement} class.
+     * @param   identifier
+     *          The {@link StorageElementIdentifier} for this {@link StorageElement}.
+     */
+    public StorageElement(@NotNull StorageElementIdentifier identifier) {
         this.identifier = identifier;
     }
 
-    public String getStorageLayerIdentifier() {
+    /**
+     * Getter for the {@link StorageElementIdentifier}.
+     * @return  The {@link StorageElementIdentifier}.
+     */
+    public StorageElementIdentifier getStorageLayerIdentifier() {
         return identifier;
     }
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="vrielynckpieterjan.applicationlayer.attestation.issuer.IssuerPartAttestationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-03T15:45:02" hostname="MBPvanPieterJan" time="0.54">
+  <properties/>
+  <testcase name="hasValidSignature()" classname="vrielynckpieterjan.applicationlayer.attestation.issuer.IssuerPartAttestationTest" time="0.54"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

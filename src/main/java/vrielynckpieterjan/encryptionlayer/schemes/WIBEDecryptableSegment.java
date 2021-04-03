@@ -6,17 +6,21 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.applicationlayer.policy.RTreePolicy;
+import vrielynckpieterjan.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 
+import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.Objects;
 
-import static vrielynckpieterjan.applicationlayer.policy.PolicyRight.READ;
-import static vrielynckpieterjan.applicationlayer.policy.PolicyRight.WRITE;
+import static vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight.READ;
+import static vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight.WRITE;
 
 /**
  * Class representing a WIBE {@link DecryptableSegment}.
+ * @param       <DecryptedObjectType>
+ *              The type of the decrypted version of the {@link IBEDecryptableSegment}.
  * @implNote    This class does not extend the {@link CipherEncryptedSegment} class.
  *              The {@link CipherEncryptedSegment} requires its subclasses to be able to encrypt / decrypt byte arrays,
  *              while the used library for the IBE encryption (CryptID) only supports Strings.
@@ -25,10 +29,10 @@ import static vrielynckpieterjan.applicationlayer.policy.PolicyRight.WRITE;
  * @implNote    Due to the similarities between the two classes, the encryption / decryption parts of this
  *              class are implemented using the methods of the {@link IBEDecryptableSegment} class.
  */
-public class WIBEDecryptableSegment
-        implements DecryptableSegment<String, Triple<PublicParameters, BigInteger, RTreePolicy>> {
+public class WIBEDecryptableSegment<DecryptedObjectType extends Serializable>
+        implements DecryptableSegment<DecryptedObjectType, Triple<PublicParameters, BigInteger, RTreePolicy>> {
 
-    private final IBEDecryptableSegment encryptedSegment;
+    private final IBEDecryptableSegment<DecryptedObjectType> encryptedSegment;
 
     /**
      * Constructor for the {@link WIBEDecryptableSegment} class.
@@ -37,11 +41,11 @@ public class WIBEDecryptableSegment
      * @param publicParametersRTreePolicyPair The key to encrypt the original object with.
      * @throws IllegalArgumentException If an illegal key was provided.
      */
-    public WIBEDecryptableSegment(@NotNull String originalObject, @NotNull Pair<PublicParameters, RTreePolicy> publicParametersRTreePolicyPair)
+    public WIBEDecryptableSegment(@NotNull DecryptedObjectType originalObject, @NotNull Pair<PublicParameters, RTreePolicy> publicParametersRTreePolicyPair)
             throws IllegalArgumentException {
         Pair<PublicParameters, String> ibeEncryptionParameters = new ImmutablePair<>(
                 publicParametersRTreePolicyPair.getLeft(), publicParametersRTreePolicyPair.getRight().toString());
-        encryptedSegment = new IBEDecryptableSegment(originalObject, ibeEncryptionParameters);
+        encryptedSegment = new IBEDecryptableSegment<>(originalObject, ibeEncryptionParameters);
     }
 
     /**
@@ -53,7 +57,7 @@ public class WIBEDecryptableSegment
      *          The {@link RTreePolicy} to encrypt the original object with.
      * @throws IllegalArgumentException If an illegal key was provided.
      */
-    public WIBEDecryptableSegment(@NotNull String originalObject, @NotNull PublicEntityIdentifier publicEntityIdentifier,
+    public WIBEDecryptableSegment(@NotNull DecryptedObjectType originalObject, @NotNull PublicEntityIdentifier publicEntityIdentifier,
                                   @NotNull RTreePolicy rTreePolicy) throws IllegalArgumentException {
         this(originalObject, new ImmutablePair<>(publicEntityIdentifier.getWIBEIdentifier(), rTreePolicy));
     }
@@ -62,7 +66,7 @@ public class WIBEDecryptableSegment
     /**
      * @implNote    The provided {@link RTreePolicy} remains unchanged during the invocation of this method.
      */
-    public @NotNull String decrypt(@NotNull Triple<PublicParameters, BigInteger, RTreePolicy> publicParametersBigIntegerRTreePolicyTriple)
+    public @NotNull DecryptedObjectType decrypt(@NotNull Triple<PublicParameters, BigInteger, RTreePolicy> publicParametersBigIntegerRTreePolicyTriple)
             throws IllegalArgumentException {
         // Try to decrypt the encryptedSegment using every possible variant of the provided RTree policy.
         RTreePolicy currentRTreePolicy = publicParametersBigIntegerRTreePolicyTriple.getRight().clone();
@@ -111,9 +115,22 @@ public class WIBEDecryptableSegment
      * @throws  IllegalArgumentException
      *          If the provided key or WIBE identifier can't be used to decrypt the {@link WIBEDecryptableSegment}.
      */
-    public @NotNull String decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, @NotNull RTreePolicy rTreePolicy)
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, @NotNull RTreePolicy rTreePolicy)
         throws IllegalArgumentException {
         return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getWIBEIdentifier().getLeft(),
                 privateEntityIdentifier.getWIBEIdentifier().getRight(), rTreePolicy));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WIBEDecryptableSegment<?> that = (WIBEDecryptableSegment<?>) o;
+        return encryptedSegment.equals(that.encryptedSegment);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(encryptedSegment);
     }
 }

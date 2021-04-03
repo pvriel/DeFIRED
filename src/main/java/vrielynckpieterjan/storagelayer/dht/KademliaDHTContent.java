@@ -40,7 +40,7 @@ public class KademliaDHTContent implements KadContent, Serializable {
         if (storageElements.size() == 0) return null;
         Iterator<StorageElement> iterator = storageElements.iterator();
         StorageElement firstElement = iterator.next();
-        String identifier = firstElement.getStorageLayerIdentifier();
+        String identifier = firstElement.getStorageLayerIdentifier().getIdentifier();
         identifier = identifier.substring(0, 20); // Kademlia DHT library limitation.
         return new KademliaId(identifier);
     }

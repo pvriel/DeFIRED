@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @param   <DecryptionKey>
  *          The type of the key required to perform the decryption process.
  */
-public interface DecryptableSegment<DecryptedObjectType, DecryptionKey> extends Serializable {
+public interface DecryptableSegment<DecryptedObjectType extends Serializable, DecryptionKey> extends Serializable {
 
     /**
      * Method to decrypt the {@link DecryptableSegment}.

@@ -20,22 +20,27 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 
+import java.io.*;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
  * Class representing an IBE {@link DecryptableSegment}.
+ * @param       <DecryptedObjectType>
+ *              The type of the decrypted version of the {@link IBEDecryptableSegment}.
  * @implNote    This class does not extend the {@link CipherEncryptedSegment} class.
  *              The {@link CipherEncryptedSegment} requires its subclasses to be able to encrypt / decrypt byte arrays,
  *              while the used library for the IBE encryption (CryptID) only supports Strings.
  *              Even though it's theoretically possible to allow this class to extend the {@link CipherEncryptedSegment} class,
  *              this would require some additional (de-)serialization and thus would cause a performance hit.
  */
-public class IBEDecryptableSegment
-        implements DecryptableSegment<String, Triple<PublicParameters, BigInteger, String>> {
+public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
+        implements DecryptableSegment<DecryptedObjectType, Triple<PublicParameters, BigInteger, String>> {
 
     private final static Logger logger = Logger.getLogger(IBEDecryptableSegment.class.getName());
     private static SecureRandom secureRandom;
@@ -70,8 +75,22 @@ public class IBEDecryptableSegment
      * @param publicParametersStringPair The key to encrypt the original object with.
      * @throws IllegalArgumentException If an illegal key was provided.
      */
-    public IBEDecryptableSegment(@NotNull String originalObject, @NotNull Pair<PublicParameters, String> publicParametersStringPair) throws IllegalArgumentException {
-        encryptedSegment = encrypt(originalObject, publicParametersStringPair);
+    public IBEDecryptableSegment(@NotNull DecryptedObjectType originalObject, @NotNull Pair<PublicParameters, String> publicParametersStringPair)
+            throws IllegalArgumentException {
+        // Convert Serializable object to string.
+        String originalObjectAsString;
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(originalObject);
+            objectOutputStream.close();
+            originalObjectAsString = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e); // Not entirely correct, but anyways...
+        }
+
+        // Actual encryption part.
+        encryptedSegment = encrypt(originalObjectAsString, publicParametersStringPair);
     }
 
     /**
@@ -85,7 +104,7 @@ public class IBEDecryptableSegment
      * @throws  IllegalArgumentException
      *          If an invalid IBE identifier or {@link PublicEntityIdentifier} was provided.
      */
-    public IBEDecryptableSegment(@NotNull String originalObject, @NotNull PublicEntityIdentifier publicEntityIdentifier,
+    public IBEDecryptableSegment(@NotNull DecryptedObjectType originalObject, @NotNull PublicEntityIdentifier publicEntityIdentifier,
                                  @NotNull String usedIBEIdentifier) throws IllegalArgumentException {
         this(originalObject, new ImmutablePair<>(publicEntityIdentifier.getIBEIdentifier(), usedIBEIdentifier));
     }
@@ -133,8 +152,10 @@ public class IBEDecryptableSegment
     }
 
     @Override
-    public @NotNull String decrypt(@NotNull Triple<PublicParameters, BigInteger, String> publicParametersBigIntegerStringTriple)
+    public @NotNull DecryptedObjectType decrypt(@NotNull Triple<PublicParameters, BigInteger, String> publicParametersBigIntegerStringTriple)
             throws IllegalArgumentException {
+        // Decryption part.
+        String decryptedObjectAsString;
         try {
             // Construct the necessary part of the PKG to decrypt the CipherTextTuple.
             IbeClient ibeClient = componentFactory.obtainClient(publicParametersBigIntegerStringTriple.getLeft());
@@ -146,9 +167,20 @@ public class IBEDecryptableSegment
 
             if (optionalDecryptedString.isEmpty())
                 throw new IllegalArgumentException("IBEEncryptedSegment could not be decrypted using the provided arguments.");
-            return optionalDecryptedString.get();
+            decryptedObjectAsString =  optionalDecryptedString.get();
         } catch (ComponentConstructionException e) {
             throw new IllegalArgumentException(e);
+        }
+
+        // Convert String to original object type.
+        try {
+            byte[] data = Base64.getDecoder().decode(decryptedObjectAsString);
+            ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(data));
+            DecryptedObjectType decryptedObject = (DecryptedObjectType) objectInputStream.readObject();
+            objectInputStream.close();
+            return decryptedObject;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e); // Not entirely correct, but anyways...
         }
     }
 
@@ -162,9 +194,22 @@ public class IBEDecryptableSegment
      * @throws  IllegalArgumentException
      *          If the provided key or IBE identifier can't be used to decrypt the {@link IBEDecryptableSegment}.
      */
-    public @NotNull String decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, String ibeIdentifier)
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, String ibeIdentifier)
         throws IllegalArgumentException {
         return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
                 privateEntityIdentifier.getIBEIdentifier().getRight(), ibeIdentifier));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IBEDecryptableSegment<?> that = (IBEDecryptableSegment<?>) o;
+        return encryptedSegment.equals(that.encryptedSegment);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(encryptedSegment);
     }
 }

@@ -1,7 +1,6 @@
 package vrielynckpieterjan.storagelayer;
 
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.applicationlayer.NamespaceAttestation;
 
 import java.io.IOException;
 import java.util.Set;
@@ -39,5 +38,5 @@ public interface StorageLayer<BootstrapObject> {
      *          The identifier.
      * @return  The {@link StorageElement}s.
      */
-    Set<StorageElement> retrieve(@NotNull String identifier);
+    Set<StorageElement> retrieve(@NotNull StorageElementIdentifier identifier);
 }

@@ -2,6 +2,8 @@ package vrielynckpieterjan.encryptionlayer.schemes;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.Test;
+import vrielynckpieterjan.encryptionlayer.entities.EntityIdentifier;
+import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.schemes.RSACipherEncryptedSegment;
 
 import java.security.KeyPair;
@@ -22,8 +24,20 @@ class RSACipherEncryptedSegmentTest {
 
         System.out.println(new String(SerializationUtils.serialize(rsaEncryptedSegment))); // Debug purposes; not actually part of the test.
 
-        // TODO: does this also work for non-String objects?
         String decryptedSegment = rsaEncryptedSegment.decrypt(keyPair.getPrivate());
         assertEquals(data, decryptedSegment);
+    }
+
+    @Test
+    void nonStringEncrypt() {
+        PublicEntityIdentifier publicEntityIdentifier = EntityIdentifier.generateEntityIdentifierPair().getRight();
+        KeyPair keyPair = RSACipherEncryptedSegment.generateKeyPair();
+        RSACipherEncryptedSegment<PublicEntityIdentifier> rsaCipherEncryptedSegment = new RSACipherEncryptedSegment<>(
+                publicEntityIdentifier, keyPair.getPublic());
+
+        System.out.println(new String(SerializationUtils.serialize(rsaCipherEncryptedSegment)));
+
+        PublicEntityIdentifier decryptedSegment = rsaCipherEncryptedSegment.decrypt(keyPair.getPrivate());
+        assertEquals(decryptedSegment, publicEntityIdentifier);
     }
 }
