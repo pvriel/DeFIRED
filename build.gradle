@@ -11,9 +11,8 @@ repositories {
 }
 
 dependencies {
-
+    implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
     implementation files("lib/cryptid-core-1.0.0-jar-with-dependencies.jar")
-    implementation files("lib/kademlia-1.0-SNAPSHOT-all.jar")
     implementation("com.google.guava:guava:30.1-jre")
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     implementation 'org.jetbrains:annotations:20.1.0'

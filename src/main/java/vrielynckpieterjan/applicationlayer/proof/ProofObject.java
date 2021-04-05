@@ -294,7 +294,8 @@ public class ProofObject implements Serializable {
             @NotNull PrivateEntityIdentifier privateEntityIdentifierProver,
             @NotNull StorageLayer storageLayer)
         throws IllegalArgumentException, IOException {
-            logger.info(String.format("Generating a ProofObject for RTreePolicy (%s)...", policy));
+            logger.info(String.format("Generating a ProofObject for RTreePolicy (%s) by " +
+                    "consulting the personal queue of the entity with PublicEntityIdentifier (%s)...", policy, publicEntityIdentifierReceiver));
 
             var currentStorageElementIdentifier = new StorageElementIdentifier(namespaceAttestationIdentifierReceiver);
             int curIndexInPersonalQueue = 0;

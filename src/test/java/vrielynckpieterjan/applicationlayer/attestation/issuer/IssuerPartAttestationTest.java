@@ -26,7 +26,6 @@ class IssuerPartAttestationTest {
 
     @Test
     void hasValidSignature() {
-        // TODO: write a test which checks (on a basic level) how IssuerPartAttestations with invalid signatures react.
         assertTrue(issuerPartAttestation.hasValidSignature(receiverIdentifiers.getLeft(), issuerIdentifiers.getRight()));
 
         /*

@@ -9,7 +9,6 @@ import java.util.Objects;
 
 /**
  * Class expressing an RTree policy expression.
- * TODO: express expiry dates.
  */
 public class RTreePolicy implements Serializable, Cloneable {
 

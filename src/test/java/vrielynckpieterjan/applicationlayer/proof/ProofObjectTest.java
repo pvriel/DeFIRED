@@ -31,7 +31,6 @@ class ProofObjectTest {
      *          --(attestation)--> user B --(attestation)--> user C at publishes the constructed objects in the
      *          {@link vrielynckpieterjan.storagelayer.StorageLayer}.
      * 2)   Asks user C to construct a proof object for the chain of attestations.
-     *      TODO: this is simplified at the moment; fix this.
      * 3)   Verifies the proof object.
      * 4)   Checks if the proof object can still be verified if one of the attestations is revoked.
      */
@@ -152,7 +151,7 @@ class ProofObjectTest {
 
         //System.out.println(TestStorageLayer.storedElements.keySet());
 
-        // 9) Generate the proof object.
+        // 9) Generate the proof object manually.
         counter = System.currentTimeMillis();
         Attestation[] attestationsForProofObject = new Attestation[]{namespaceAttestationA, shareAttestation, delegateAttestation,
             namespaceAttestationC};
@@ -179,26 +178,31 @@ class ProofObjectTest {
                 firstAESKeysForProofObject[3]);
         System.out.println(String.format("Proof object manually generated (time needed: %s milliseconds).",
                 System.currentTimeMillis() - counter));
-        System.out.println(proof);
 
+
+        // 10) Generate the proof automatically.
+        counter = System.currentTimeMillis();
         RTreePolicy policyToProve = new RTreePolicy(PolicyRight.READ, "A", "B", "C");
-        System.out.println(ProofObject.generateProofObjectForPolicy(policyToProve,
-                userC.getRight(), userC.getLeft(), testStorageLayerUserC));
+        var automaticallyConstructedProof = ProofObject.generateProofObjectForPolicy(policyToProve,
+                userC.getRight(), userC.getLeft(), testStorageLayerUserC);
+        System.out.println(String.format("Proof object automatically generated (time needed: %s milliseconds).",
+                System.currentTimeMillis() - counter));
+        assertEquals(proof, automaticallyConstructedProof);
 
-        // 10) Verify the proof object.
+        // 11) Verify the proof object.
         counter = System.currentTimeMillis();
         var provenPolicy = proof.verify(testStorageLayerUserA);
         System.out.println(String.format("Proof object verified (time needed: %s milliseconds).",
                 System.currentTimeMillis() - counter));
         assertEquals(policyToProve, provenPolicy);
 
-        // 11) Revoke the share Attestation.
+        // 12) Revoke the share Attestation.
         counter = System.currentTimeMillis();
         userAShareAttestationRevocationSecret.revealInStorageLayer(testStorageLayerUserA);
         System.out.println(String.format("One revocation secret revealed (time needed: %s milliseconds).",
                 System.currentTimeMillis() - counter));
 
-        // 12) Check if the proof object can still be verified.
+        // 13) Check if the proof object can still be verified.
         counter = System.currentTimeMillis();
         assertThrows(IllegalArgumentException.class, () -> proof.verify(testStorageLayerUserA));
         System.out.println(String.format("Invalid proof object successfully detected (time needed: %s milliseconds).",

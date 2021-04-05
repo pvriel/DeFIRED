@@ -36,7 +36,6 @@ class AttestationTest {
 
     @Test
     void isValid() {
-        // TODO: write an additional check which uses invalid Attestations.
         assertTrue(attestation.isValid(receiverIdentifiers.getLeft(), receiverIdentifiers.getRight(), issuerIdentifiers.getRight()));
 
         /*
