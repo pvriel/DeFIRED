@@ -25,7 +25,6 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
      * @param privateEntityIdentifierIssuer                The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
      * @param publicEntityIdentifierIssuer                 The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
      * @param publicEntityIdentifierReceiver               The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
-     * @param ibeIdentifierAESEncryptionInformationSegment The IBE identifier used to encrypt the AES encryption information segment.
      * @param revocationCommitment                         The {@link RevocationCommitment} of the issuer for the attestation.
      * @param rTreePolicy                                  The {@link RTreePolicy} for this attestation.
      * @param empiricalRSAKeyPair                           The empirical RSA {@link KeyPair} for this attestation.
@@ -35,13 +34,12 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
     public IssuerPartNamespaceAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,
                                           @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
                                           @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
-                                          @NotNull String ibeIdentifierAESEncryptionInformationSegment,
                                           @NotNull RevocationCommitment revocationCommitment,
                                           @NotNull RTreePolicy rTreePolicy,
                                           @NotNull KeyPair empiricalRSAKeyPair,
                                           @NotNull InetSocketAddress referenceAPILayer) throws IllegalArgumentException {
         super(privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, publicEntityIdentifierReceiver,
-                ibeIdentifierAESEncryptionInformationSegment, revocationCommitment, rTreePolicy, empiricalRSAKeyPair);
+                revocationCommitment, rTreePolicy, empiricalRSAKeyPair);
         this.referenceAPILayer = referenceAPILayer;
         updateSignature(empiricalRSAKeyPair.getPublic());
     }
@@ -52,7 +50,6 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
      * @param privateEntityIdentifierIssuer                The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
      * @param publicEntityIdentifierIssuer                 The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
      * @param publicEntityIdentifierReceiver               The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
-     * @param ibeIdentifierAESEncryptionInformationSegment The IBE identifier used to encrypt the AES encryption information segment.
      * @param revocationCommitment                         The {@link RevocationCommitment} of the issuer for the attestation.
      * @param rTreePolicy                                  The {@link RTreePolicy} for this attestation.
      * @param referenceAPILayer                             The reference to the API layer for this attestation.
@@ -61,12 +58,10 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
     public IssuerPartNamespaceAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,
                                           @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
                                           @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
-                                          @NotNull String ibeIdentifierAESEncryptionInformationSegment,
                                           @NotNull RevocationCommitment revocationCommitment,
                                           @NotNull RTreePolicy rTreePolicy,
                                           @NotNull InetSocketAddress referenceAPILayer) throws IllegalArgumentException {
-        this(privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, publicEntityIdentifierReceiver,
-                ibeIdentifierAESEncryptionInformationSegment, revocationCommitment, rTreePolicy,
+        this(privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, publicEntityIdentifierReceiver, revocationCommitment, rTreePolicy,
                 RSACipherEncryptedSegment.generateKeyPair(), referenceAPILayer);
     }
 

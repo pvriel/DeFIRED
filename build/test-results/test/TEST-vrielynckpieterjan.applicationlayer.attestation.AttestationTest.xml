@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.applicationlayer.attestation.AttestationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-03T15:45:00" hostname="MBPvanPieterJan" time="0.576">
+<testsuite name="vrielynckpieterjan.applicationlayer.attestation.AttestationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-05T14:57:12" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.542">
   <properties/>
-  <testcase name="isValid()" classname="vrielynckpieterjan.applicationlayer.attestation.AttestationTest" time="0.576"/>
+  <testcase name="isValid()" classname="vrielynckpieterjan.applicationlayer.attestation.AttestationTest" time="0.542"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -17,16 +17,15 @@ public class PrivateEntityIdentifier
 
 
     /**
-     * Constructor for the {@link EntityIdentifier} class.
+     * Constructor for the {@link PrivateEntityIdentifier} class.
      *
-     * @param rsaEncryptionIdentifier The {@link Key} used to represent the first RSA part of the identifier.
-     * @param rsaDecryptionIdentifier The {@link Key} used to represent the second RSA part of the identifier.
-     * @param ibeIdentifier           The IBE part of the identifier.
-     * @param wibeIdentifier            The WIBE part of the identifier.
+     * @param rsaEncryptionIdentifier                               The {@link Key} used to represent the first RSA part of the identifier.
+     * @param rsaDecryptionIdentifier                               The {@link Key} used to represent the second RSA part of the identifier.
+     * @param ibeIdentifier                                         The IBE part of the identifier.
+     * @param wibeIdentifier                                        The WIBE part of the identifier.
+     * @param namespaceServiceProviderEmailAddressUserConcatenation
      */
-    public PrivateEntityIdentifier(@NotNull PrivateKey rsaEncryptionIdentifier, @NotNull PublicKey rsaDecryptionIdentifier,
-                                   @NotNull Pair<PublicParameters, BigInteger> ibeIdentifier, @NotNull Pair<PublicParameters,
-            BigInteger> wibeIdentifier) {
-        super(rsaEncryptionIdentifier, rsaDecryptionIdentifier, ibeIdentifier, wibeIdentifier);
+    public PrivateEntityIdentifier(@NotNull PrivateKey rsaEncryptionIdentifier, @NotNull PublicKey rsaDecryptionIdentifier, @NotNull Pair<PublicParameters, BigInteger> ibeIdentifier, @NotNull Pair<PublicParameters, BigInteger> wibeIdentifier, @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
+        super(rsaEncryptionIdentifier, rsaDecryptionIdentifier, ibeIdentifier, wibeIdentifier, namespaceServiceProviderEmailAddressUserConcatenation);
     }
 }

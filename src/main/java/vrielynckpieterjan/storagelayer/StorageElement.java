@@ -3,6 +3,7 @@ package vrielynckpieterjan.storagelayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Abstract class representing an element which can be stored within the storage layer of the decentralized

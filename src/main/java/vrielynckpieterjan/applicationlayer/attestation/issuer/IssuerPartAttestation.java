@@ -41,8 +41,6 @@ public class IssuerPartAttestation implements Serializable {
      *          The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
      * @param   publicEntityIdentifierReceiver
      *          The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
-     * @param   ibeIdentifierAESEncryptionInformationSegment
-     *          The IBE identifier used to encrypt the AES encryption information segment.
      * @param   revocationCommitment
      *          The {@link RevocationCommitment} of the issuer for the attestation.
      * @param   rTreePolicy
@@ -55,7 +53,6 @@ public class IssuerPartAttestation implements Serializable {
     public IssuerPartAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,
                                  @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
                                  @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
-                                 @NotNull String ibeIdentifierAESEncryptionInformationSegment,
                                  @NotNull RevocationCommitment revocationCommitment,
                                  @NotNull RTreePolicy rTreePolicy,
                                  @NotNull KeyPair empiricalRSAKeyPair)
@@ -78,7 +75,8 @@ public class IssuerPartAttestation implements Serializable {
 
         // Generate the AES encryption information segment.
         aesEncryptionInformationSegment = new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
-                publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver, ibeIdentifierAESEncryptionInformationSegment);
+                publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver,
+                publicEntityIdentifierReceiver.getNamespaceServiceProviderEmailAddressUserConcatenation());
 
         // Generate the signature for the plaintext header at the end.
         if (!(this instanceof IssuerPartNamespaceAttestation)) updateSignature(empiricalRSAKeyPair.getPublic());
@@ -92,8 +90,6 @@ public class IssuerPartAttestation implements Serializable {
      *          The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
      * @param   publicEntityIdentifierReceiver
      *          The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
-     * @param   ibeIdentifierAESEncryptionInformationSegment
-     *          The IBE identifier used to encrypt the AES encryption information segment.
      * @param   revocationCommitment
      *          The {@link RevocationCommitment} of the issuer for the attestation.
      * @param   rTreePolicy
@@ -104,13 +100,20 @@ public class IssuerPartAttestation implements Serializable {
     public IssuerPartAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,
                                  @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
                                  @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
-                                 @NotNull String ibeIdentifierAESEncryptionInformationSegment,
                                  @NotNull RevocationCommitment revocationCommitment,
                                  @NotNull RTreePolicy rTreePolicy)
             throws IllegalArgumentException {
         this(privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, publicEntityIdentifierReceiver,
-                ibeIdentifierAESEncryptionInformationSegment, revocationCommitment, rTreePolicy,
+                revocationCommitment, rTreePolicy,
                 RSACipherEncryptedSegment.generateKeyPair());
+    }
+
+    /**
+     * Getter for the encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
+     * @return  The encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
+     */
+    public IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> getAesEncryptionInformationSegment() {
+        return aesEncryptionInformationSegment;
     }
 
     /**
@@ -148,17 +151,17 @@ public class IssuerPartAttestation implements Serializable {
      * Method to check if the {@link IssuerPartAttestation} has a valid signature.
      * @param   privateEntityIdentifierReceiver
      *          The {@link PrivateEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
-     * @param   ibeIdentifier
-     *          The IBE identifier used to encrypt the AES encryption information segment with.
+     * @param   publicEntityIdentifierIssuer
+     *          The {@link PublicEntityIdentifier} of the issuer used to encrypt the AES encryption information segment with.
      * @return  True if the {@link IssuerPartAttestation} has a valid signature; false otherwise.
      * @throws  IllegalArgumentException
      *          If the provided arguments can't be used to verify the signature.
      */
     public boolean hasValidSignature(@NotNull PrivateEntityIdentifier privateEntityIdentifierReceiver,
-                                     @NotNull String ibeIdentifier) throws IllegalArgumentException {
+                                     @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer) throws IllegalArgumentException {
         // 1) Decrypt the AES encryption information segment.
         AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegmentAttestation =
-                aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver, ibeIdentifier);
+                aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver);
 
         // 2) Decrypt the AES key information segment.
         RTreePolicy partitionPolicy = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegmentAttestation.getPartition());
@@ -171,7 +174,6 @@ public class IssuerPartAttestation implements Serializable {
                 verificationInformationSegment.decrypt(aesKey);
 
         // 4) Decrypt the encrypted version of the ephemeral public RSA key.
-        PublicEntityIdentifier publicEntityIdentifierIssuer = verificationInformationSegmentAttestation.getPublicEntityIdentifierIssuer();
         PrivateKey empiricalPrivateRSAKey = verificationInformationSegmentAttestation.getEncryptedEmpiricalPrivateRSAKey()
                 .decrypt(publicEntityIdentifierIssuer);
 
@@ -185,6 +187,38 @@ public class IssuerPartAttestation implements Serializable {
      */
     public AESCipherEncryptedSegment<VerificationInformationSegmentAttestation> getVerificationInformationSegment() {
         return verificationInformationSegment;
+    }
+
+    /**
+     * Getter for the empirical RSA {@link PublicKey}.
+     * @return  The {@link PublicKey}.
+     */
+    public PublicKey getEmpiricalPublicKey() {
+        return empiricalPublicKey;
+    }
+
+    /**
+     * Getter for the {@link PublicEntityIdentifier} of the receiver of the {@link vrielynckpieterjan.applicationlayer.attestation.Attestation}.
+     * @return  The {@link PublicEntityIdentifier}.
+     */
+    public PublicEntityIdentifier getPublicEntityIdentifierReceiver() {
+        return publicEntityIdentifierReceiver;
+    }
+
+    /**
+     * Getter for the {@link RevocationCommitment} of the issuer of the {@link vrielynckpieterjan.applicationlayer.attestation.Attestation}.
+     * @return  The {@link RevocationCommitment}.
+     */
+    public RevocationCommitment getRevocationCommitment() {
+        return revocationCommitment;
+    }
+
+    /**
+     * Getter for the encrypted version of the {@link ProofInformationSegmentAttestation}.
+     * @return  The encrypted object.
+     */
+    public AESCipherEncryptedSegment<ProofInformationSegmentAttestation> getProofInformationSegment() {
+        return proofInformationSegment;
     }
 
     @Override

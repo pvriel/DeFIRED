@@ -20,15 +20,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AttestationTest {
 
-    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> issuerIdentifiers = EntityIdentifier.generateEntityIdentifierPair();
-    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> receiverIdentifiers = EntityIdentifier.generateEntityIdentifierPair();
+    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> issuerIdentifiers = EntityIdentifier.generateEntityIdentifierPair("");
+    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> receiverIdentifiers = EntityIdentifier.generateEntityIdentifierPair("");
     String ibeIdentifier = "test";
     RevocationCommitment revocationCommitment = new RevocationCommitment(new RevocationSecret());
     RTreePolicy rTreePolicy = new RTreePolicy(PolicyRight.WRITE, "A", "B", "C");
     InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 5678);
     IssuerPartAttestation issuerPartAttestation = new IssuerPartNamespaceAttestation(
             issuerIdentifiers.getLeft(), issuerIdentifiers.getRight(), receiverIdentifiers.getRight(),
-            ibeIdentifier, revocationCommitment, rTreePolicy, inetSocketAddress);
+            revocationCommitment, rTreePolicy, inetSocketAddress);
 
     StorageElementIdentifier storageElementIdentifier = new StorageElementIdentifier("test");
     Attestation attestation = new Attestation(storageElementIdentifier, issuerPartAttestation, revocationCommitment,
@@ -37,7 +37,7 @@ class AttestationTest {
     @Test
     void isValid() {
         // TODO: write an additional check which uses invalid Attestations.
-        assertTrue(attestation.isValid(receiverIdentifiers.getLeft(), ibeIdentifier, receiverIdentifiers.getRight()));
+        assertTrue(attestation.isValid(receiverIdentifiers.getLeft(), receiverIdentifiers.getRight(), issuerIdentifiers.getRight()));
 
         /*
         Why the following part of this test:
@@ -48,6 +48,7 @@ class AttestationTest {
          */
         byte[] serializedAttestation = SerializationUtils.serialize(attestation);
         Attestation deserializedAttestation = SerializationUtils.deserialize(serializedAttestation);
-        assertTrue(deserializedAttestation.isValid(receiverIdentifiers.getLeft(), ibeIdentifier, receiverIdentifiers.getRight()));
+        assertTrue(deserializedAttestation.isValid(receiverIdentifiers.getLeft(), receiverIdentifiers.getRight(),
+                issuerIdentifiers.getRight()));
     }
 }

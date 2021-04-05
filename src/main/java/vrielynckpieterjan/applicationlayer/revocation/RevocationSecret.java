@@ -2,7 +2,9 @@ package vrielynckpieterjan.applicationlayer.revocation;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.storagelayer.StorageLayer;
 
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -50,5 +52,18 @@ public class RevocationSecret {
     @Override
     public int hashCode() {
         return Objects.hash(secret);
+    }
+
+    /**
+     * Method to reveal a {@link RevocationSecret} in the {@link StorageLayer}.
+     * @param   storageLayer
+     *          The {@link StorageLayer} realization.
+     * @throws  IOException
+     *          If the put method of the {@link StorageLayer} method throws an {@link IOException}.
+     */
+    public void revealInStorageLayer(@NotNull StorageLayer storageLayer) throws IOException {
+        RevocationCommitment revocationCommitment = new RevocationCommitment(this);
+        RevocationObject revocationObject = new RevocationObject(revocationCommitment, this);
+        storageLayer.put(revocationObject);
     }
 }

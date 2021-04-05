@@ -30,7 +30,7 @@ class RSACipherEncryptedSegmentTest {
 
     @Test
     void nonStringEncrypt() {
-        PublicEntityIdentifier publicEntityIdentifier = EntityIdentifier.generateEntityIdentifierPair().getRight();
+        PublicEntityIdentifier publicEntityIdentifier = EntityIdentifier.generateEntityIdentifierPair("").getRight();
         KeyPair keyPair = RSACipherEncryptedSegment.generateKeyPair();
         RSACipherEncryptedSegment<PublicEntityIdentifier> rsaCipherEncryptedSegment = new RSACipherEncryptedSegment<>(
                 publicEntityIdentifier, keyPair.getPublic());

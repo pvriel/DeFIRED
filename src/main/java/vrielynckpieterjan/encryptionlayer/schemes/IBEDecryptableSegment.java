@@ -188,14 +188,28 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
      * Method to decrypt the {@link IBEDecryptableSegment}.
      * @param   privateEntityIdentifier
      *          The {@link PrivateEntityIdentifier} to decrypt the {@link IBEDecryptableSegment} with.
+     * @return  The decrypted and deserialized {@link IBEDecryptableSegment}.
+     * @throws  IllegalArgumentException
+     *          If the provided key or IBE identifier can't be used to decrypt the {@link IBEDecryptableSegment}.
+     */
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier)
+        throws IllegalArgumentException {
+        return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
+                privateEntityIdentifier.getIBEIdentifier().getRight(), privateEntityIdentifier.getNamespaceServiceProviderEmailAddressUserConcatenation()));
+    }
+
+    /**
+     * Method to decrypt the {@link IBEDecryptableSegment}.
+     * @param   privateEntityIdentifier
+     *          The {@link PrivateEntityIdentifier} to decrypt the {@link IBEDecryptableSegment} with.
      * @param   ibeIdentifier
      *          The IBE identifier to decrypt the {@link IBEDecryptableSegment} with.
      * @return  The decrypted and deserialized {@link IBEDecryptableSegment}.
      * @throws  IllegalArgumentException
      *          If the provided key or IBE identifier can't be used to decrypt the {@link IBEDecryptableSegment}.
      */
-    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, String ibeIdentifier)
-        throws IllegalArgumentException {
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, @NotNull String ibeIdentifier)
+            throws IllegalArgumentException {
         return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
                 privateEntityIdentifier.getIBEIdentifier().getRight(), ibeIdentifier));
     }

@@ -15,19 +15,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IssuerPartAttestationTest {
 
-    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> issuerIdentifiers = EntityIdentifier.generateEntityIdentifierPair();
-    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> receiverIdentifiers = EntityIdentifier.generateEntityIdentifierPair();
+    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> issuerIdentifiers = EntityIdentifier.generateEntityIdentifierPair("");
+    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> receiverIdentifiers = EntityIdentifier.generateEntityIdentifierPair("");
     String ibeIdentifierAESEncryptionInformation = "test";
     RevocationCommitment revocationCommitment = new RevocationCommitment(new RevocationSecret());
     RTreePolicy rTreePolicy = new RTreePolicy(PolicyRight.WRITE, "A", "B", "C");
     IssuerPartAttestation issuerPartAttestation = new IssuerPartAttestation(issuerIdentifiers.getLeft(),
-            issuerIdentifiers.getRight(), receiverIdentifiers.getRight(), ibeIdentifierAESEncryptionInformation,
+            issuerIdentifiers.getRight(), receiverIdentifiers.getRight(),
             revocationCommitment, rTreePolicy);
 
     @Test
     void hasValidSignature() {
         // TODO: write a test which checks (on a basic level) how IssuerPartAttestations with invalid signatures react.
-        assertTrue(issuerPartAttestation.hasValidSignature(receiverIdentifiers.getLeft(), ibeIdentifierAESEncryptionInformation));
+        assertTrue(issuerPartAttestation.hasValidSignature(receiverIdentifiers.getLeft(), issuerIdentifiers.getRight()));
 
         /*
         Why the following part of this test:
@@ -38,6 +38,6 @@ class IssuerPartAttestationTest {
          */
         byte[] serializedIssuerPartAttestation = SerializationUtils.serialize(issuerPartAttestation);
         IssuerPartAttestation deserializedIssuerPartAttestation = SerializationUtils.deserialize(serializedIssuerPartAttestation);
-        assertTrue(deserializedIssuerPartAttestation.hasValidSignature(receiverIdentifiers.getLeft(), ibeIdentifierAESEncryptionInformation));
+        assertTrue(deserializedIssuerPartAttestation.hasValidSignature(receiverIdentifiers.getLeft(), issuerIdentifiers.getRight()));
     }
 }

@@ -30,7 +30,7 @@ class AESCipherEncryptedSegmentTest {
 
     @Test
     void nonStringEncrypt() {
-        PublicEntityIdentifier publicEntityIdentifier = EntityIdentifier.generateEntityIdentifierPair().getRight();
+        PublicEntityIdentifier publicEntityIdentifier = EntityIdentifier.generateEntityIdentifierPair("").getRight();
         String key = "magicalKey";
         AESCipherEncryptedSegment<PublicEntityIdentifier> aesCipherEncryptedSegment = new AESCipherEncryptedSegment<>(
                 publicEntityIdentifier, key);

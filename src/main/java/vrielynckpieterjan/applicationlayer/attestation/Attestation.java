@@ -4,13 +4,16 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.applicationlayer.attestation.issuer.IssuerPartAttestation;
+import vrielynckpieterjan.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.applicationlayer.revocation.RevocationCommitment;
 import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.schemes.RSACipherEncryptedSegment;
 import vrielynckpieterjan.storagelayer.StorageElement;
 import vrielynckpieterjan.storagelayer.StorageElementIdentifier;
+import vrielynckpieterjan.storagelayer.StorageLayer;
 
+import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -58,18 +61,18 @@ public class Attestation extends StorageElement {
      * Method to check the validity of the {@link Attestation}.
      * @param   privateEntityIdentifierReceiver
      *          The {@link PrivateEntityIdentifier} of the user receiving the {@link Attestation}.
-     * @param   ibeIdentifier
-     *          The IBE identifier used to encrypt the AES encryption information segment with.
      * @param   publicEntityIdentifierReceiver
      *          The {@link PublicEntityIdentifier} of the user receiving the {@link Attestation}.
+     * @param   publicEntityIdentifierIssuer
+     *          The {@link PublicEntityIdentifier} of the user issuing the {@link Attestation}.
      * @return  True if the {@link Attestation} is valid; false otherwise.
      * @throws  IllegalArgumentException
      *          If the validity can't be checked with the provided encryption keys.
      */
     public boolean isValid(@NotNull PrivateEntityIdentifier privateEntityIdentifierReceiver,
-                           @NotNull String ibeIdentifier,
-                           @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver) throws IllegalArgumentException {
-        if (!firstLayer.hasValidSignature(privateEntityIdentifierReceiver, ibeIdentifier)) return false;
+                           @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
+                           @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer) throws IllegalArgumentException {
+        if (!firstLayer.hasValidSignature(privateEntityIdentifierReceiver, publicEntityIdentifierIssuer)) return false;
         return areSecondAndThirdLayerValid(publicEntityIdentifierReceiver);
     }
 
@@ -92,6 +95,49 @@ public class Attestation extends StorageElement {
     }
 
     /**
+     * Method to return the {@link RTreePolicy} of this {@link Attestation}, if the {@link Attestation} is valid.
+     * @param   firstAESKey
+     *          The AES key to decrypt the {@link vrielynckpieterjan.applicationlayer.attestation.issuer.VerificationInformationSegmentAttestation} with.
+     * @return  The {@link RTreePolicy} of this {@link Attestation}.
+     * @throws  IllegalArgumentException
+     *          If the provided AES key is incorrect, or if this {@link Attestation} is invalid.
+     */
+    public @NotNull RTreePolicy validateAndReturnPolicy(@NotNull String firstAESKey) throws IllegalArgumentException {
+        var verificationInformationSegment = getFirstLayer().getVerificationInformationSegment().decrypt(firstAESKey);
+
+        var empiricalPrivateRSAKey = verificationInformationSegment.getEncryptedEmpiricalPrivateRSAKey()
+                .decrypt(verificationInformationSegment.getPublicEntityIdentifierIssuer());
+        var empiricalPublicRSAKey = getFirstLayer().getEmpiricalPublicKey();
+        var publicEntityIdentifierReceiver = getFirstLayer().getPublicEntityIdentifierReceiver();
+        if (!isValid(empiricalPrivateRSAKey, empiricalPublicRSAKey, publicEntityIdentifierReceiver))
+            throw new IllegalArgumentException("Attestation is not valid.");
+
+        return verificationInformationSegment.getRTreePolicy();
+    }
+
+    /**
+     * Method to check if this {@link Attestation} is revoked.
+     * @param   storageLayer
+     *          The {@link StorageLayer} to consult.
+     * @return  True if this {@link Attestation} is revoked; false otherwise.
+     * @throws  IOException
+     *          If the {@link StorageLayer} could not be consulted, due to an IO-related problem.
+     * @throws  IllegalArgumentException
+     *          If the {@link Attestation} is invalid; that is, the {@link PublicEntityIdentifier}
+     *          specified in the first layer for the receiver could not be used to decrypt the content
+     *          of the second layer, which contains the second {@link RevocationCommitment}.
+     */
+    public boolean isRevoked(@NotNull StorageLayer storageLayer) throws IOException, IllegalArgumentException {
+        var revocationCommitmentOne = getFirstLayer().getRevocationCommitment();
+        var revocationCommitmentTwo = getSecondLayer().decrypt(
+                getFirstLayer().getPublicEntityIdentifierReceiver()).getRight();
+        for (RevocationCommitment revocationCommitment : new RevocationCommitment[]{revocationCommitmentOne, revocationCommitmentTwo}) {
+            if (revocationCommitment.isRevealedInStorageLayer(storageLayer)) return true;
+        }
+        return false;
+    }
+
+    /**
      * Method to check if the second and third layers of the {@link Attestation} instance are valid.
      * @param   publicEntityIdentifierReceiver
      *          the {@link PublicEntityIdentifier} of the user receiving the {@link Attestation}.
@@ -99,11 +145,19 @@ public class Attestation extends StorageElement {
      * @throws  IllegalArgumentException
      *          If the validity of the layers can't be checked with the provided argument.
      */
-    private boolean areSecondAndThirdLayerValid(@NotNull PublicEntityIdentifier publicEntityIdentifierReceiver)
+    public boolean areSecondAndThirdLayerValid(@NotNull PublicEntityIdentifier publicEntityIdentifierReceiver)
         throws IllegalArgumentException {
         int signatureFirstLayer = firstLayer.hashCode();
         if (!secondLayer.decrypt(publicEntityIdentifierReceiver).getLeft().equals(signatureFirstLayer)) return false;
         return thirdLayer.decrypt(publicEntityIdentifierReceiver).getLeft().equals(signatureFirstLayer);
+    }
+
+    /**
+     * Getter for the second layer.
+     * @return  The second layer.
+     */
+    public RSACipherEncryptedSegment<Pair<Integer, RevocationCommitment>> getSecondLayer() {
+        return secondLayer;
     }
 
     /**
@@ -112,5 +166,13 @@ public class Attestation extends StorageElement {
      */
     public IssuerPartAttestation getFirstLayer() {
         return firstLayer;
+    }
+
+    /**
+     * Getter for the third layer.
+     * @return  The third layer.
+     */
+    public RSACipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> getThirdLayer() {
+        return thirdLayer;
     }
 }

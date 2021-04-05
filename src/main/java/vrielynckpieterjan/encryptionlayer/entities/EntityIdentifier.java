@@ -1,5 +1,6 @@
 package vrielynckpieterjan.encryptionlayer.entities;
 
+import com.google.common.hash.Hashing;
 import cryptid.ibe.domain.PublicParameters;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -9,6 +10,7 @@ import vrielynckpieterjan.encryptionlayer.schemes.RSACipherEncryptedSegment;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.Objects;
@@ -31,6 +33,7 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
     private final RSADecryptionKeyType rsaIdentifierTwo;
     private final IBEEncryptionKeyType ibeIdentifier;
     private final WIBEEncryptionKeyType wibeIdentifier;
+    private final String namespaceServiceProviderEmailAddressUserConcatenation;
 
     /**
      * Constructor for the {@link EntityIdentifier} class.
@@ -42,15 +45,20 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
      *          The IBE part of the identifier.
      * @param   wibeIdentifier
      *          The WIBE part of the identifier.
+     * @param   namespaceServiceProviderEmailAddressUserConcatenation
+     *          A concatenation of the namespace and the e-mail address of the user.
      */
     public EntityIdentifier(@NotNull RSAEncryptionKeyType rsaEncryptionIdentifier,
                             @NotNull RSADecryptionKeyType rsaDecryptionIdentifier,
                             @NotNull IBEEncryptionKeyType ibeIdentifier,
-                            @NotNull WIBEEncryptionKeyType wibeIdentifier) {
+                            @NotNull WIBEEncryptionKeyType wibeIdentifier,
+                            @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
         this.rsaIdentifierOne = rsaEncryptionIdentifier;
         this.rsaIdentifierTwo = rsaDecryptionIdentifier;
         this.ibeIdentifier = ibeIdentifier;
         this.wibeIdentifier = wibeIdentifier;
+        this.namespaceServiceProviderEmailAddressUserConcatenation = Hashing.sha512().hashString(
+                namespaceServiceProviderEmailAddressUserConcatenation, StandardCharsets.UTF_8).toString();
     }
 
     /**
@@ -84,20 +92,36 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
     }
 
     /**
+     * Getter for the hashed version of the concatenation of the namespace and the e-mail address of the user.
+     * @return  The hash.
+     */
+    public String getNamespaceServiceProviderEmailAddressUserConcatenation() {
+        return namespaceServiceProviderEmailAddressUserConcatenation;
+    }
+
+    /**
      * Static method to generate the combination of a {@link PublicEntityIdentifier} and its
      * {@link PrivateEntityIdentifier} counterpart.
+     * @param   namespaceEmailAddressConcatenation
+     *          The concatenation of the namespace and the e-mail address of the user.
+     *          A hashed version (SHA-512) of this concatenation can be used as the {@link vrielynckpieterjan.storagelayer.StorageElementIdentifier}
+     *          to store the {@link vrielynckpieterjan.applicationlayer.attestation.NamespaceAttestation}
+     *          of the generated user with in the {@link vrielynckpieterjan.storagelayer.StorageLayer}.
      * @return  The combination as a {@link Pair}.
      */
-    public static Pair<PrivateEntityIdentifier, PublicEntityIdentifier> generateEntityIdentifierPair() {
+    public static Pair<PrivateEntityIdentifier, PublicEntityIdentifier> generateEntityIdentifierPair(
+            @NotNull String namespaceEmailAddressConcatenation) {
         KeyPair rsaKeyPairOne = RSACipherEncryptedSegment.generateKeyPair();
         KeyPair rsaKeyPairTwo = RSACipherEncryptedSegment.generateKeyPair();
         Pair<PublicParameters, BigInteger> ibePKG = IBEDecryptableSegment.generatePKG();
         Pair<PublicParameters, BigInteger> wibePKG = IBEDecryptableSegment.generatePKG();
 
         PrivateEntityIdentifier privateEntityIdentifier = new PrivateEntityIdentifier(
-                rsaKeyPairOne.getPrivate(), rsaKeyPairTwo.getPublic(), ibePKG, wibePKG);
+                rsaKeyPairOne.getPrivate(), rsaKeyPairTwo.getPublic(), ibePKG, wibePKG,
+                namespaceEmailAddressConcatenation);
         PublicEntityIdentifier publicEntityIdentifier = new PublicEntityIdentifier(
-                rsaKeyPairOne.getPublic(), rsaKeyPairTwo.getPrivate(), ibePKG.getLeft(), wibePKG.getLeft(), "");
+                rsaKeyPairOne.getPublic(), rsaKeyPairTwo.getPrivate(), ibePKG.getLeft(), wibePKG.getLeft(),
+                namespaceEmailAddressConcatenation);
         return new ImmutablePair<>(privateEntityIdentifier, publicEntityIdentifier);
     }
 
@@ -107,11 +131,18 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
         if (o == null || getClass() != o.getClass()) return false;
         EntityIdentifier that = (EntityIdentifier) o;
         return rsaIdentifierOne.equals(that.rsaIdentifierOne) && rsaIdentifierTwo.equals(that.rsaIdentifierTwo) &&
-                ibeIdentifier.equals(that.ibeIdentifier) && wibeIdentifier.equals(that.wibeIdentifier);
+                ibeIdentifier.equals(that.ibeIdentifier) && wibeIdentifier.equals(that.wibeIdentifier) &&
+                namespaceServiceProviderEmailAddressUserConcatenation.equals(that.namespaceServiceProviderEmailAddressUserConcatenation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rsaIdentifierOne, rsaIdentifierTwo, ibeIdentifier, wibeIdentifier);
+        return Objects.hash(rsaIdentifierOne, rsaIdentifierTwo, ibeIdentifier, wibeIdentifier,
+                namespaceServiceProviderEmailAddressUserConcatenation);
+    }
+
+    @Override
+    public String toString() {
+        return namespaceServiceProviderEmailAddressUserConcatenation;
     }
 }

@@ -2,46 +2,58 @@ package vrielynckpieterjan.applicationlayer.revocation;
 
 import com.google.common.hash.Hashing;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.storagelayer.StorageElement;
+import vrielynckpieterjan.storagelayer.StorageElementIdentifier;
+import vrielynckpieterjan.storagelayer.StorageLayer;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.Set;
+
 
 /**
  * Class representing a revocation commitment,
  * which is a SHA-512 version of a {@link RevocationSecret}.
+ * @implNote
+ *          This class is implemented as a subclass of the {@link StorageElementIdentifier} class,
+ *          due to the fact that {@link RevocationCommitment}s can also be used as identifiers
+ *          for the {@link vrielynckpieterjan.storagelayer.StorageLayer} to store {@link RevocationObject}s
+ *          with.
  */
-public class RevocationCommitment implements Serializable {
+public class RevocationCommitment extends StorageElementIdentifier {
 
-    private final String commitment;
+
+    /**
+     * Constructor for the {@link RevocationCommitment} class.
+     *
+     * @param identifier The identifier of the {@link StorageElement}.
+     */
+    public RevocationCommitment(@NotNull String identifier) {
+        super(identifier);
+    }
 
     /**
      * Constructor for the {@link RevocationCommitment} class.
      * @param   revocationSecret
-     *          The {@link RevocationSecret} to hash.
+     *          The original {@link RevocationSecret}.
      */
     public RevocationCommitment(@NotNull RevocationSecret revocationSecret) {
-        commitment = Hashing.sha512().hashString(revocationSecret.getSecret(), StandardCharsets.UTF_8).toString();
+        this(Hashing.sha512().hashString(revocationSecret.getSecret(), StandardCharsets.UTF_8).toString());
     }
 
     /**
-     * Getter for the commitment.
-     * @return  The commitment.
+     * Method to check if this {@link RevocationCommitment} is revealed in the {@link StorageLayer}.
+     * @param   storageLayer
+     *          The {@link StorageLayer}.
+     * @return  True if the {@link RevocationCommitment} is revealed; false otherwise.
+     * @throws  IOException
+     *          If the {@link StorageLayer} could not be consulted due to an IO-related problem.
      */
-    public String getCommitment() {
-        return commitment;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RevocationCommitment that = (RevocationCommitment) o;
-        return commitment.equals(that.commitment);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(commitment);
+    public boolean isRevealedInStorageLayer(@NotNull StorageLayer storageLayer) throws IOException {
+        Set<RevocationObject> retrievedRevocationObjects = storageLayer.retrieve(this, RevocationObject.class);
+        for (RevocationObject revocationObject : retrievedRevocationObjects) {
+            if (revocationObject.isValid()) return true;
+        }
+        return false;
     }
 }

@@ -1,9 +1,11 @@
 package vrielynckpieterjan.applicationlayer.attestation.policy;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Class expressing an RTree policy expression.
@@ -26,8 +28,26 @@ public class RTreePolicy implements Serializable, Cloneable {
      */
     public RTreePolicy(@NotNull PolicyRight policyRight, @NotNull String... namespaceDirectories) {
         if (namespaceDirectories.length == 0) throw new IllegalArgumentException("Not enough namespace directories provided.");
+        for (String namespaceDirectory : namespaceDirectories) {
+            if (namespaceDirectory.contains("/"))
+                throw new IllegalArgumentException(" The / character is not allowed for the namespace directories.");
+        }
+
         this.policyRight = policyRight;
         namespaceDirectoryExpression = namespaceDirectories;
+    }
+
+    /**
+     * Constructor for the {@link RTreePolicy} class.
+     * @param   rTreePolicy
+     *          The previous {@link RTreePolicy} to extend.
+     * @param   policyRight
+     *          The {@link PolicyRight} of the new {@link RTreePolicy} instance.
+     * @param   namespaceDirectories
+     *          The namespace directories to extend the provided {@link RTreePolicy} with.
+     */
+    public RTreePolicy(@NotNull RTreePolicy rTreePolicy, @NotNull PolicyRight policyRight, @NotNull String... namespaceDirectories) {
+        this(policyRight, ArrayUtils.addAll(rTreePolicy.namespaceDirectoryExpression, namespaceDirectories));
     }
 
     /**
@@ -129,5 +149,20 @@ public class RTreePolicy implements Serializable, Cloneable {
         if (policyRight == null) throw new IllegalArgumentException("Given String does not start with a valid PolicyRight expression.");
 
         return new RTreePolicy(policyRight, expressedRTreePolicy.split("/"));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RTreePolicy that = (RTreePolicy) o;
+        return policyRight == that.policyRight && Arrays.equals(namespaceDirectoryExpression, that.namespaceDirectoryExpression);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(policyRight);
+        result = 31 * result + Arrays.hashCode(namespaceDirectoryExpression);
+        return result;
     }
 }
