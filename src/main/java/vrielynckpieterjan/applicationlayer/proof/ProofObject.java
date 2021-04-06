@@ -204,16 +204,39 @@ public class ProofObject implements Serializable {
         return result;
     }
 
+    /**
+     * Method to generate a {@link ProofObject} from a given {@link RTreePolicy}.
+     * @param   policy
+     *          The {@link RTreePolicy} to prove.
+     * @param   publicEntityIdentifierProver
+     *          The {@link PublicEntityIdentifier} of the prover.
+     *          If the {@link ProofObject} which is generated should be part of another {@link ProofObject},
+     *          the {@link PublicEntityIdentifier} of the prover of the full {@link ProofObject} should be provided.
+     * @param   privateEntityIdentifierProver
+     *          The {@link PrivateEntityIdentifier} of the prover.
+     *          If the {@link ProofObject} which is generated should be part of another {@link ProofObject},
+     *          the {@link PrivateEntityIdentifier} of the prover of the full {@link ProofObject} should be provided.
+     * @param   policyNamespaceAttestationProver
+     *          The {@link RTreePolicy} of the {@link NamespaceAttestation} of the prover.
+     * @param   storageLayer
+     *          The {@link StorageLayer} to consult during the constructing process.
+     * @return  The {@link ProofObject}, proving the given {@link RTreePolicy}.
+     * @throws  IllegalArgumentException
+     *          If the {@link RTreePolicy} could not be proven.
+     * @throws  IOException
+     *          If the {@link StorageLayer} could not be consulted, due to an IO-related problem.
+     */
     public static @NotNull ProofObject generateProofObjectForPolicy (
             @NotNull RTreePolicy policy,
             @NotNull PublicEntityIdentifier publicEntityIdentifierProver,
             @NotNull PrivateEntityIdentifier privateEntityIdentifierProver,
+            @NotNull RTreePolicy policyNamespaceAttestationProver,
             @NotNull StorageLayer storageLayer)
         throws IllegalArgumentException, IOException {
         return generateProofObjectForPolicy(policy, privateEntityIdentifierProver.getIBEIdentifier(),
                 privateEntityIdentifierProver.getWIBEIdentifier(),
                 privateEntityIdentifierProver.getNamespaceServiceProviderEmailAddressUserConcatenation(),
-                publicEntityIdentifierProver, privateEntityIdentifierProver, storageLayer);
+                publicEntityIdentifierProver, privateEntityIdentifierProver, policyNamespaceAttestationProver, storageLayer);
     }
 
     /**
@@ -277,6 +300,8 @@ public class ProofObject implements Serializable {
      *          The {@link PrivateEntityIdentifier} of the prover.
      *          If the {@link ProofObject} which is generated should be part of another {@link ProofObject},
      *          the {@link PrivateEntityIdentifier} of the prover of the full {@link ProofObject} should be provided.
+     * @param   policyNamespaceAttestationProver
+     *          The {@link RTreePolicy} of the {@link NamespaceAttestation} of the prover.
      * @param   storageLayer
      *          The {@link StorageLayer} to consult during the constructing process.
      * @return  The {@link ProofObject}, proving the given {@link RTreePolicy}.
@@ -292,11 +317,11 @@ public class ProofObject implements Serializable {
             @NotNull String namespaceAttestationIdentifierReceiver,
             @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
             @NotNull PrivateEntityIdentifier privateEntityIdentifierProver,
+            @NotNull RTreePolicy policyNamespaceAttestationProver,
             @NotNull StorageLayer storageLayer)
         throws IllegalArgumentException, IOException {
             logger.info(String.format("Generating a ProofObject for RTreePolicy (%s) by " +
                     "consulting the personal queue of the entity with PublicEntityIdentifier (%s)...", policy, publicEntityIdentifierReceiver));
-
             var currentStorageElementIdentifier = new StorageElementIdentifier(namespaceAttestationIdentifierReceiver);
             int curIndexInPersonalQueue = 0;
             while (true) {
@@ -319,7 +344,7 @@ public class ProofObject implements Serializable {
                     // Try to extract even more information from the attestation.
                     try {
                         var extractedInformationAttestation = extractInformationForProofFromAttestation(
-                                retrievedAttestation, ibePKG, wibePKG, namespaceAttestationIdentifierReceiver);
+                                retrievedAttestation, ibePKG, wibePKG, policy.generateRTreePolicyForNamespaceAttestationForOwnerResources().toString());
                         var extractedPolicy = extractedInformationAttestation.getLeft().getRTreePolicy();
 
                         var mergedPolicy = mergePoliciesForVerificationProcess(extractedPolicy, policy);
@@ -327,7 +352,9 @@ public class ProofObject implements Serializable {
                         var newPartAESKeys = new String[]{extractedInformationAttestation.getRight().getLeft()};
 
                         if (retrievedAttestation instanceof NamespaceAttestation) {
-                            var aesKeyNamespaceAttestationProver = retrieveFirstAESKeyNamespaceAttestationProver(privateEntityIdentifierProver, storageLayer);
+                            var aesKeyNamespaceAttestationProver = retrieveFirstAESKeyNamespaceAttestationProver(
+                                    privateEntityIdentifierProver, policyNamespaceAttestationProver,
+                                    storageLayer);
                             return new ProofObject(newPartStorageElementIdentifiers, newPartAESKeys, aesKeyNamespaceAttestationProver);
                         }
 
@@ -336,7 +363,7 @@ public class ProofObject implements Serializable {
                                 extractedInformationAttestation.getMiddle().getWIBEPKG(),
                                 extractedInformationAttestation.getLeft().getPublicEntityIdentifierIssuer().getNamespaceServiceProviderEmailAddressUserConcatenation(),
                                 extractedInformationAttestation.getLeft().getPublicEntityIdentifierIssuer(),
-                                privateEntityIdentifierProver, storageLayer);
+                                privateEntityIdentifierProver, policyNamespaceAttestationProver, storageLayer);
                         return new ProofObject(ArrayUtils.add(lessStrictProof.storageElementIdentifiers, newPartStorageElementIdentifiers[0]),
                                 ArrayUtils.add(lessStrictProof.aesKeys, newPartAESKeys[0]), lessStrictProof.aesKeyNamespaceAttestationProver);
 
@@ -359,6 +386,8 @@ public class ProofObject implements Serializable {
      *          The {@link PrivateEntityIdentifier} of the prover.
      * @param   storageLayer
      *          The {@link StorageLayer} to consult.
+     * @param   policyNamespaceAttestationProver
+     *          The {@link RTreePolicy} for the {@link NamespaceAttestation} of the owner of the resources.
      * @return  The first AES key of the {@link NamespaceAttestation} of the prover.
      * @throws  IllegalArgumentException
      *          If the {@link PrivateEntityIdentifier} is invalid.
@@ -367,6 +396,7 @@ public class ProofObject implements Serializable {
      */
     private static @NotNull String retrieveFirstAESKeyNamespaceAttestationProver (
             @NotNull PrivateEntityIdentifier privateEntityIdentifierProver,
+            @NotNull RTreePolicy policyNamespaceAttestationProver,
             @NotNull StorageLayer storageLayer)
         throws IllegalArgumentException, IOException {
         Set<NamespaceAttestation> retrievedNamespaceAttestations = storageLayer.retrieve(
@@ -375,7 +405,8 @@ public class ProofObject implements Serializable {
         for (NamespaceAttestation namespaceAttestation : retrievedNamespaceAttestations) {
             try {
                 var encryptedAESInformationSegment = namespaceAttestation.getFirstLayer().getAesEncryptionInformationSegment();
-                var encryptionInformationSegment = encryptedAESInformationSegment.decrypt(privateEntityIdentifierProver);
+                var encryptionInformationSegment = encryptedAESInformationSegment
+                        .decrypt(privateEntityIdentifierProver, policyNamespaceAttestationProver);
                 var usedRTreePolicyForWIBEEncryption = RTreePolicy.convertStringToRTreePolicy(encryptionInformationSegment.getPartition());
                 var aesKeys = encryptionInformationSegment.getAesKeyInformation().decrypt(
                         privateEntityIdentifierProver, usedRTreePolicyForWIBEEncryption);

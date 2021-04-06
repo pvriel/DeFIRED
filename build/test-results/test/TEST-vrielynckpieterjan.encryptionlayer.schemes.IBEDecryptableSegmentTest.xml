@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-05T17:22:05" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.279">
+<testsuite name="vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-06T14:44:53" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.313">
   <properties/>
-  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegmentTest" time="0.279"/>
-  <system-out><![CDATA[��??sr?@vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment6�������???L??encryptedSegmentt?$Lcryptid/ibe/domain/CipherTextTuple;xpsr?"cryptid.ibe.domain.CipherTextTuple7-@?ȠTV???L??cipherUt?0Lcryptid/ellipticcurve/point/affine/AffinePoint;[??cipherVt??[B[??cipherWq?~??xpsr?.cryptid.ellipticcurve.point.affine.AffinePoint�#?U?�a???L??xt??Ljava/math/BigInteger;L??yq?~??xpsr??java.math.BigInteger���?�;�????I??bitCountI?	bitLengthI??firstNonzeroByteNumI??lowestSetBitI??signum[?	magnitudeq?~??xr??java.lang.Number���??���???xp����������������????ur??[B��?�??T�???xp???@?,i�?;6���0Z&VQ��"�{?�)ԉ��˨5V%7J���`��	!���c#� ���sÜ�7�`���xsq?~?
-����������������????uq?~????@�#57��4??�?�?3�)�������x3mT�:`���Qx??���?t�j�+�?�*膃N�3?��xuq?~?????p���y��??�v��ۋ���B�uq?~????\�Ƹ���>٫Ei-�?cx���~k?^���"
-��u2��-:]0H}��x}��W??sڧ���&@?'�u�??�<T�?]m�?AK^b��9��QFj��?׵�E
-�D�/v?�)��*��_�(�}�Jz�e��4�?�*r?Ola���O0!���m�J4��Bb���Go��???u���m<��k�?ߗq�D]]>&#x7f;<![CDATA[�'���G��]]>&#x7f;<![CDATA[=j�0?>J,��B�jH�up)b�c���cZ�n�>�f�4"٬5���\L9�zSgs�x?���=�X��62i�W?ih�#?BKd~?m�����IQK�Ɍټ?�"?�q�]���5AZ?s!��#v��B�q�rY?ਧ'i/$ޖ�E<�Qў�<e1ꤒ ����???\�E?r��무?2$:SF�?� M�?z1?�ac�U�"���̞*�??oȍ�}��.�[l>."#�?N���(�?�}?���?�y�����Or���C��+8Zp�,�%�1�R�??q�]]>&#x7f;<![CDATA[��hr?�~���/rd�?�]]>&#x7f;<![CDATA[�C^=d?]]>&#x7f;<![CDATA[;��L�~??�?2�9�pse���?�bD?���7�4Bn[�銒>??i? ?����?�	�rwѕ�%�?���i$�?��%��m��G�[a??]??�ɬ�,?���WGz�m��??���A�g�E��JP�����TO�J����
+  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegmentTest" time="0.313"/>
+  <system-out><![CDATA[��??sr?@vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegmentl\
+nʅ�????L??encryptedSegmentt?$Lcryptid/ibe/domain/CipherTextTuple;xpsr?"cryptid.ibe.domain.CipherTextTuple7-@?ȠTV???L??cipherUt?0Lcryptid/ellipticcurve/point/affine/AffinePoint;[??cipherVt??[B[??cipherWq?~??xpsr?.cryptid.ellipticcurve.point.affine.AffinePoint�#?U?�a???L??xt??Ljava/math/BigInteger;L??yq?~??xpsr??java.math.BigInteger���?�;�????I??bitCountI?	bitLengthI??firstNonzeroByteNumI??lowestSetBitI??signum[?	magnitudeq?~??xr??java.lang.Number���??���???xp����������������????ur??[B��?�??T�???xp???@j��ah�V�����?G��o@.�~S!̂�_ֳw�t[k�zp�qE�r?�]*g��M|�R?l�p�?xsq?~?
+����������������????uq?~????@TFa��d�8k	�Ye��$~	�P:�ڞ?���ɬ?#8��?�?��wZ��??�d�fJ��l�����D�<,xuq?~??????\��?We��:vP�=0�b�C�uq?~????\d�?Gl����]]>&#x7f;<![CDATA[����6���m�D]]>&#x7f;<![CDATA[�s�YbGKU�:d	���?J�@�����v�y��2rE��Y�CR0?��"L�?_c�o�m�İuhv??�P]$����?�?�?P@Cx(?��i2V�W�Œ�`��xFv�x��?�?�]]>&#x7f;<![CDATA[�)tȩ}6䕷ėYI�3�J?���{��?�f���{O?&�ˮ?��?���m��jK68�?`�?F�D�v�*�U��9�WKN>�1Ibz�ϊ��Lo���?;��S��9.R���fG��?8?5]�?e�&����?Wy?f�(��
+w�?�?�P;�I�U�eKO]]>&#x7f;<![CDATA[i���)??]����1)i?6��҇?
+?W�?��?��3Q$7�t��MVT��ټ�K���?�;�}u��?kh�ӑ�*�9n��-�D5Y�"��ݿ�)j�8NW��a�<?�o�4g)d,�AM�U?Z�?�:SD8?_�V�?
+��Y�8��sw?�*k��`�H��qh��ms��'n��Ti��͎vx?�??)?:��A�4��9	$f'Rm1�?H�?���3sSQ��i�^��?�y�"מ�VAǕ��F嫙"k�n
+�*��\?��'����|7^ֈif?R?��N
+4Y��i,,�}����k�O����Q8?�v�.j�XyZ��?[<8��uV��?��?���GA~�|?
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

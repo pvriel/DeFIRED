@@ -188,4 +188,11 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
     public int hashCode() {
         return Objects.hash(super.hashCode(), encapsulatedAESEncryptedSegment);
     }
+
+    @Override
+    public String toString() {
+        return "RSACipherEncryptedSegment{" +
+                "encapsulatedAESEncryptedSegment=" + encapsulatedAESEncryptedSegment +
+                '}';
+    }
 }

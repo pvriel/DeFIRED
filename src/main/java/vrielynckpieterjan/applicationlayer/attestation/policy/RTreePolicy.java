@@ -93,6 +93,15 @@ public class RTreePolicy implements Serializable, Cloneable {
     }
 
     /**
+     * Method to obtain the {@link RTreePolicy} of the {@link vrielynckpieterjan.applicationlayer.attestation.NamespaceAttestation}
+     * for the owner of the specified resources.
+     * @return  The {@link RTreePolicy}.
+     */
+    public RTreePolicy generateRTreePolicyForNamespaceAttestationForOwnerResources() {
+        return new RTreePolicy(PolicyRight.WRITE, namespaceDirectoryExpression[0]);
+    }
+
+    /**
      * Method to check if this {@link RTreePolicy} object covers the RTree policy of another {@link RTreePolicy} object.
      * This is the case if the following criteria are met:
      * - The {@link PolicyRight} of this {@link RTreePolicy} object is at least as expressive as the {@link PolicyRight}

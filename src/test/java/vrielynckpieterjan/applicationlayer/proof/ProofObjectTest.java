@@ -155,6 +155,9 @@ class ProofObjectTest {
         counter = System.currentTimeMillis();
         Attestation[] attestationsForProofObject = new Attestation[]{namespaceAttestationA, shareAttestation, delegateAttestation,
             namespaceAttestationC};
+        RTreePolicy[] namespaceAttestationPolicies = new RTreePolicy[]{new RTreePolicy(PolicyRight.WRITE, "A"),
+                new RTreePolicy(PolicyRight.WRITE, "A"), new RTreePolicy(PolicyRight.WRITE, "A"),
+                new RTreePolicy(PolicyRight.WRITE, "C")};
         PrivateEntityIdentifier[] privateEntityIdentifiersReceivers = new PrivateEntityIdentifier[]{
             userA.getLeft(), userB.getLeft(), userC.getLeft(), userC.getLeft()};
         StorageElementIdentifier[] storageElementIdentifiersForProofObject = new StorageElementIdentifier[4];
@@ -164,7 +167,7 @@ class ProofObjectTest {
             IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encryptedAESEncryptionInformationSegment =
                     attestationsForProofObject[i].getFirstLayer().getAesEncryptionInformationSegment();
             AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegment =
-                    encryptedAESEncryptionInformationSegment.decrypt(privateEntityIdentifiersReceivers[i]);
+                    encryptedAESEncryptionInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], namespaceAttestationPolicies[i]);
             var aesKeyInformationSegment = aesEncryptionInformationSegment.getAesKeyInformation();
             var policyToDecryptWith = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegment.getPartition());
             var aesKeys = aesKeyInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], policyToDecryptWith);
@@ -184,7 +187,7 @@ class ProofObjectTest {
         counter = System.currentTimeMillis();
         RTreePolicy policyToProve = new RTreePolicy(PolicyRight.READ, "A", "B", "C");
         var automaticallyConstructedProof = ProofObject.generateProofObjectForPolicy(policyToProve,
-                userC.getRight(), userC.getLeft(), testStorageLayerUserC);
+                userC.getRight(), userC.getLeft(), new RTreePolicy(PolicyRight.WRITE, "C"), testStorageLayerUserC);
         System.out.println(String.format("Proof object automatically generated (time needed: %s milliseconds).",
                 System.currentTimeMillis() - counter));
         assertEquals(proof, automaticallyConstructedProof);

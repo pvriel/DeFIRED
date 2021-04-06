@@ -17,6 +17,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 
@@ -188,14 +189,17 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
      * Method to decrypt the {@link IBEDecryptableSegment}.
      * @param   privateEntityIdentifier
      *          The {@link PrivateEntityIdentifier} to decrypt the {@link IBEDecryptableSegment} with.
+     * @param   policyNamespaceAttestationOwnerResources
+     *          The {@link RTreePolicy} to decrypt the {@link IBEDecryptableSegment} with.
      * @return  The decrypted and deserialized {@link IBEDecryptableSegment}.
      * @throws  IllegalArgumentException
      *          If the provided key or IBE identifier can't be used to decrypt the {@link IBEDecryptableSegment}.
      */
-    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier)
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier,
+                                                @NotNull RTreePolicy policyNamespaceAttestationOwnerResources)
         throws IllegalArgumentException {
         return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
-                privateEntityIdentifier.getIBEIdentifier().getRight(), privateEntityIdentifier.getNamespaceServiceProviderEmailAddressUserConcatenation()));
+                privateEntityIdentifier.getIBEIdentifier().getRight(), policyNamespaceAttestationOwnerResources.toString()));
     }
 
     /**

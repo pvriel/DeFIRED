@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-05T17:22:02" hostname="MacBook-Pro-van-Pieter-Jan.local" time="2.743">
+<testsuite name="vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegmentTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-06T14:44:50" hostname="MacBook-Pro-van-Pieter-Jan.local" time="3.045">
   <properties/>
-  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegmentTest" time="2.743"/>
+  <testcase name="encrypt()" classname="vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegmentTest" time="3.045"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
