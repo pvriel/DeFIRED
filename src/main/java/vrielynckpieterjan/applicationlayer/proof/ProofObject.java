@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.applicationlayer.attestation.Attestation;
 import vrielynckpieterjan.applicationlayer.attestation.NamespaceAttestation;
+import vrielynckpieterjan.applicationlayer.attestation.issuer.AESEncryptionInformationSegmentAttestation;
 import vrielynckpieterjan.applicationlayer.attestation.issuer.ProofInformationSegmentAttestation;
 import vrielynckpieterjan.applicationlayer.attestation.issuer.VerificationInformationSegmentAttestation;
 import vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight;
@@ -248,9 +249,8 @@ public class ProofObject implements Serializable {
      *          The IBE PKG to extract the information with.
      * @param   wibePKG
      *          The WIBE PKG to extract the information with.
-     * @param   namespaceAttestationIdentifierReceiver
-     *          The String version of the {@link StorageElementIdentifier} used to store
-     *          the {@link NamespaceAttestation} with of the receiver in the {@link StorageLayer}.
+     * @param   ibeIdentifier
+     *          The IBE identifier to obtain the {@link vrielynckpieterjan.applicationlayer.attestation.issuer.AESEncryptionInformationSegmentAttestation} with.
      * @return  The extracted information as a {@link Triple}: <br>
      *          1) a {@link VerificationInformationSegmentAttestation} <br>
      *          2) a {@link ProofInformationSegmentAttestation} <br>
@@ -263,12 +263,20 @@ public class ProofObject implements Serializable {
             @NotNull Attestation attestation,
             @NotNull Pair<PublicParameters, BigInteger> ibePKG,
             @NotNull Pair<PublicParameters, BigInteger> wibePKG,
-            @NotNull String namespaceAttestationIdentifierReceiver)
+            @NotNull RTreePolicy ibeIdentifier)
         throws IllegalArgumentException {
         // Try to decrypt the AES information segment.
+        var equallyOrLessStrictPolicies = ibeIdentifier.generateAllEquallyOrLessStrictRTreePolicies();
         var encryptedAESInformationSegment = attestation.getFirstLayer().getAesEncryptionInformationSegment();
-        var aesEncryptionInformationSegment = encryptedAESInformationSegment.decrypt(
-                new ImmutableTriple<>(ibePKG.getLeft(), ibePKG.getRight(), namespaceAttestationIdentifierReceiver));
+        AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegment = null;
+        for (var policy : equallyOrLessStrictPolicies) {
+            try {
+                aesEncryptionInformationSegment = encryptedAESInformationSegment.decrypt(
+                        new ImmutableTriple<>(ibePKG.getLeft(), ibePKG.getRight(), policy.toString()));
+            } catch (IllegalArgumentException ignored) {}
+        }
+        if (aesEncryptionInformationSegment == null) throw new IllegalArgumentException("Information could not be extracted" +
+                " from the current attestation for the proof object.");
 
         // Try to decrypt the AES key information segment.
         var reconstructedPolicy = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegment.getPartition());
@@ -344,7 +352,7 @@ public class ProofObject implements Serializable {
                     // Try to extract even more information from the attestation.
                     try {
                         var extractedInformationAttestation = extractInformationForProofFromAttestation(
-                                retrievedAttestation, ibePKG, wibePKG, policy.generateRTreePolicyForNamespaceAttestationForOwnerResources().toString());
+                                retrievedAttestation, ibePKG, wibePKG, policy);
                         var extractedPolicy = extractedInformationAttestation.getLeft().getRTreePolicy();
 
                         var mergedPolicy = mergePoliciesForVerificationProcess(extractedPolicy, policy);

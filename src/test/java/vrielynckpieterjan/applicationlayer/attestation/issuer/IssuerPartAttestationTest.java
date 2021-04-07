@@ -20,7 +20,6 @@ class IssuerPartAttestationTest {
     String ibeIdentifierAESEncryptionInformation = "test";
     RevocationCommitment revocationCommitment = new RevocationCommitment(new RevocationSecret());
     RTreePolicy rTreePolicy = new RTreePolicy(PolicyRight.WRITE, "A", "B", "C");
-    RTreePolicy rTreePolicyNamespaceAttestationOwnerResources = rTreePolicy.generateRTreePolicyForNamespaceAttestationForOwnerResources();
     IssuerPartAttestation issuerPartAttestation = new IssuerPartAttestation(issuerIdentifiers.getLeft(),
             issuerIdentifiers.getRight(), receiverIdentifiers.getRight(),
             revocationCommitment, rTreePolicy);
@@ -28,7 +27,7 @@ class IssuerPartAttestationTest {
     @Test
     void hasValidSignature() {
         assertTrue(issuerPartAttestation.hasValidSignature(receiverIdentifiers.getLeft(), issuerIdentifiers.getRight(),
-                rTreePolicyNamespaceAttestationOwnerResources));
+                rTreePolicy));
 
         /*
         Why the following part of this test:
@@ -40,6 +39,6 @@ class IssuerPartAttestationTest {
         byte[] serializedIssuerPartAttestation = SerializationUtils.serialize(issuerPartAttestation);
         IssuerPartAttestation deserializedIssuerPartAttestation = SerializationUtils.deserialize(serializedIssuerPartAttestation);
         assertTrue(deserializedIssuerPartAttestation.hasValidSignature(receiverIdentifiers.getLeft(), issuerIdentifiers.getRight(),
-                rTreePolicyNamespaceAttestationOwnerResources));
+                rTreePolicy));
     }
 }

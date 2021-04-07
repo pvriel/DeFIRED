@@ -69,37 +69,17 @@ public class WIBEDecryptableSegment<DecryptedObjectType extends Serializable>
     public @NotNull DecryptedObjectType decrypt(@NotNull Triple<PublicParameters, BigInteger, RTreePolicy> publicParametersBigIntegerRTreePolicyTriple)
             throws IllegalArgumentException {
         // Try to decrypt the encryptedSegment using every possible variant of the provided RTree policy.
-        RTreePolicy currentRTreePolicy = publicParametersBigIntegerRTreePolicyTriple.getRight().clone();
+        var equallyOrLessStrictPolicies = publicParametersBigIntegerRTreePolicyTriple.getRight().generateAllEquallyOrLessStrictRTreePolicies();
         Triple<PublicParameters, BigInteger, String> currentDecryptionParametersIBEEncryptedSegment;
-        while (true) {
-            // Consider both the READ- and WRITE-variant of the current RTreePolicy, for now at least.
-            for (int i = 0; i < 2; i ++) {
-                currentDecryptionParametersIBEEncryptedSegment = new ImmutableTriple<>(
-                        publicParametersBigIntegerRTreePolicyTriple.getLeft(),
-                        publicParametersBigIntegerRTreePolicyTriple.getMiddle(),
-                        currentRTreePolicy.toString());
-                try {
-                    return encryptedSegment.decrypt(currentDecryptionParametersIBEEncryptedSegment);
-                } catch (IllegalArgumentException ignored) { }
 
-                // Should we also consider the other variant?
-                if (i == 0 && currentRTreePolicy.getPolicyRight().equals(WRITE)) {
-                    // No, because:
-                    // - According to the design of the framework, only RTree policies can be used to decrypt this
-                    //      WIBEEncryptedSegment which are equally or even more strict than the RTree policy object
-                    //      which was used to encrypt this WIBEEncryptedSegment instance in the first place.
-                    // - By providing a WRITE RTreePolicy instance as argument for this method invocation, the assumption
-                    //      is therefore made that the object was originally encrypted using a WRITE RTreePolicy instance,
-                    //      since WRITE policies are less strict than READ policies.
-                    // Therefore, don't waste time trying READ policies to decrypt this WIBEEncryptedSegment instance,
-                    // cause that will never work anyways.
-                    break; // Break the i-loop.
-                } else currentRTreePolicy.setPolicyRight(currentRTreePolicy.getPolicyRight().equals(WRITE)? READ:WRITE);
-            }
-
-            if (currentRTreePolicy.getAmountOfNamespaceDirectories() > 1)
-                currentRTreePolicy = currentRTreePolicy.generateRTreePolicyForNamespaceParentDirectory();
-            else break;
+        for (var currentRTreePolicy: equallyOrLessStrictPolicies) {
+            currentDecryptionParametersIBEEncryptedSegment = new ImmutableTriple<>(
+                    publicParametersBigIntegerRTreePolicyTriple.getLeft(),
+                    publicParametersBigIntegerRTreePolicyTriple.getMiddle(),
+                    currentRTreePolicy.toString());
+            try {
+                return encryptedSegment.decrypt(currentDecryptionParametersIBEEncryptedSegment);
+            } catch (IllegalArgumentException ignored) {}
         }
 
         throw new IllegalArgumentException("WIBEEncryptedSegment could not be decrypted with the provided arguments.");

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-04-06T14:44:54" hostname="MacBook-Pro-van-Pieter-Jan.local" time="1.028">
+<testsuite name="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-04-07T10:35:03" hostname="MacBook-Pro-van-Pieter-Jan.local" time="1.153">
   <properties/>
-  <testcase name="RSAIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.003"/>
-  <testcase name="WIBEIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.256"/>
-  <testcase name="IBEIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.258"/>
+  <testcase name="RSAIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.002"/>
+  <testcase name="WIBEIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.382"/>
+  <testcase name="IBEIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.247"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

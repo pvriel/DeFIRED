@@ -65,8 +65,8 @@ public class Attestation extends StorageElement {
      *          The {@link PublicEntityIdentifier} of the user receiving the {@link Attestation}.
      * @param   publicEntityIdentifierIssuer
      *          The {@link PublicEntityIdentifier} of the user issuing the {@link Attestation}.
-     * @param   policyNamespaceAttestationOwnerResources
-     *          The {@link RTreePolicy} for the {@link NamespaceAttestation} of the owner of the resources.
+     * @param   policy
+     *          The {@link RTreePolicy} for the {@link Attestation}.
      * @return  True if the {@link Attestation} is valid; false otherwise.
      * @throws  IllegalArgumentException
      *          If the validity can't be checked with the provided encryption keys.
@@ -74,8 +74,8 @@ public class Attestation extends StorageElement {
     public boolean isValid(@NotNull PrivateEntityIdentifier privateEntityIdentifierReceiver,
                            @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
                            @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
-                           @NotNull RTreePolicy policyNamespaceAttestationOwnerResources) throws IllegalArgumentException {
-        if (!firstLayer.hasValidSignature(privateEntityIdentifierReceiver, publicEntityIdentifierIssuer, policyNamespaceAttestationOwnerResources)) return false;
+                           @NotNull RTreePolicy policy) throws IllegalArgumentException {
+        if (!firstLayer.hasValidSignature(privateEntityIdentifierReceiver, publicEntityIdentifierIssuer, policy)) return false;
         return areSecondAndThirdLayerValid(publicEntityIdentifierReceiver);
     }
 

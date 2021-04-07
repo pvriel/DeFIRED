@@ -189,17 +189,26 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
      * Method to decrypt the {@link IBEDecryptableSegment}.
      * @param   privateEntityIdentifier
      *          The {@link PrivateEntityIdentifier} to decrypt the {@link IBEDecryptableSegment} with.
-     * @param   policyNamespaceAttestationOwnerResources
+     * @param   policy
      *          The {@link RTreePolicy} to decrypt the {@link IBEDecryptableSegment} with.
      * @return  The decrypted and deserialized {@link IBEDecryptableSegment}.
      * @throws  IllegalArgumentException
      *          If the provided key or IBE identifier can't be used to decrypt the {@link IBEDecryptableSegment}.
+     * @implNote
+     *          Any equally or less strict variant of the provided {@link RTreePolicy} will be used in order
+     *          to try to decrypt the {@link IBEDecryptableSegment}.
      */
     public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier,
-                                                @NotNull RTreePolicy policyNamespaceAttestationOwnerResources)
+                                                @NotNull RTreePolicy policy)
         throws IllegalArgumentException {
-        return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
-                privateEntityIdentifier.getIBEIdentifier().getRight(), policyNamespaceAttestationOwnerResources.toString()));
+        for (RTreePolicy evaluatedPolicy : policy.generateAllEquallyOrLessStrictRTreePolicies()) {
+            try {
+                return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
+                        privateEntityIdentifier.getIBEIdentifier().getRight(), evaluatedPolicy.toString()));
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+        throw new IllegalArgumentException("IBEDecryptableSegment could not be decrypted using the provided RTreePolicy.");
     }
 
     /**

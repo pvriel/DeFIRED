@@ -4,8 +4,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Class expressing an RTree policy expression.
@@ -67,38 +66,31 @@ public class RTreePolicy implements Serializable, Cloneable {
     }
 
     /**
-     * Getter for the amount of namespace directories provided as arguments for the constructor.
-     * @return  The amount of namespace directories provided as arguments for the constructor.
+     * Method to generate and return all {@link RTreePolicy} variations which are equally
+     * or less strict than this {@link RTreePolicy} instance.
+     * @return  The result as a {@link Set}.
      */
-    public int getAmountOfNamespaceDirectories() {
-        return namespaceDirectoryExpression.length;
-    }
+    public Set<RTreePolicy> generateAllEquallyOrLessStrictRTreePolicies() {
+        Set<RTreePolicy> returnValue = new HashSet<>();
+        var currentlyEvaluatedPolicy = this;
 
-    /**
-     * Method to generate an {@link RTreePolicy} for the namespace's parent directory with the same {@link PolicyRight}.
-     * As an example, if this object would express the RTree policy "write://A/B", a newly generated
-     * {@link RTreePolicy} object will be returned, which expresses the RTree policy "write://A".
-     * @return  The RTree policy for the namespace's parent directory, with the same {@link PolicyRight}.
-     * @throws  IllegalStateException
-     *          If the namespace of this {@link RTreePolicy} object does not have any parent directory.
-     *          As an example, this is the case with "write://A".
-     */
-    public RTreePolicy generateRTreePolicyForNamespaceParentDirectory() throws IllegalStateException {
-        if (namespaceDirectoryExpression.length <= 1)
-            throw new IllegalStateException("No namespace parent directory found for this RTreePolicy object.");
+        while (true) {
+            returnValue.add(currentlyEvaluatedPolicy);
+            if (currentlyEvaluatedPolicy.getPolicyRight().equals(PolicyRight.READ)) {
+                var readCopy = currentlyEvaluatedPolicy.clone();
+                readCopy.setPolicyRight(PolicyRight.WRITE);
+                returnValue.add(readCopy);
+            }
 
-        String[] namespaceDirectoriesAsArray = Arrays.copyOfRange(
-                namespaceDirectoryExpression, 0, namespaceDirectoryExpression.length - 1);
-        return new RTreePolicy(policyRight, namespaceDirectoriesAsArray);
-    }
+            try {
+                currentlyEvaluatedPolicy = new RTreePolicy(currentlyEvaluatedPolicy.policyRight,
+                        Arrays.copyOfRange(currentlyEvaluatedPolicy.namespaceDirectoryExpression, 0,
+                                currentlyEvaluatedPolicy.namespaceDirectoryExpression.length - 1));
+                returnValue.add(currentlyEvaluatedPolicy);
+            } catch (Exception ignored) {break;}
+        }
 
-    /**
-     * Method to obtain the {@link RTreePolicy} of the {@link vrielynckpieterjan.applicationlayer.attestation.NamespaceAttestation}
-     * for the owner of the specified resources.
-     * @return  The {@link RTreePolicy}.
-     */
-    public RTreePolicy generateRTreePolicyForNamespaceAttestationForOwnerResources() {
-        return new RTreePolicy(PolicyRight.WRITE, namespaceDirectoryExpression[0]);
+        return returnValue;
     }
 
     /**

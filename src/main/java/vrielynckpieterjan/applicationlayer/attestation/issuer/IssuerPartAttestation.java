@@ -77,7 +77,7 @@ public class IssuerPartAttestation implements Serializable {
         // This part is encrypted using the namespace of the owner of the resources.
         aesEncryptionInformationSegment = new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
                 publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver,
-                rTreePolicy.generateRTreePolicyForNamespaceAttestationForOwnerResources().toString());
+                rTreePolicy.toString());
 
         // Generate the signature for the plaintext header at the end.
         if (!(this instanceof IssuerPartNamespaceAttestation)) updateSignature(empiricalRSAKeyPair.getPublic());
@@ -154,19 +154,18 @@ public class IssuerPartAttestation implements Serializable {
      *          The {@link PrivateEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
      * @param   publicEntityIdentifierIssuer
      *          The {@link PublicEntityIdentifier} of the issuer used to encrypt the AES encryption information segment with.
-     * @param   policyNamespaceAttestationOwnerResources
-     *          The {@link RTreePolicy} for the {@link vrielynckpieterjan.applicationlayer.attestation.NamespaceAttestation}
-     *          of the owner of the resources.
+     * @param   policy
+     *          The {@link RTreePolicy} for the {@link vrielynckpieterjan.applicationlayer.attestation.Attestation}.
      * @return  True if the {@link IssuerPartAttestation} has a valid signature; false otherwise.
      * @throws  IllegalArgumentException
      *          If the provided arguments can't be used to verify the signature.
      */
     public boolean hasValidSignature(@NotNull PrivateEntityIdentifier privateEntityIdentifierReceiver,
                                      @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
-                                     @NotNull RTreePolicy policyNamespaceAttestationOwnerResources) throws IllegalArgumentException {
+                                     @NotNull RTreePolicy policy) throws IllegalArgumentException {
         // 1) Decrypt the AES encryption information segment.
         AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegmentAttestation =
-                aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver, policyNamespaceAttestationOwnerResources);
+                aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver, policy);
 
         // 2) Decrypt the AES key information segment.
         RTreePolicy partitionPolicy = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegmentAttestation.getPartition());

@@ -155,9 +155,8 @@ class ProofObjectTest {
         counter = System.currentTimeMillis();
         Attestation[] attestationsForProofObject = new Attestation[]{namespaceAttestationA, shareAttestation, delegateAttestation,
             namespaceAttestationC};
-        RTreePolicy[] namespaceAttestationPolicies = new RTreePolicy[]{new RTreePolicy(PolicyRight.WRITE, "A"),
-                new RTreePolicy(PolicyRight.WRITE, "A"), new RTreePolicy(PolicyRight.WRITE, "A"),
-                new RTreePolicy(PolicyRight.WRITE, "C")};
+        RTreePolicy[] attestationPolicies = new RTreePolicy[]{namespacePolicyUserA, userAToUserBPolicy, userBToUserCPolicy,
+            namespacePolicyUserC};
         PrivateEntityIdentifier[] privateEntityIdentifiersReceivers = new PrivateEntityIdentifier[]{
             userA.getLeft(), userB.getLeft(), userC.getLeft(), userC.getLeft()};
         StorageElementIdentifier[] storageElementIdentifiersForProofObject = new StorageElementIdentifier[4];
@@ -167,7 +166,7 @@ class ProofObjectTest {
             IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encryptedAESEncryptionInformationSegment =
                     attestationsForProofObject[i].getFirstLayer().getAesEncryptionInformationSegment();
             AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegment =
-                    encryptedAESEncryptionInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], namespaceAttestationPolicies[i]);
+                    encryptedAESEncryptionInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], attestationPolicies[i]);
             var aesKeyInformationSegment = aesEncryptionInformationSegment.getAesKeyInformation();
             var policyToDecryptWith = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegment.getPartition());
             var aesKeys = aesKeyInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], policyToDecryptWith);
