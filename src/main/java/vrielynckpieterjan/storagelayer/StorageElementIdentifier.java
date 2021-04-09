@@ -1,5 +1,6 @@
 package vrielynckpieterjan.storagelayer;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -19,6 +20,24 @@ public class StorageElementIdentifier implements Serializable {
      */
     public StorageElementIdentifier(@NotNull String identifier) {
         this.identifier = identifier;
+    }
+
+    /**
+     * Constructor for the {@link StorageElementIdentifier} class.
+     * This constructor initializes a {@link StorageElementIdentifier} instance of the provided length.
+     * @param   length
+     *          The provided length.
+     */
+    public StorageElementIdentifier(int length) {
+        this(RandomStringUtils.randomAlphanumeric(length));
+    }
+
+    /**
+     * Constructor for the {@link StorageElementIdentifier} class.
+     * This constructor initializes a {@link StorageElementIdentifier} instance of length 128.
+     */
+    public StorageElementIdentifier() {
+        this(128);
     }
 
     /**
