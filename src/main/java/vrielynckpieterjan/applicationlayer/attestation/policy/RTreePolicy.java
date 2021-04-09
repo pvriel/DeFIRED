@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.*;
 
+import static vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight.*;
+
 /**
  * Class expressing an RTree policy expression.
  */
@@ -66,27 +68,24 @@ public class RTreePolicy implements Serializable, Cloneable {
     }
 
     /**
-     * Method to generate and return all {@link RTreePolicy} variations which are equally
-     * or less strict than this {@link RTreePolicy} instance.
-     * @return  The result as a {@link Set}.
+     * Method to generate and return all {@link RTreePolicy} variations of this instance.
+     * @return  The result as a {@link List}.
      */
-    public Set<RTreePolicy> generateAllEquallyOrLessStrictRTreePolicies() {
-        Set<RTreePolicy> returnValue = new HashSet<>();
+    public List<RTreePolicy> generateRTreePolicyVariations() {
+        List<RTreePolicy> returnValue = new ArrayList<>();
         var currentlyEvaluatedPolicy = this;
 
         while (true) {
             returnValue.add(currentlyEvaluatedPolicy);
-            if (currentlyEvaluatedPolicy.getPolicyRight().equals(PolicyRight.READ)) {
-                var readCopy = currentlyEvaluatedPolicy.clone();
-                readCopy.setPolicyRight(PolicyRight.WRITE);
-                returnValue.add(readCopy);
-            }
+
+            var copy = currentlyEvaluatedPolicy.clone();
+            copy.setPolicyRight(copy.getPolicyRight().equals(WRITE)? READ: WRITE);
+            returnValue.add(copy);
 
             try {
                 currentlyEvaluatedPolicy = new RTreePolicy(currentlyEvaluatedPolicy.policyRight,
                         Arrays.copyOfRange(currentlyEvaluatedPolicy.namespaceDirectoryExpression, 0,
                                 currentlyEvaluatedPolicy.namespaceDirectoryExpression.length - 1));
-                returnValue.add(currentlyEvaluatedPolicy);
             } catch (Exception ignored) {break;}
         }
 
@@ -112,7 +111,7 @@ public class RTreePolicy implements Serializable, Cloneable {
             if (!namespaceDirectoryExpression[i].equals(otherRTreePolicy.namespaceDirectoryExpression[i]))
                 return false;
 
-        return otherRTreePolicy.policyRight.equals(PolicyRight.READ) || policyRight.equals(PolicyRight.WRITE);
+        return otherRTreePolicy.policyRight.equals(READ) || policyRight.equals(WRITE);
     }
 
     @Override
@@ -139,7 +138,7 @@ public class RTreePolicy implements Serializable, Cloneable {
      */
     public static @NotNull RTreePolicy convertStringToRTreePolicy(@NotNull String expressedRTreePolicy) throws IllegalArgumentException {
         PolicyRight policyRight = null;
-        for (PolicyRight consideredPolicyRight : PolicyRight.values()) {
+        for (PolicyRight consideredPolicyRight : values()) {
             if (expressedRTreePolicy.startsWith(consideredPolicyRight.name())) {
                 policyRight = consideredPolicyRight;
                 expressedRTreePolicy = expressedRTreePolicy.substring(policyRight.name().length() + "://".length());

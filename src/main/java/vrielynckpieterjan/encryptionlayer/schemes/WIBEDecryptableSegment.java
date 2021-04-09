@@ -14,9 +14,6 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import static vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight.READ;
-import static vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight.WRITE;
-
 /**
  * Class representing a WIBE {@link DecryptableSegment}.
  * @param       <DecryptedObjectType>
@@ -69,7 +66,7 @@ public class WIBEDecryptableSegment<DecryptedObjectType extends Serializable>
     public @NotNull DecryptedObjectType decrypt(@NotNull Triple<PublicParameters, BigInteger, RTreePolicy> publicParametersBigIntegerRTreePolicyTriple)
             throws IllegalArgumentException {
         // Try to decrypt the encryptedSegment using every possible variant of the provided RTree policy.
-        var equallyOrLessStrictPolicies = publicParametersBigIntegerRTreePolicyTriple.getRight().generateAllEquallyOrLessStrictRTreePolicies();
+        var equallyOrLessStrictPolicies = publicParametersBigIntegerRTreePolicyTriple.getRight().generateRTreePolicyVariations();
         Triple<PublicParameters, BigInteger, String> currentDecryptionParametersIBEEncryptedSegment;
 
         for (var currentRTreePolicy: equallyOrLessStrictPolicies) {

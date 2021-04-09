@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.applicationlayer.attestation.issuer.IssuerPartNamespaceAttestationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-07T10:34:58" hostname="MacBook-Pro-van-Pieter-Jan.local" time="1.058">
+<testsuite name="vrielynckpieterjan.applicationlayer.attestation.issuer.IssuerPartNamespaceAttestationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-09T08:41:29" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.506">
   <properties/>
-  <testcase name="hasValidSignature()" classname="vrielynckpieterjan.applicationlayer.attestation.issuer.IssuerPartNamespaceAttestationTest" time="1.058"/>
+  <testcase name="hasValidSignature()" classname="vrielynckpieterjan.applicationlayer.attestation.issuer.IssuerPartNamespaceAttestationTest" time="0.506"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

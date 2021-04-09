@@ -3,7 +3,6 @@ package vrielynckpieterjan.applicationlayer.attestation.policy;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,6 +61,6 @@ class RTreePolicyTest {
         expectedReturnValue.add(new RTreePolicy(READ, "A"));
         expectedReturnValue.add(new RTreePolicy(WRITE, "A"));
 
-        assertEquals(expectedReturnValue, originalPolicy.generateAllEquallyOrLessStrictRTreePolicies());
+        assertEquals(expectedReturnValue, new HashSet<>(originalPolicy.generateRTreePolicyVariations()));
     }
 }

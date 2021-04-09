@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 /**
@@ -266,21 +267,24 @@ public class ProofObject implements Serializable {
             @NotNull RTreePolicy ibeIdentifier)
         throws IllegalArgumentException {
         // Try to decrypt the AES information segment.
-        var equallyOrLessStrictPolicies = ibeIdentifier.generateAllEquallyOrLessStrictRTreePolicies();
+        var equallyOrLessStrictPolicies = ibeIdentifier.generateRTreePolicyVariations();
         var encryptedAESInformationSegment = attestation.getFirstLayer().getAesEncryptionInformationSegment();
-        AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegment = null;
-        for (var policy : equallyOrLessStrictPolicies) {
+        var aesEncryptionInformationSegment = new AtomicReference<AESEncryptionInformationSegmentAttestation>(null);
+
+        equallyOrLessStrictPolicies.parallelStream().forEach(rTreePolicy -> {
+            if (aesEncryptionInformationSegment.get() != null) return;
             try {
-                aesEncryptionInformationSegment = encryptedAESInformationSegment.decrypt(
-                        new ImmutableTriple<>(ibePKG.getLeft(), ibePKG.getRight(), policy.toString()));
+                aesEncryptionInformationSegment.set(encryptedAESInformationSegment.decrypt(
+                        new ImmutableTriple<>(ibePKG.getLeft(), ibePKG.getRight(), rTreePolicy.toString())));
             } catch (IllegalArgumentException ignored) {}
-        }
-        if (aesEncryptionInformationSegment == null) throw new IllegalArgumentException("Information could not be extracted" +
+        });
+
+        if (aesEncryptionInformationSegment.get() == null) throw new IllegalArgumentException("Information could not be extracted" +
                 " from the current attestation for the proof object.");
 
         // Try to decrypt the AES key information segment.
-        var reconstructedPolicy = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegment.getPartition());
-        var encryptedAESKeyInformationSegment = aesEncryptionInformationSegment.getAesKeyInformation();
+        var reconstructedPolicy = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegment.get().getPartition());
+        var encryptedAESKeyInformationSegment = aesEncryptionInformationSegment.get().getAesKeyInformation();
         var aesKeyInformationSegment = encryptedAESKeyInformationSegment.decrypt(new ImmutableTriple<>(
                 wibePKG.getLeft(), wibePKG.getRight(), reconstructedPolicy));
 
@@ -354,8 +358,6 @@ public class ProofObject implements Serializable {
                         var extractedInformationAttestation = extractInformationForProofFromAttestation(
                                 retrievedAttestation, ibePKG, wibePKG, policy);
                         var extractedPolicy = extractedInformationAttestation.getLeft().getRTreePolicy();
-
-                        var mergedPolicy = mergePoliciesForVerificationProcess(extractedPolicy, policy);
                         var newPartStorageElementIdentifiers = new StorageElementIdentifier[]{retrievedAttestation.getStorageLayerIdentifier()};
                         var newPartAESKeys = new String[]{extractedInformationAttestation.getRight().getLeft()};
 
@@ -367,7 +369,7 @@ public class ProofObject implements Serializable {
                         }
 
                         var lessStrictProof = generateProofObjectForPolicy(
-                                mergedPolicy, extractedInformationAttestation.getMiddle().getIBEPKG(),
+                                extractedPolicy, extractedInformationAttestation.getMiddle().getIBEPKG(),
                                 extractedInformationAttestation.getMiddle().getWIBEPKG(),
                                 extractedInformationAttestation.getLeft().getPublicEntityIdentifierIssuer().getNamespaceServiceProviderEmailAddressUserConcatenation(),
                                 extractedInformationAttestation.getLeft().getPublicEntityIdentifierIssuer(),

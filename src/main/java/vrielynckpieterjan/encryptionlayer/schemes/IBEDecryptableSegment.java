@@ -201,7 +201,7 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
     public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier,
                                                 @NotNull RTreePolicy policy)
         throws IllegalArgumentException {
-        for (RTreePolicy evaluatedPolicy : policy.generateAllEquallyOrLessStrictRTreePolicies()) {
+        for (RTreePolicy evaluatedPolicy : policy.generateRTreePolicyVariations()) {
             try {
                 return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
                         privateEntityIdentifier.getIBEIdentifier().getRight(), evaluatedPolicy.toString()));
