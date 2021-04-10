@@ -60,26 +60,11 @@ public class WIBEDecryptableSegment<DecryptedObjectType extends Serializable>
     }
 
     @Override
-    /**
-     * @implNote    The provided {@link RTreePolicy} remains unchanged during the invocation of this method.
-     */
     public @NotNull DecryptedObjectType decrypt(@NotNull Triple<PublicParameters, BigInteger, RTreePolicy> publicParametersBigIntegerRTreePolicyTriple)
             throws IllegalArgumentException {
-        // Try to decrypt the encryptedSegment using every possible variant of the provided RTree policy.
-        var equallyOrLessStrictPolicies = publicParametersBigIntegerRTreePolicyTriple.getRight().generateRTreePolicyVariations();
-        Triple<PublicParameters, BigInteger, String> currentDecryptionParametersIBEEncryptedSegment;
-
-        for (var currentRTreePolicy: equallyOrLessStrictPolicies) {
-            currentDecryptionParametersIBEEncryptedSegment = new ImmutableTriple<>(
-                    publicParametersBigIntegerRTreePolicyTriple.getLeft(),
-                    publicParametersBigIntegerRTreePolicyTriple.getMiddle(),
-                    currentRTreePolicy.toString());
-            try {
-                return encryptedSegment.decrypt(currentDecryptionParametersIBEEncryptedSegment);
-            } catch (IllegalArgumentException ignored) {}
-        }
-
-        throw new IllegalArgumentException("WIBEEncryptedSegment could not be decrypted with the provided arguments.");
+        return encryptedSegment.decrypt(new ImmutableTriple<>(publicParametersBigIntegerRTreePolicyTriple.getLeft(),
+                publicParametersBigIntegerRTreePolicyTriple.getMiddle(),
+                publicParametersBigIntegerRTreePolicyTriple.getRight().toString()));
     }
 
     /**

@@ -10,6 +10,7 @@ import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment;
 import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.encryptionlayer.schemes.RSACipherEncryptedSegment;
+import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
 
 import java.io.Serializable;
 import java.security.KeyPair;
@@ -31,7 +32,7 @@ public class IssuerPartAttestation implements Serializable {
 
     private final AESCipherEncryptedSegment<ProofInformationSegmentAttestation> proofInformationSegment;
 
-    private final IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment;
+    private final WIBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment;
 
     /**
      * The constructor of the {@link IssuerPartAttestation}.
@@ -77,7 +78,7 @@ public class IssuerPartAttestation implements Serializable {
         // This part is encrypted using the namespace of the owner of the resources.
         aesEncryptionInformationSegment = new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
                 publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver,
-                rTreePolicy.toString());
+                rTreePolicy);
 
         // Generate the signature for the plaintext header at the end.
         if (!(this instanceof IssuerPartNamespaceAttestation)) updateSignature(empiricalRSAKeyPair.getPublic());
@@ -113,7 +114,7 @@ public class IssuerPartAttestation implements Serializable {
      * Getter for the encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
      * @return  The encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
      */
-    public IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> getAesEncryptionInformationSegment() {
+    public WIBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> getAesEncryptionInformationSegment() {
         return aesEncryptionInformationSegment;
     }
 
@@ -170,7 +171,7 @@ public class IssuerPartAttestation implements Serializable {
         // 2) Decrypt the AES key information segment.
         RTreePolicy partitionPolicy = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegmentAttestation.getPartition());
         Pair<String, String> aesKeyInformationSegment = aesEncryptionInformationSegmentAttestation.getAesKeyInformation().decrypt(
-                privateEntityIdentifierReceiver, partitionPolicy);
+                privateEntityIdentifierReceiver, partitionPolicy.toString());
 
         // 3) Decrypt the verification information segment using the first AES key.
         String aesKey = aesKeyInformationSegment.getLeft();

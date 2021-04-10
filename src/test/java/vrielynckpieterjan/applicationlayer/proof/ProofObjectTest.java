@@ -13,6 +13,7 @@ import vrielynckpieterjan.applicationlayer.revocation.RevocationSecret;
 import vrielynckpieterjan.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
+import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
 import vrielynckpieterjan.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.storagelayer.map.HashMapStorageLayer;
 
@@ -163,13 +164,13 @@ class ProofObjectTest {
         String[] firstAESKeysForProofObject = new String[4];
         String[] secondAESKeysForProofObject = new String[4];
         for (int i = 0; i < attestationsForProofObject.length; i ++) {
-            IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encryptedAESEncryptionInformationSegment =
+            WIBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encryptedAESEncryptionInformationSegment =
                     attestationsForProofObject[i].getFirstLayer().getAesEncryptionInformationSegment();
             AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegment =
                     encryptedAESEncryptionInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], attestationPolicies[i]);
             var aesKeyInformationSegment = aesEncryptionInformationSegment.getAesKeyInformation();
             var policyToDecryptWith = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegment.getPartition());
-            var aesKeys = aesKeyInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], policyToDecryptWith);
+            var aesKeys = aesKeyInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], policyToDecryptWith.toString());
 
             storageElementIdentifiersForProofObject[i] = attestationsForProofObject[i].getStorageLayerIdentifier();
             firstAESKeysForProofObject[i] = aesKeys.getLeft();

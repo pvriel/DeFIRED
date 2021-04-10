@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class AESEncryptionInformationSegmentAttestation implements Serializable {
 
     private final String partition;
-    private final WIBEDecryptableSegment<Pair<String, String>> aesKeyInformation;
+    private final IBEDecryptableSegment<Pair<String, String>> aesKeyInformation;
 
     /**
      * Constructor for the {@link AESEncryptionInformationSegmentAttestation} class.
@@ -34,7 +34,7 @@ public class AESEncryptionInformationSegmentAttestation implements Serializable 
                                                       @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver)
         throws IllegalArgumentException {
         partition = rTreePolicy.toString();
-        aesKeyInformation = new WIBEDecryptableSegment<>(aesKeys, publicEntityIdentifierReceiver, rTreePolicy);
+        aesKeyInformation = new IBEDecryptableSegment<>(aesKeys, publicEntityIdentifierReceiver, rTreePolicy.toString());
     }
 
     /**
@@ -47,9 +47,9 @@ public class AESEncryptionInformationSegmentAttestation implements Serializable 
 
     /**
      * Getter for the encrypted version of the AES key information segment.
-     * @return  The encrypted version of the AES key information segment as a {@link WIBEDecryptableSegment} instance.
+     * @return  The encrypted version of the AES key information segment as a {@link IBEDecryptableSegment} instance.
      */
-    public WIBEDecryptableSegment<Pair<String, String>> getAesKeyInformation() {
+    public IBEDecryptableSegment<Pair<String, String>> getAesKeyInformation() {
         return aesKeyInformation;
     }
 
@@ -58,14 +58,14 @@ public class AESEncryptionInformationSegmentAttestation implements Serializable 
      * @param   publicEntityIdentifierReceiver
      *          The {@link PublicEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
      * @param   ibeIdentifier
-     *          The IBE identifier to encrypt this {@link AESEncryptionInformationSegmentAttestation} with.
-     * @return  The encrypted version of this instance as an {@link IBEDecryptableSegment}.
+     *          The WIBE identifier to encrypt this {@link AESEncryptionInformationSegmentAttestation} with.
+     * @return  The encrypted version of this instance as an {@link WIBEDecryptableSegment}.
      * @throws  IllegalArgumentException
      *          If this instance could not be encrypted using the provided arguments.
      */
-    public @NotNull IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encrypt(
+    public @NotNull WIBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encrypt(
             @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
-            @NotNull String ibeIdentifier) throws IllegalArgumentException {
-        return new IBEDecryptableSegment<>(this, publicEntityIdentifierReceiver, ibeIdentifier);
+            @NotNull RTreePolicy ibeIdentifier) throws IllegalArgumentException {
+        return new WIBEDecryptableSegment<>(this, publicEntityIdentifierReceiver, ibeIdentifier);
     }
 }
