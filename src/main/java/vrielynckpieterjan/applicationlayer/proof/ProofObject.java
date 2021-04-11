@@ -283,10 +283,7 @@ public class ProofObject implements Serializable {
                 " from the current attestation for the proof object.");
 
         // Try to decrypt the AES key information segment.
-        var reconstructedPolicy = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegment.get().getPartition());
-        var encryptedAESKeyInformationSegment = aesEncryptionInformationSegment.get().getAesKeyInformation();
-        var aesKeyInformationSegment = encryptedAESKeyInformationSegment.decrypt(new ImmutableTriple<>(
-                ibePKG.getLeft(), ibePKG.getRight(), reconstructedPolicy.toString()));
+        var aesKeyInformationSegment = aesEncryptionInformationSegment.get().getAesKeyInformation();
 
         // Try to decrypt the verification information segment.
         var verificationInformationSegment = attestation.getFirstLayer().getVerificationInformationSegment().decrypt(aesKeyInformationSegment.getLeft());
@@ -417,9 +414,7 @@ public class ProofObject implements Serializable {
                 var encryptedAESInformationSegment = namespaceAttestation.getFirstLayer().getAesEncryptionInformationSegment();
                 var encryptionInformationSegment = encryptedAESInformationSegment
                         .decrypt(privateEntityIdentifierProver, policyNamespaceAttestationProver);
-                var usedRTreePolicyForWIBEEncryption = RTreePolicy.convertStringToRTreePolicy(encryptionInformationSegment.getPartition());
-                var aesKeys = encryptionInformationSegment.getAesKeyInformation().decrypt(
-                        privateEntityIdentifierProver, usedRTreePolicyForWIBEEncryption.toString());
+                var aesKeys = encryptionInformationSegment.getAesKeyInformation();
                 return aesKeys.getLeft();
             } catch (IllegalArgumentException ignored) {}
         }

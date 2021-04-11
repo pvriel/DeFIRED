@@ -8,7 +8,6 @@ import vrielynckpieterjan.applicationlayer.revocation.RevocationCommitment;
 import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment;
-import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.encryptionlayer.schemes.RSACipherEncryptedSegment;
 import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
 
@@ -168,10 +167,8 @@ public class IssuerPartAttestation implements Serializable {
         AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegmentAttestation =
                 aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver, policy);
 
-        // 2) Decrypt the AES key information segment.
-        RTreePolicy partitionPolicy = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegmentAttestation.getPartition());
-        Pair<String, String> aesKeyInformationSegment = aesEncryptionInformationSegmentAttestation.getAesKeyInformation().decrypt(
-                privateEntityIdentifierReceiver, partitionPolicy.toString());
+        // 2) Obtain the AES key information segment.
+        Pair<String, String> aesKeyInformationSegment = aesEncryptionInformationSegmentAttestation.getAesKeyInformation();
 
         // 3) Decrypt the verification information segment using the first AES key.
         String aesKey = aesKeyInformationSegment.getLeft();

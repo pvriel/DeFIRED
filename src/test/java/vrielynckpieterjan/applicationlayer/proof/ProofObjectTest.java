@@ -168,9 +168,7 @@ class ProofObjectTest {
                     attestationsForProofObject[i].getFirstLayer().getAesEncryptionInformationSegment();
             AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegment =
                     encryptedAESEncryptionInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], attestationPolicies[i]);
-            var aesKeyInformationSegment = aesEncryptionInformationSegment.getAesKeyInformation();
-            var policyToDecryptWith = RTreePolicy.convertStringToRTreePolicy(aesEncryptionInformationSegment.getPartition());
-            var aesKeys = aesKeyInformationSegment.decrypt(privateEntityIdentifiersReceivers[i], policyToDecryptWith.toString());
+            var aesKeys = aesEncryptionInformationSegment.getAesKeyInformation();
 
             storageElementIdentifiersForProofObject[i] = attestationsForProofObject[i].getStorageLayerIdentifier();
             firstAESKeysForProofObject[i] = aesKeys.getLeft();

@@ -14,42 +14,25 @@ import java.io.Serializable;
  */
 public class AESEncryptionInformationSegmentAttestation implements Serializable {
 
-    private final String partition;
-    private final IBEDecryptableSegment<Pair<String, String>> aesKeyInformation;
+    private final Pair<String, String> aesKeyInformation;
 
     /**
      * Constructor for the {@link AESEncryptionInformationSegmentAttestation} class.
-     * @param   rTreePolicy
-     *          The {@link RTreePolicy} instance to generate the partition with.
      * @param   aesKeys
      *          The AES keys which should be stored in the AES key information segment.
-     * @param   publicEntityIdentifierReceiver
-     *          The {@link PublicEntityIdentifier} of the user receiving the {@link IssuerPartAttestation},
-     *          used to encrypt the AES key information segment with.
-     * @throws  IllegalArgumentException
-     *          If the AES key information segment could not be encrypted using the provided arguments.
      */
     public AESEncryptionInformationSegmentAttestation(@NotNull RTreePolicy rTreePolicy,
                                                       @NotNull Pair<String, String> aesKeys,
                                                       @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver)
         throws IllegalArgumentException {
-        partition = rTreePolicy.toString();
-        aesKeyInformation = new IBEDecryptableSegment<>(aesKeys, publicEntityIdentifierReceiver, rTreePolicy.toString());
+        aesKeyInformation = aesKeys;
     }
 
     /**
-     * Getter for the partition.
-     * @return  The partition.
+     * Getter for the AES key information segment.
+     * @return  The AES key information segment.
      */
-    public String getPartition() {
-        return partition;
-    }
-
-    /**
-     * Getter for the encrypted version of the AES key information segment.
-     * @return  The encrypted version of the AES key information segment as a {@link IBEDecryptableSegment} instance.
-     */
-    public IBEDecryptableSegment<Pair<String, String>> getAesKeyInformation() {
+    public Pair<String, String> getAesKeyInformation() {
         return aesKeyInformation;
     }
 
