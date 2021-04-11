@@ -33,8 +33,8 @@ vrielynckpieterjan/encryptionlayer/schemes/CipherEncryptedSegment.java
  vrielynckpieterjan.encryptionlayer.schemes.CipherEncryptedSegment
 vrielynckpieterjan/encryptionlayer/entities/EntityIdentifier.java
  vrielynckpieterjan.encryptionlayer.entities.EntityIdentifier
-vrielynckpieterjan/applicationlayer/proof/ProofObject.java
- vrielynckpieterjan.applicationlayer.proof.ProofObject
+vrielynckpieterjan/apilayer/server/ReflectionMethodInvocationServerRequest.java
+ vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServerRequest
 vrielynckpieterjan/apilayer/server/TCPReflectionMethodInvocationServer.java
  vrielynckpieterjan.apilayer.server.TCPReflectionMethodInvocationServer
 vrielynckpieterjan/apilayer/APILayer.java
@@ -71,5 +71,5 @@ vrielynckpieterjan/applicationlayer/revocation/RevocationObject.java
  vrielynckpieterjan.applicationlayer.revocation.RevocationObject
 vrielynckpieterjan/apilayer/macaroon/APILayerMacaroonManager.java
  vrielynckpieterjan.apilayer.macaroon.APILayerMacaroonManager
-vrielynckpieterjan/apilayer/server/ReflectionMethodInvocationServerRequest.java
- vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServerRequest
+vrielynckpieterjan/applicationlayer/proof/ProofObject.java
+ vrielynckpieterjan.applicationlayer.proof.ProofObject

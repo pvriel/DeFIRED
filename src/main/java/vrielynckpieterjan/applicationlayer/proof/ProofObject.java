@@ -108,8 +108,36 @@ public class ProofObject implements Serializable {
             throw new IllegalArgumentException(String.format("Could not verify the NamespaceAttestation of the prover" +
                     " with PublicEntityIdentifier (%s).", publicEntityIdentifierProver));
 
+        logger.info(String.format("Verifying that the prover with PublicEntityIdentifier (%s) is hosting" +
+                " his personal queue...", publicEntityIdentifierProver));
+        verifyPersonalQueue(namespaceAttestationPairProver.getLeft(), storageElementIdentifiers[storageElementIdentifiers.length - 1],
+                storageLayer);
+
         logger.info(String.format("ProofObject (%s) verified.", this));
         return currentPolicy;
+    }
+
+    private static void verifyPersonalQueue(@NotNull Attestation curAttestation,
+                                            @NotNull StorageElementIdentifier storageElementIdentifierToFind,
+                                            @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
+        var publicEntityIdentifierProver = curAttestation.getFirstLayer().getPublicEntityIdentifierReceiver();
+        Set<Attestation> foundAttestationsCurrentIdentifier = new HashSet<>();
+        foundAttestationsCurrentIdentifier.add(curAttestation);
+
+        while (!curAttestation.getStorageLayerIdentifier().equals(storageElementIdentifierToFind)) {
+            var found = false;
+            for (var attestation : foundAttestationsCurrentIdentifier) {
+                try {
+                    var nextQueueElementIdentifier = attestation.getThirdLayer().decrypt(publicEntityIdentifierProver).getRight();
+                    foundAttestationsCurrentIdentifier = storageLayer.retrieve(nextQueueElementIdentifier, Attestation.class);
+                    curAttestation = attestation;
+                    found = true;
+                    break;
+                } catch (IllegalArgumentException ignored) {}
+            }
+
+            if (!found) throw new IllegalArgumentException("The personal queue of the prover could not be verified.");
+        }
     }
 
     /**
