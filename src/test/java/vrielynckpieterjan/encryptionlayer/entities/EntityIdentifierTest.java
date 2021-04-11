@@ -6,7 +6,6 @@ import vrielynckpieterjan.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.encryptionlayer.schemes.RSACipherEncryptedSegment;
-import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +36,7 @@ class EntityIdentifierTest {
     @Test
     void WIBEIdentifierTest() {
         RTreePolicy usedWIBEIdentifier = new RTreePolicy(PolicyRight.WRITE, "A", "B");
-        WIBEDecryptableSegment<String>  decryptableSegment = new WIBEDecryptableSegment<>(data, entityIdentifierPair.getRight(), usedWIBEIdentifier);
+        IBEDecryptableSegment<String>  decryptableSegment = new IBEDecryptableSegment<>(data, entityIdentifierPair.getRight(), usedWIBEIdentifier.toString());
         String decrypted = decryptableSegment.decrypt(entityIdentifierPair.getLeft(), usedWIBEIdentifier);
         assertEquals(data, decrypted);
     }

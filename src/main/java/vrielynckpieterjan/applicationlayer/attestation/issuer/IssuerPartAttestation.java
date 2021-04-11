@@ -8,8 +8,8 @@ import vrielynckpieterjan.applicationlayer.revocation.RevocationCommitment;
 import vrielynckpieterjan.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.schemes.AESCipherEncryptedSegment;
+import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.encryptionlayer.schemes.RSACipherEncryptedSegment;
-import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
 
 import java.io.Serializable;
 import java.security.KeyPair;
@@ -31,7 +31,7 @@ public class IssuerPartAttestation implements Serializable {
 
     private final AESCipherEncryptedSegment<ProofInformationSegmentAttestation> proofInformationSegment;
 
-    private final WIBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment;
+    private final IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment;
 
     /**
      * The constructor of the {@link IssuerPartAttestation}.
@@ -113,7 +113,7 @@ public class IssuerPartAttestation implements Serializable {
      * Getter for the encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
      * @return  The encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
      */
-    public WIBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> getAesEncryptionInformationSegment() {
+    public IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> getAesEncryptionInformationSegment() {
         return aesEncryptionInformationSegment;
     }
 
@@ -165,7 +165,7 @@ public class IssuerPartAttestation implements Serializable {
                                      @NotNull RTreePolicy policy) throws IllegalArgumentException {
         // 1) Decrypt the AES encryption information segment.
         AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegmentAttestation =
-                aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver, policy);
+                aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver, policy.toString());
 
         // 2) Obtain the AES key information segment.
         Pair<String, String> aesKeyInformationSegment = aesEncryptionInformationSegmentAttestation.getAesKeyInformation();

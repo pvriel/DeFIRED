@@ -11,7 +11,7 @@ import java.security.PublicKey;
  * Class representing a public {@link EntityIdentifier}.
  */
 public class PublicEntityIdentifier
-        extends EntityIdentifier<PublicKey, PrivateKey, PublicParameters, PublicParameters> {
+        extends EntityIdentifier<PublicKey, PrivateKey, PublicParameters> {
 
 
     /**
@@ -20,10 +20,9 @@ public class PublicEntityIdentifier
      * @param rsaEncryptionIdentifier                               The {@link Key} used to represent the first RSA part of the identifier.
      * @param rsaDecryptionIdentifier                               The {@link Key} used to represent the second RSA part of the identifier.
      * @param ibeIdentifier                                         The IBE part of the identifier.
-     * @param wibeIdentifier                                        The WIBE part of the identifier.
      * @param namespaceServiceProviderEmailAddressUserConcatenation
      */
-    public PublicEntityIdentifier(@NotNull PublicKey rsaEncryptionIdentifier, @NotNull PrivateKey rsaDecryptionIdentifier, @NotNull PublicParameters ibeIdentifier, @NotNull PublicParameters wibeIdentifier, @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
-        super(rsaEncryptionIdentifier, rsaDecryptionIdentifier, ibeIdentifier, wibeIdentifier, namespaceServiceProviderEmailAddressUserConcatenation);
+    public PublicEntityIdentifier(@NotNull PublicKey rsaEncryptionIdentifier, @NotNull PrivateKey rsaDecryptionIdentifier, @NotNull PublicParameters ibeIdentifier, @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
+        super(rsaEncryptionIdentifier, rsaDecryptionIdentifier, ibeIdentifier, namespaceServiceProviderEmailAddressUserConcatenation);
     }
 }

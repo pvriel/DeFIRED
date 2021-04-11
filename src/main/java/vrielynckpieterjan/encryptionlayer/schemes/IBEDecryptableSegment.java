@@ -185,6 +185,12 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
         }
     }
 
+    public @NotNull DecryptedObjectType decrypt(@NotNull PublicParameters publicParameters, @NotNull BigInteger bigInteger,
+                                                @NotNull RTreePolicy policy)
+            throws IllegalArgumentException {
+        return this.decrypt(new ImmutableTriple<>(publicParameters, bigInteger, policy.toString()));
+    }
+
     /**
      * Method to decrypt the {@link IBEDecryptableSegment}.
      * @param   privateEntityIdentifier
@@ -199,6 +205,11 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
             throws IllegalArgumentException {
         return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
                 privateEntityIdentifier.getIBEIdentifier().getRight(), ibeIdentifier));
+    }
+
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, @NotNull RTreePolicy policy)
+        throws IllegalArgumentException {
+        return this.decrypt(privateEntityIdentifier, policy.toString());
     }
 
     @Override

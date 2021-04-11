@@ -15,8 +15,6 @@ vrielynckpieterjan/applicationlayer/revocation/RevocationObjectTest.java
 vrielynckpieterjan/ReflectionTest.java
  vrielynckpieterjan.ReflectionTest
  vrielynckpieterjan.ReflectionTest$TestClass
-vrielynckpieterjan/encryptionlayer/schemes/WIBEDecryptableSegmentTest.java
- vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegmentTest
 vrielynckpieterjan/applicationlayer/proof/ProofObjectTest.java
  vrielynckpieterjan.applicationlayer.proof.ProofObjectTest
 vrielynckpieterjan/encryptionlayer/schemes/RSACipherEncryptedSegmentTest.java

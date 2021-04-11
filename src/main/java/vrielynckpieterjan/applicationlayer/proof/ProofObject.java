@@ -236,7 +236,6 @@ public class ProofObject implements Serializable {
             @NotNull StorageLayer storageLayer)
         throws IllegalArgumentException, IOException {
         return generateProofObjectForPolicy(policy, privateEntityIdentifierProver.getIBEIdentifier(),
-                privateEntityIdentifierProver.getWIBEIdentifier(),
                 privateEntityIdentifierProver.getNamespaceServiceProviderEmailAddressUserConcatenation(),
                 publicEntityIdentifierProver, privateEntityIdentifierProver, policyNamespaceAttestationProver, storageLayer);
     }
@@ -248,8 +247,6 @@ public class ProofObject implements Serializable {
      *          The {@link Attestation} to extract the information from.
      * @param   ibePKG
      *          The IBE PKG to extract the information with.
-     * @param   wibePKG
-     *          The WIBE PKG to extract the information with.
      * @param   wibeIdentifier
      *          The IBE identifier to obtain the {@link vrielynckpieterjan.applicationlayer.attestation.issuer.AESEncryptionInformationSegmentAttestation} with.
      * @return  The extracted information as a {@link Triple}: <br>
@@ -263,7 +260,6 @@ public class ProofObject implements Serializable {
     extractInformationForProofFromAttestation (
             @NotNull Attestation attestation,
             @NotNull Pair<PublicParameters, BigInteger> ibePKG,
-            @NotNull Pair<PublicParameters, BigInteger> wibePKG,
             @NotNull RTreePolicy wibeIdentifier)
         throws IllegalArgumentException {
         // Try to decrypt the AES information segment.
@@ -275,7 +271,7 @@ public class ProofObject implements Serializable {
             if (aesEncryptionInformationSegment.get() != null) return;
             try {
                 aesEncryptionInformationSegment.set(encryptedAESInformationSegment.decrypt(
-                        new ImmutableTriple<>(wibePKG.getLeft(), wibePKG.getRight(), rTreePolicy)));
+                        ibePKG.getLeft(), ibePKG.getRight(), rTreePolicy));
             } catch (IllegalArgumentException ignored) {}
         });
 
@@ -298,8 +294,6 @@ public class ProofObject implements Serializable {
      *          The {@link RTreePolicy} to prove.
      * @param   ibePKG
      *          The IBE PKG of the receiver.
-     * @param   wibePKG
-     *          The WIBE PKG of the issuer.
      * @param   namespaceAttestationIdentifierReceiver
      *          The String version of the {@link StorageElementIdentifier} used to store
      *          the {@link NamespaceAttestation} with of the receiver in the {@link StorageLayer}.
@@ -322,7 +316,6 @@ public class ProofObject implements Serializable {
     private static @NotNull ProofObject generateProofObjectForPolicy (
             @NotNull RTreePolicy policy,
             @NotNull Pair<PublicParameters, BigInteger> ibePKG,
-            @NotNull Pair<PublicParameters, BigInteger> wibePKG,
             @NotNull String namespaceAttestationIdentifierReceiver,
             @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
             @NotNull PrivateEntityIdentifier privateEntityIdentifierProver,
@@ -353,7 +346,7 @@ public class ProofObject implements Serializable {
                     // Try to extract even more information from the attestation.
                     try {
                         var extractedInformationAttestation = extractInformationForProofFromAttestation(
-                                retrievedAttestation, ibePKG, wibePKG, policy);
+                                retrievedAttestation, ibePKG, policy);
                         var extractedPolicy = extractedInformationAttestation.getLeft().getRTreePolicy();
                         var newPartStorageElementIdentifiers = new StorageElementIdentifier[]{retrievedAttestation.getStorageLayerIdentifier()};
                         var newPartAESKeys = new String[]{extractedInformationAttestation.getRight().getLeft()};
@@ -367,7 +360,6 @@ public class ProofObject implements Serializable {
 
                         var lessStrictProof = generateProofObjectForPolicy(
                                 extractedPolicy, extractedInformationAttestation.getMiddle().getIBEPKG(),
-                                extractedInformationAttestation.getMiddle().getWIBEPKG(),
                                 extractedInformationAttestation.getLeft().getPublicEntityIdentifierIssuer().getNamespaceServiceProviderEmailAddressUserConcatenation(),
                                 extractedInformationAttestation.getLeft().getPublicEntityIdentifierIssuer(),
                                 privateEntityIdentifierProver, policyNamespaceAttestationProver, storageLayer);

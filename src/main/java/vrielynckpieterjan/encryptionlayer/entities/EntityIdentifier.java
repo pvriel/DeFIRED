@@ -23,16 +23,13 @@ import java.util.Objects;
  *          The subtype of the {@link Key} used to represent the second RSA part of the identifier.
  * @param   <IBEEncryptionKeyType>
  *          The type used to represent the IBE part of the identifier.
- * @param   <WIBEEncryptionKeyType>
- *          The type used to represent the WIBE part of the identifier.
  */
 public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecryptionKeyType extends Key,
-        IBEEncryptionKeyType, WIBEEncryptionKeyType> implements Serializable {
+        IBEEncryptionKeyType> implements Serializable {
 
     private final RSAEncryptionKeyType rsaIdentifierOne;
     private final RSADecryptionKeyType rsaIdentifierTwo;
     private final IBEEncryptionKeyType ibeIdentifier;
-    private final WIBEEncryptionKeyType wibeIdentifier;
     private final String namespaceServiceProviderEmailAddressUserConcatenation;
 
     /**
@@ -43,20 +40,16 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
      *          The {@link Key} used to represent the second RSA part of the identifier.
      * @param   ibeIdentifier
      *          The IBE part of the identifier.
-     * @param   wibeIdentifier
-     *          The WIBE part of the identifier.
      * @param   namespaceServiceProviderEmailAddressUserConcatenation
      *          A concatenation of the namespace and the e-mail address of the user.
      */
     public EntityIdentifier(@NotNull RSAEncryptionKeyType rsaEncryptionIdentifier,
                             @NotNull RSADecryptionKeyType rsaDecryptionIdentifier,
                             @NotNull IBEEncryptionKeyType ibeIdentifier,
-                            @NotNull WIBEEncryptionKeyType wibeIdentifier,
                             @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
         this.rsaIdentifierOne = rsaEncryptionIdentifier;
         this.rsaIdentifierTwo = rsaDecryptionIdentifier;
         this.ibeIdentifier = ibeIdentifier;
-        this.wibeIdentifier = wibeIdentifier;
         this.namespaceServiceProviderEmailAddressUserConcatenation = Hashing.sha512().hashString(
                 namespaceServiceProviderEmailAddressUserConcatenation, StandardCharsets.UTF_8).toString();
     }
@@ -84,14 +77,6 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
     }
 
     /**
-     * Getter for the WIBE part of the identifier.
-     * @return  The WIBE part of the identifier.
-     */
-    public WIBEEncryptionKeyType getWIBEIdentifier() {
-        return wibeIdentifier;
-    }
-
-    /**
      * Getter for the hashed version of the concatenation of the namespace and the e-mail address of the user.
      * @return  The hash.
      */
@@ -114,13 +99,12 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
         KeyPair rsaKeyPairOne = RSACipherEncryptedSegment.generateKeyPair();
         KeyPair rsaKeyPairTwo = RSACipherEncryptedSegment.generateKeyPair();
         Pair<PublicParameters, BigInteger> ibePKG = IBEDecryptableSegment.generatePKG();
-        Pair<PublicParameters, BigInteger> wibePKG = IBEDecryptableSegment.generatePKG();
 
         PrivateEntityIdentifier privateEntityIdentifier = new PrivateEntityIdentifier(
-                rsaKeyPairOne.getPrivate(), rsaKeyPairTwo.getPublic(), ibePKG, wibePKG,
+                rsaKeyPairOne.getPrivate(), rsaKeyPairTwo.getPublic(), ibePKG,
                 namespaceEmailAddressConcatenation);
         PublicEntityIdentifier publicEntityIdentifier = new PublicEntityIdentifier(
-                rsaKeyPairOne.getPublic(), rsaKeyPairTwo.getPrivate(), ibePKG.getLeft(), wibePKG.getLeft(),
+                rsaKeyPairOne.getPublic(), rsaKeyPairTwo.getPrivate(), ibePKG.getLeft(),
                 namespaceEmailAddressConcatenation);
         return new ImmutablePair<>(privateEntityIdentifier, publicEntityIdentifier);
     }
@@ -131,13 +115,13 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
         if (o == null || getClass() != o.getClass()) return false;
         EntityIdentifier that = (EntityIdentifier) o;
         return rsaIdentifierOne.equals(that.rsaIdentifierOne) && rsaIdentifierTwo.equals(that.rsaIdentifierTwo) &&
-                ibeIdentifier.equals(that.ibeIdentifier) && wibeIdentifier.equals(that.wibeIdentifier) &&
+                ibeIdentifier.equals(that.ibeIdentifier) &&
                 namespaceServiceProviderEmailAddressUserConcatenation.equals(that.namespaceServiceProviderEmailAddressUserConcatenation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rsaIdentifierOne, rsaIdentifierTwo, ibeIdentifier, wibeIdentifier,
+        return Objects.hash(rsaIdentifierOne, rsaIdentifierTwo, ibeIdentifier,
                 namespaceServiceProviderEmailAddressUserConcatenation);
     }
 

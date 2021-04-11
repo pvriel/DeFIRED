@@ -13,7 +13,7 @@ import java.security.PublicKey;
  * Class representing a private {@link EntityIdentifier}.
  */
 public class PrivateEntityIdentifier
-        extends EntityIdentifier<PrivateKey, PublicKey, Pair<PublicParameters, BigInteger>, Pair<PublicParameters, BigInteger>> {
+        extends EntityIdentifier<PrivateKey, PublicKey, Pair<PublicParameters, BigInteger>> {
 
 
     /**
@@ -22,10 +22,9 @@ public class PrivateEntityIdentifier
      * @param rsaEncryptionIdentifier                               The {@link Key} used to represent the first RSA part of the identifier.
      * @param rsaDecryptionIdentifier                               The {@link Key} used to represent the second RSA part of the identifier.
      * @param ibeIdentifier                                         The IBE part of the identifier.
-     * @param wibeIdentifier                                        The WIBE part of the identifier.
      * @param namespaceServiceProviderEmailAddressUserConcatenation
      */
-    public PrivateEntityIdentifier(@NotNull PrivateKey rsaEncryptionIdentifier, @NotNull PublicKey rsaDecryptionIdentifier, @NotNull Pair<PublicParameters, BigInteger> ibeIdentifier, @NotNull Pair<PublicParameters, BigInteger> wibeIdentifier, @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
-        super(rsaEncryptionIdentifier, rsaDecryptionIdentifier, ibeIdentifier, wibeIdentifier, namespaceServiceProviderEmailAddressUserConcatenation);
+    public PrivateEntityIdentifier(@NotNull PrivateKey rsaEncryptionIdentifier, @NotNull PublicKey rsaDecryptionIdentifier, @NotNull Pair<PublicParameters, BigInteger> ibeIdentifier, @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
+        super(rsaEncryptionIdentifier, rsaDecryptionIdentifier, ibeIdentifier, namespaceServiceProviderEmailAddressUserConcatenation);
     }
 }

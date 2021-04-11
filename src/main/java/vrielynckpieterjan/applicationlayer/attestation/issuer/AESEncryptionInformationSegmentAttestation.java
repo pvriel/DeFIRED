@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment;
-import vrielynckpieterjan.encryptionlayer.schemes.WIBEDecryptableSegment;
 
 import java.io.Serializable;
 
@@ -42,13 +41,13 @@ public class AESEncryptionInformationSegmentAttestation implements Serializable 
      *          The {@link PublicEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
      * @param   ibeIdentifier
      *          The WIBE identifier to encrypt this {@link AESEncryptionInformationSegmentAttestation} with.
-     * @return  The encrypted version of this instance as an {@link WIBEDecryptableSegment}.
+     * @return  The encrypted version of this instance as an {@link vrielynckpieterjan.encryptionlayer.schemes.IBEDecryptableSegment}.
      * @throws  IllegalArgumentException
      *          If this instance could not be encrypted using the provided arguments.
      */
-    public @NotNull WIBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encrypt(
+    public @NotNull IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encrypt(
             @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
             @NotNull RTreePolicy ibeIdentifier) throws IllegalArgumentException {
-        return new WIBEDecryptableSegment<>(this, publicEntityIdentifierReceiver, ibeIdentifier);
+        return new IBEDecryptableSegment<>(this, publicEntityIdentifierReceiver, ibeIdentifier.toString());
     }
 }

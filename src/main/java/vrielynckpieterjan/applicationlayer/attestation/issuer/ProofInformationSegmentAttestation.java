@@ -17,8 +17,6 @@ public class ProofInformationSegmentAttestation implements Serializable {
 
     private final PublicParameters publicParametersIBE;
     private final BigInteger masterSecretIBE;
-    private final PublicParameters publicParametersWIBE;
-    private final BigInteger masterSecretWIBE;
 
     /**
      * Constructor for the {@link ProofInformationSegmentAttestation} class.
@@ -28,8 +26,6 @@ public class ProofInformationSegmentAttestation implements Serializable {
     public ProofInformationSegmentAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer) {
         publicParametersIBE = privateEntityIdentifierIssuer.getIBEIdentifier().getLeft();
         masterSecretIBE = privateEntityIdentifierIssuer.getIBEIdentifier().getRight();
-        publicParametersWIBE = privateEntityIdentifierIssuer.getWIBEIdentifier().getLeft();
-        masterSecretWIBE = privateEntityIdentifierIssuer.getWIBEIdentifier().getRight();
     }
 
     /**
@@ -38,14 +34,6 @@ public class ProofInformationSegmentAttestation implements Serializable {
      */
     public Pair<PublicParameters, BigInteger> getIBEPKG() {
         return new ImmutablePair<>(publicParametersIBE, masterSecretIBE);
-    }
-
-    /**
-     * Getter for the WIBE PKG of the issuer of the {@link IssuerPartAttestation}..
-     * @return  The WIBE PKG.
-     */
-    public Pair<PublicParameters, BigInteger> getWIBEPKG() {
-        return new ImmutablePair<>(publicParametersWIBE, masterSecretWIBE);
     }
 
     /**
