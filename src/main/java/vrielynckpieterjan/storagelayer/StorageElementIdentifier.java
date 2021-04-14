@@ -16,7 +16,7 @@ public class StorageElementIdentifier implements Serializable {
     /**
      * Constructor for the {@link StorageElementIdentifier} class.
      * @param   identifier
-     *          The identifier of the {@link StorageElement}.
+     *          The actual value for the identifier of the {@link StorageElement}.
      */
     public StorageElementIdentifier(@NotNull String identifier) {
         this.identifier = identifier;
@@ -24,7 +24,7 @@ public class StorageElementIdentifier implements Serializable {
 
     /**
      * Constructor for the {@link StorageElementIdentifier} class.
-     * This constructor initializes a {@link StorageElementIdentifier} instance of the provided length.
+     * This constructor initializes a {@link StorageElementIdentifier} instance for the provided length.
      * @param   length
      *          The provided length.
      */

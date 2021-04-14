@@ -34,11 +34,6 @@ import java.util.logging.Logger;
  * Class representing an IBE {@link DecryptableSegment}.
  * @param       <DecryptedObjectType>
  *              The type of the decrypted version of the {@link IBEDecryptableSegment}.
- * @implNote    This class does not extend the {@link CipherEncryptedSegment} class.
- *              The {@link CipherEncryptedSegment} requires its subclasses to be able to encrypt / decrypt byte arrays,
- *              while the used library for the IBE encryption (CryptID) only supports Strings.
- *              Even though it's theoretically possible to allow this class to extend the {@link CipherEncryptedSegment} class,
- *              this would require some additional (de-)serialization and thus would cause a performance hit.
  */
 public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
         implements DecryptableSegment<DecryptedObjectType, Triple<PublicParameters, BigInteger, String>> {
@@ -72,26 +67,25 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
     /**
      * Constructor for the {@link IBEDecryptableSegment} class.
      *
-     * @param originalObject             The original object to encrypt.
-     * @param publicParametersStringPair The key to encrypt the original object with.
-     * @throws IllegalArgumentException If an illegal key was provided.
+     * @param originalObject                The original object to encrypt.
+     * @param publicParametersStringPair    The key to encrypt the original object with.
+     * @throws IllegalArgumentException     If an illegal key was provided.
      */
     public IBEDecryptableSegment(@NotNull DecryptedObjectType originalObject, @NotNull Pair<PublicParameters, String> publicParametersStringPair)
             throws IllegalArgumentException {
-        // Convert Serializable object to string.
-        String originalObjectAsString;
+        /*
+        Convert the original object to a String first.
+        This is required by the underlying IBE encryption library.
+         */
+        String convertedOriginalObject;
         try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-            objectOutputStream.writeObject(originalObject);
-            objectOutputStream.close();
-            originalObjectAsString = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+            convertedOriginalObject = convertSerializableToString(originalObject);
         } catch (IOException e) {
-            throw new IllegalArgumentException(e); // Not entirely correct, but anyways...
+            throw new IllegalArgumentException(e);
         }
 
         // Actual encryption part.
-        encryptedSegment = encrypt(originalObjectAsString, publicParametersStringPair);
+        encryptedSegment = encrypt(convertedOriginalObject, publicParametersStringPair);
     }
 
     /**
@@ -129,6 +123,42 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
     }
 
     /**
+     * Method to convert a {@link Serializable} to a readable String.
+     * @param   serializable
+     *          The {@link Serializable}.
+     * @return  A base64 String.
+     * @throws  IOException
+     *          If the String could not be converted.
+     */
+    public static @NotNull String convertSerializableToString(@NotNull Serializable serializable)
+            throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(serializable);
+        objectOutputStream.close();
+        return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+    }
+
+    /**
+     * Method to convert a readble String to a DecryptedObjectType instance.
+     * @param   string
+     *          The String.
+     * @return  A DecryptedObjectType instance.
+     * @throws  IOException
+     *          If the String could not be converted to a DecryptedObjectType instance.
+     * @throws  ClassNotFoundException
+     *          If the String could not be converted to a DecryptedObjectType instance.
+     */
+    private @NotNull DecryptedObjectType convertStringToDecryptedObjectType(@NotNull String string)
+            throws IOException, ClassNotFoundException {
+        byte[] data = Base64.getDecoder().decode(string);
+        ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(data));
+        DecryptedObjectType decryptedObject = (DecryptedObjectType) objectInputStream.readObject();
+        objectInputStream.close();
+        return decryptedObject;
+    }
+
+    /**
      * Method to encrypt a String using the provided {@link PublicParameters} instance and identifier.
      * @param   originalObject
      *          The original object to encrypt.
@@ -159,9 +189,10 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
         String decryptedObjectAsString;
         try {
             // Construct the necessary part of the PKG to decrypt the CipherTextTuple.
-            IbeClient ibeClient = componentFactory.obtainClient(publicParametersBigIntegerStringTriple.getLeft());
-            PrivateKeyGenerator privateKeyGenerator = componentFactory.obtainPrivateKeyGenerator(
-                    publicParametersBigIntegerStringTriple.getLeft(), publicParametersBigIntegerStringTriple.getMiddle());
+            var ibeClientAndPKG = obtainIBEClientAndPKG(publicParametersBigIntegerStringTriple.getLeft(),
+                    publicParametersBigIntegerStringTriple.getMiddle());
+            var ibeClient = ibeClientAndPKG.getLeft();
+            var privateKeyGenerator = ibeClientAndPKG.getRight();
             // Actual decryption part.
             PrivateKey privateKey = privateKeyGenerator.extract(publicParametersBigIntegerStringTriple.getRight());
             Optional<String> optionalDecryptedString = ibeClient.decrypt(privateKey, encryptedSegment);
@@ -173,18 +204,49 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
             throw new IllegalArgumentException(e);
         }
 
-        // Convert String to original object type.
-        try {
-            byte[] data = Base64.getDecoder().decode(decryptedObjectAsString);
-            ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(data));
-            DecryptedObjectType decryptedObject = (DecryptedObjectType) objectInputStream.readObject();
-            objectInputStream.close();
-            return decryptedObject;
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e); // Not entirely correct, but anyways...
-        }
+        // Convert String to original object type and return.
+       try {
+           return convertStringToDecryptedObjectType(decryptedObjectAsString);
+       } catch (IOException | ClassNotFoundException e) {
+           throw new IllegalArgumentException(e);
+       }
     }
 
+    /**
+     * Method to obtain the {@link IbeClient} and {@link PrivateKeyGenerator} for a given {@link PublicParameters}
+     * and {@link BigInteger} instance.
+     * @param   publicParameters
+     *          The {@link PublicParameters}.
+     * @param   masterSecret
+     *          The {@link BigInteger}.
+     * @return  An {@link ImmutablePair}, containing the {@link IbeClient} and {@link PrivateKeyGenerator} instances.
+     * @throws  ComponentConstructionException
+     *          If one of the provided arguments is invalid.
+     */
+    private @NotNull Pair<IbeClient, PrivateKeyGenerator> obtainIBEClientAndPKG(@NotNull PublicParameters publicParameters,
+                                                                                @NotNull BigInteger masterSecret)
+            throws ComponentConstructionException {
+        IbeClient ibeClient = componentFactory.obtainClient(publicParameters);
+        PrivateKeyGenerator privateKeyGenerator = componentFactory.obtainPrivateKeyGenerator(publicParameters, masterSecret);
+        return new ImmutablePair<>(ibeClient, privateKeyGenerator);
+    }
+
+    /**
+     * Method to decrypt the {@link IBEDecryptableSegment}.
+     * @param   publicParameters
+     *          The {@link PublicParameters} of the IBE PKG.
+     * @param   bigInteger
+     *          The master secret as a {@link BigInteger} for the IBE PKG.
+     * @param   policy
+     *          The {@link RTreePolicy} instance to decrypt this {@link IBEDecryptableSegment} with.
+     * @return  The decrypted an deserialized segment.
+     * @throws  IllegalArgumentException
+     *          If the {@link IBEDecryptableSegment} could not be decrypted using the provided arguments.
+     * @apiNote
+     *          This method does not try to decrypt the {@link IBEDecryptableSegment} using the possible policies
+     *          for the parent directories of the provided {@link RTreePolicy} argument.
+     *          If this is required however, it's the caller's responsibility to call this method for each variation.
+     */
     public @NotNull DecryptedObjectType decrypt(@NotNull PublicParameters publicParameters, @NotNull BigInteger bigInteger,
                                                 @NotNull RTreePolicy policy)
             throws IllegalArgumentException {
@@ -207,6 +269,20 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
                 privateEntityIdentifier.getIBEIdentifier().getRight(), ibeIdentifier));
     }
 
+    /**
+     * Method to decrypt the {@link IBEDecryptableSegment}.
+     * @param   privateEntityIdentifier
+     *          The {@link PrivateEntityIdentifier} to decrypt this instance with.
+     * @param   policy
+     *          The {@link RTreePolicy} instance to decrypt this {@link IBEDecryptableSegment} with.
+     * @return  The decrypted and deserialized segment.
+     * @throws  IllegalArgumentException
+     *          If the provided arguments could not be used to decrypt this {@link IBEDecryptableSegment} with.
+     * @apiNote
+     *          This method does not try to decrypt the {@link IBEDecryptableSegment} using the possible policies
+     *          for the parent directories of the provided {@link RTreePolicy} argument.
+     *          If this is required however, it's the caller's responsibility to call this method for each variation.
+     */
     public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, @NotNull RTreePolicy policy)
         throws IllegalArgumentException {
         return this.decrypt(privateEntityIdentifier, policy.toString());

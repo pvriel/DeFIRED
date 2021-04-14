@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Abstract class representing an element which can be stored within the storage layer of the decentralized
+ * Abstract class representing an element which can be stored within the {@link StorageLayer} of the decentralized
  * access policy framework.
  */
 public abstract class StorageElement implements Serializable {

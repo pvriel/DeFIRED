@@ -26,9 +26,9 @@ public class AESCipherEncryptedSegment<DecryptedObjectType extends Serializable>
     /**
      * Constructor for the {@link AESCipherEncryptedSegment} class.
      *
-     * @param originalObject The original object to encrypt.
-     * @param encryptionKey              The key to encrypt the original object with.
-     * @throws IllegalArgumentException If an illegal key was provided.
+     * @param originalObject                The original object to encrypt.
+     * @param encryptionKey                 The key to encrypt the original object with.
+     * @throws IllegalArgumentException     If an illegal key was provided.
      */
     public AESCipherEncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull String encryptionKey) throws IllegalArgumentException {
         super(originalObject, encryptionKey);
@@ -45,7 +45,7 @@ public class AESCipherEncryptedSegment<DecryptedObjectType extends Serializable>
     }
 
     /**
-     * Method to encrypt / decrypt a byte array using a provided key.
+     * Method to encrypt / decrypt a byte array using a provided key for the AES algorithm.
      * @param   cipherMode
      *          The {@link Cipher} mode.
      * @param   element
@@ -56,34 +56,20 @@ public class AESCipherEncryptedSegment<DecryptedObjectType extends Serializable>
      * @throws  IllegalArgumentException
      *          If the content of the byte array can't be encrypted / decrypted using the provided key, or
      *          if an invalid cipherMode argument is provided.
+     * @implNote
+     *          This method adjusts the length of the key using the adjustKeyLength(String) method.
+     * @implNote
+     *          This method returns the result of the applyCipherMode(String, int, byte[], Key) method,
+     *          after performing the necessary conversions of the arguments.
      */
     private byte[] applyCipherMode(int cipherMode, byte[] element, @NotNull String key) throws IllegalArgumentException {
         key = adjustKeyLength(key); // If I ever change this line of code: cf. statement further.
         SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
-
-        try {
-            Cipher cipher = Cipher.getInstance("AES");
-            cipher.init(cipherMode, secretKeySpec);
-            return cipher.doFinal(element);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
-            /*
-            Normally, a distinction should be made for the Exceptions which can be thrown by the getInstance statement
-            and the init statement, as the user can also provide an invalid key (== a key with an invalid length, or null).
-            However, due to the @NotNull annotation and the adjustKeyLength method invocation, both situations can
-            be reduced to one, which allows us to use one catch statement here instead of two.
-             */
-            logger.severe(String.format("An AES Cipher instance could not be initialized (reason: %s). Due to" +
-                    " the severity of this problem, the program will now exit.", e));
-            e.printStackTrace();
-            System.exit(1);
-            return null;
-        } catch (BadPaddingException | IllegalBlockSizeException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return applyCipherMode("AES", cipherMode, element, secretKeySpec);
     }
 
     /**
-     * Method to adjust provided Strings that are either too long or too short by using repetition or taking substrings
+     * Method to adjust provided Strings that are either too long or too short by using repetition or taking substrings,
      * in order to use them as keys for the AES-256 algorithm.
      * @param   originalKey
      *          The original String.

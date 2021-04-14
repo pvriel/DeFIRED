@@ -3,8 +3,16 @@ package vrielynckpieterjan.encryptionlayer.schemes;
 import org.apache.commons.lang3.SerializationUtils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.Serializable;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 /**
  * Abstract class representing a {@link DecryptableSegment}, which is
@@ -18,6 +26,8 @@ import java.util.Arrays;
  */
 abstract class CipherEncryptedSegment<DecryptedObjectType extends Serializable, EncryptionKey, DecryptionKey>
         implements DecryptableSegment<DecryptedObjectType, DecryptionKey> {
+
+    private final static Logger logger = Logger.getLogger(CipherEncryptedSegment.class.getName());
 
     private final byte[] encryptedSegment;
 
@@ -64,6 +74,39 @@ abstract class CipherEncryptedSegment<DecryptedObjectType extends Serializable, 
      *          If the byte array can't be decrypted using the provided key.
      */
     protected abstract byte[] decrypt(byte[] encryptedSegment, @NotNull DecryptionKey decryptionKey) throws IllegalArgumentException;
+
+    /**
+     * Method to call a {@link Cipher} procedure to encrypt / decrypt the provided byte array with the given arguments.
+     * @param   instanceName
+     *          The name of the encryption method which is used to initialized the {@link Cipher} instance with.
+     * @param   cipherMode
+     *          The {@link Cipher} mode.
+     * @param   element
+     *          The element to encrypt.
+     * @param   key
+     *          The key to encrypt the element argument with.
+     * @return  The encrypted element as a byte array.
+     * @throws  IllegalArgumentException
+     *          If the provided key could not be used to encrypt the provided byte array with.
+     * @apiNote The System.exit() method is called if no {@link Cipher} instance can be initialized for the provided
+     *          instanceName argument.
+     */
+    protected byte[] applyCipherMode(@NotNull String instanceName, int cipherMode, byte[] element, @NotNull Key key)
+            throws IllegalArgumentException {
+        try {
+            Cipher cipher = Cipher.getInstance(instanceName);
+            cipher.init(cipherMode, key);
+            return cipher.doFinal(element);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            logger.severe(String.format("An %s Cipher instance could not be initialized (reason: %s). Due to" +
+                    " the severity of this problem, the program will now exit.", instanceName, e));
+            e.printStackTrace();
+            System.exit(1);
+            return null;
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
     @Override
     public boolean equals(Object o) {

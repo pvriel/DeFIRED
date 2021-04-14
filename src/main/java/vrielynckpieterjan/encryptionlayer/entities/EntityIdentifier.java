@@ -16,7 +16,7 @@ import java.security.KeyPair;
 import java.util.Objects;
 
 /**
- * Abstract class representing a public / private entity identifier.
+ * Abstract class representing an entity identifier.
  * @param   <RSAEncryptionKeyType>
  *          The subtype of the {@link Key} used to represent the first RSA part of the identifier.
  * @param   <RSADecryptionKeyType>
@@ -42,8 +42,9 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
      *          The IBE part of the identifier.
      * @param   namespaceServiceProviderEmailAddressUserConcatenation
      *          A concatenation of the namespace and the e-mail address of the user.
+     *          This value should not be hashed yet.
      */
-    public EntityIdentifier(@NotNull RSAEncryptionKeyType rsaEncryptionIdentifier,
+    protected EntityIdentifier(@NotNull RSAEncryptionKeyType rsaEncryptionIdentifier,
                             @NotNull RSADecryptionKeyType rsaDecryptionIdentifier,
                             @NotNull IBEEncryptionKeyType ibeIdentifier,
                             @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
@@ -88,7 +89,7 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
      * Static method to generate the combination of a {@link PublicEntityIdentifier} and its
      * {@link PrivateEntityIdentifier} counterpart.
      * @param   namespaceEmailAddressConcatenation
-     *          The concatenation of the namespace and the e-mail address of the user.
+     *          The concatenation of the namespace and the e-mail address of the user, which shouldn't be hashed yet.
      *          A hashed version (SHA-512) of this concatenation can be used as the {@link vrielynckpieterjan.storagelayer.StorageElementIdentifier}
      *          to store the {@link vrielynckpieterjan.applicationlayer.attestation.NamespaceAttestation}
      *          of the generated user with in the {@link vrielynckpieterjan.storagelayer.StorageLayer}.

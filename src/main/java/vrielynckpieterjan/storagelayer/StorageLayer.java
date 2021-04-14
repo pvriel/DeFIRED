@@ -11,6 +11,8 @@ import java.util.Set;
 
 /**
  * Interface representing the storage layer of the decentralized access policy framework.
+ * The storage layer is realized using a multi-value distributed hash table.
+ * The {@link StorageElement}s in that DHT are identified using {@link StorageElementIdentifier} instances.
  */
 public interface StorageLayer {
 
@@ -24,7 +26,7 @@ public interface StorageLayer {
     void put(@NotNull StorageElement newElement) throws IOException;
 
     /**
-     * Method to receive the {@link StorageElement}s, published using the given identifier, as a set.
+     * Method to receive the {@link StorageElement}s, published using the given {@link StorageElementIdentifier}, as a set.
      * @param   identifier
      *          The identifier.
      * @throws  IOException
@@ -35,7 +37,7 @@ public interface StorageLayer {
 
     /**
      * Cf. retrieve(StorageElementIdentifier) method, with the only exception that
-     * this method already filters the {@link StorageElement}s based on the given clazz parameter.
+     * this method already filters the {@link StorageElement}s based on the given {@link Class} parameter.
      * @param   clazz
      *          The class of the subtype of the {@link StorageElement} class for which results should be returned.
      * @param   <T>
@@ -50,28 +52,5 @@ public interface StorageLayer {
             if (storageElement.getClass().equals(clazz)) returnValue.add((T) storageElement);
         }
         return returnValue;
-    }
-
-    default @NotNull Iterator<Attestation> getPersonalQueue(@NotNull PublicEntityIdentifier publicEntityIdentifierReceiver) {
-        return new Iterator<>() {
-
-            private StorageElementIdentifier currentStorageElementIdentifier =
-                    new StorageElementIdentifier(publicEntityIdentifierReceiver.getNamespaceServiceProviderEmailAddressUserConcatenation());
-            private Attestation nextAttestation = null;
-
-            @Override
-            public synchronized boolean hasNext() {
-                return false;
-            }
-
-            @Override
-            public synchronized Attestation next() {
-                return null;
-            }
-
-            private void updateCurrentStorageElementIdentifier(@NotNull Attestation foundAttestation) {
-
-            }
-        };
     }
 }

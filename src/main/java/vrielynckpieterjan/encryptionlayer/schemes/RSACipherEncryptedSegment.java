@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @param   <DecryptedObjectType>
  *          The object type of the decrypted segment.
  * @implNote
- *          This class uses AES encryption to encrypt the original object
+ *          This class uses AES encryption to encrypt the original object with
  *          and uses RSA encryption to encrypt the used, randomly 32-byte long generated AES key.
  *          This is due to the fact that the RSA encryption scheme can't be used
  *          to encrypt objects of any length.
@@ -71,15 +71,20 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
     protected byte[] encrypt(byte[] serializedOriginalObject, @NotNull PublicKey publicKey) throws IllegalArgumentException {
         // Generate random String for the AES encryption.
         String AESKey = RandomStringUtils.randomAlphanumeric(32);
+
         // Encrypt original object using AES encryption.
         encapsulatedAESEncryptedSegment = new AESCipherEncryptedSegment<>(serializedOriginalObject, AESKey);
+
         // Encrypt AES key using RSA encryption.
         return applyRSACipherMode(Cipher.ENCRYPT_MODE, AESKey.getBytes(StandardCharsets.UTF_8), publicKey);
     }
 
     @Override
     protected byte[] decrypt(byte[] encryptedSegment, @NotNull PrivateKey privateKey) throws IllegalArgumentException {
+        // Decrypt the encrypted version of the AES key using the RSA key.
         byte[] decryptedAESKey = applyRSACipherMode(Cipher.DECRYPT_MODE, encryptedSegment, privateKey);
+
+        // Decrypt the AES encrypted segment.
         String originalAESKey = new String(decryptedAESKey, StandardCharsets.UTF_8);
         return encapsulatedAESEncryptedSegment.decrypt(originalAESKey);
     }
@@ -124,19 +129,7 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
      *          if an invalid cipherMode argument is provided.
      */
     private byte[] applyRSACipherMode(int cipherMode, byte[] element, @NotNull Key key) throws IllegalArgumentException {
-        try {
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(cipherMode, key);
-            return cipher.doFinal(element);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            logger.severe(String.format("An RSA Cipher instance could not be initialized (reason: %s). Due to" +
-                    " the severity of this problem, the program will now exit.", e));
-            e.printStackTrace();
-            System.exit(1);
-            return null;
-        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return applyCipherMode("RSA", cipherMode, element, key);
     }
 
     /**
@@ -157,7 +150,7 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
 
     /**
      * Method to check if the provided {@link PrivateKey} and {@link PublicKey} instances are actually
-     * part of an RSA {@link KeyPair}.
+     * part of the same RSA {@link KeyPair}.
      * @param   privateKey
      *          A possible RSA {@link PrivateKey}.
      * @param   publicKey
