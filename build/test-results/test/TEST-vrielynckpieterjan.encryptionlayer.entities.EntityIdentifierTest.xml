@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2021-04-17T08:36:07" hostname="MBPvanPieterJan" time="0.604">
-  <properties/>
-  <testcase name="WIBEIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.249"/>
-  <testcase name="IBEIdentifierTest()" classname="vrielynckpieterjan.encryptionlayer.entities.EntityIdentifierTest" time="0.241"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
