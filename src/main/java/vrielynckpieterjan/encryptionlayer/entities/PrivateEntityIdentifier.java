@@ -13,20 +13,19 @@ import java.security.PublicKey;
  * Class representing a private {@link EntityIdentifier}.
  */
 public class PrivateEntityIdentifier
-        extends EntityIdentifier<PrivateKey, PublicKey, Pair<PublicParameters, BigInteger>> {
+        extends EntityIdentifier<PublicKey, Pair<PublicParameters, BigInteger>> {
 
 
     /**
      * Constructor for the {@link PrivateEntityIdentifier} class.
      *
-     * @param rsaEncryptionIdentifier                               The {@link Key} used to represent the first RSA part of the identifier.
-     * @param rsaDecryptionIdentifier                               The {@link Key} used to represent the second RSA part of the identifier.
+     * @param rsaIdentifier                               The {@link Key} used to represent the RSA part of the identifier.
      * @param ibeIdentifier                                         The IBE part of the identifier.
      * @param   namespaceServiceProviderEmailAddressUserConcatenation
      *          A concatenation of the namespace and the e-mail address of the user.
      *          This value should not be hashed yet.
      */
-    protected PrivateEntityIdentifier(@NotNull PrivateKey rsaEncryptionIdentifier, @NotNull PublicKey rsaDecryptionIdentifier, @NotNull Pair<PublicParameters, BigInteger> ibeIdentifier, @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
-        super(rsaEncryptionIdentifier, rsaDecryptionIdentifier, ibeIdentifier, namespaceServiceProviderEmailAddressUserConcatenation);
+    protected PrivateEntityIdentifier(@NotNull PublicKey rsaIdentifier, @NotNull Pair<PublicParameters, BigInteger> ibeIdentifier, @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
+        super(rsaIdentifier, ibeIdentifier, namespaceServiceProviderEmailAddressUserConcatenation);
     }
 }

@@ -47,24 +47,12 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
      * Constructor for the {@link RSACipherEncryptedSegment} class.
      *
      * @param originalObject The original object to encrypt.
-     * @param publicEntityIdentifier     The {@link PublicEntityIdentifier} to encrypt the original object with.
-     * @throws IllegalArgumentException If an illegal key was provided.
-     */
-    public RSACipherEncryptedSegment(@NotNull DecryptedObjectType originalObject,
-                                     @NotNull PublicEntityIdentifier publicEntityIdentifier) throws IllegalArgumentException {
-        super(originalObject, publicEntityIdentifier.getRSAEncryptionIdentifier());
-    }
-
-    /**
-     * Constructor for the {@link RSACipherEncryptedSegment} class.
-     *
-     * @param originalObject The original object to encrypt.
      * @param privateEntityIdentifier     The {@link PrivateEntityIdentifier} to encrypt the original object with.
      * @throws IllegalArgumentException If an illegal key was provided.
      */
     public RSACipherEncryptedSegment(@NotNull DecryptedObjectType originalObject,
                                      @NotNull PrivateEntityIdentifier privateEntityIdentifier) throws IllegalArgumentException {
-        super(originalObject, privateEntityIdentifier.getRSADecryptionIdentifier());
+        super(originalObject, privateEntityIdentifier.getRSAIdentifier());
     }
 
     @Override
@@ -91,19 +79,6 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
 
     /**
      * Method to decrypt the {@link RSACipherEncryptedSegment}.
-     * @param   privateEntityIdentifier
-     *          The {@link PrivateEntityIdentifier} to decrypt the {@link RSACipherEncryptedSegment} with.
-     * @return  The decrypted and deserialized {@link RSACipherEncryptedSegment}.
-     * @throws  IllegalArgumentException
-     *          If the provided key can't be used to decrypt the {@link RSACipherEncryptedSegment}.
-     */
-    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier)
-            throws IllegalArgumentException {
-        return this.decrypt(privateEntityIdentifier.getRSAEncryptionIdentifier());
-    }
-
-    /**
-     * Method to decrypt the {@link RSACipherEncryptedSegment}.
      * @param   publicEntityIdentifier
      *          The {@link PublicEntityIdentifier} to decrypt the {@link RSACipherEncryptedSegment} with.
      * @return  The decrypted and deserialized {@link RSACipherEncryptedSegment}.
@@ -112,7 +87,7 @@ public class RSACipherEncryptedSegment<DecryptedObjectType extends Serializable>
      */
     public @NotNull DecryptedObjectType decrypt(@NotNull PublicEntityIdentifier publicEntityIdentifier)
         throws IllegalArgumentException {
-        return this.decrypt(publicEntityIdentifier.getRSADecryptionIdentifier());
+        return this.decrypt(publicEntityIdentifier.getRSAIdentifier());
     }
 
     /**

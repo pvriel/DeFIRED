@@ -17,57 +17,44 @@ import java.util.Objects;
 
 /**
  * Abstract class representing an entity identifier.
- * @param   <RSAEncryptionKeyType>
- *          The subtype of the {@link Key} used to represent the first RSA part of the identifier.
- * @param   <RSADecryptionKeyType>
- *          The subtype of the {@link Key} used to represent the second RSA part of the identifier.
+ * @param   <RSAKeyType>
+ *          The subtype of the {@link Key} used to represent the RSA part of the identifier.
  * @param   <IBEEncryptionKeyType>
  *          The type used to represent the IBE part of the identifier.
  */
-public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecryptionKeyType extends Key,
+public abstract class EntityIdentifier<RSAKeyType extends Key,
         IBEEncryptionKeyType> implements Serializable {
 
-    private final RSAEncryptionKeyType rsaIdentifierOne;
-    private final RSADecryptionKeyType rsaIdentifierTwo;
+    private final RSAKeyType rsaIdentifier;
     private final IBEEncryptionKeyType ibeIdentifier;
     private final String namespaceServiceProviderEmailAddressUserConcatenation;
 
     /**
      * Constructor for the {@link EntityIdentifier} class.
-     * @param   rsaEncryptionIdentifier
-     *          The {@link Key} used to represent the first RSA part of the identifier.
-     * @param   rsaDecryptionIdentifier
-     *          The {@link Key} used to represent the second RSA part of the identifier.
+     * @param   rsaIdentifier
+     *          The {@link Key} used to represent the RSA part of the identifier.
      * @param   ibeIdentifier
      *          The IBE part of the identifier.
      * @param   namespaceServiceProviderEmailAddressUserConcatenation
      *          A concatenation of the namespace and the e-mail address of the user.
      *          This value should not be hashed yet.
      */
-    protected EntityIdentifier(@NotNull RSAEncryptionKeyType rsaEncryptionIdentifier,
-                            @NotNull RSADecryptionKeyType rsaDecryptionIdentifier,
+    protected EntityIdentifier(@NotNull RSAKeyType rsaIdentifier,
                             @NotNull IBEEncryptionKeyType ibeIdentifier,
                             @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
-        this.rsaIdentifierOne = rsaEncryptionIdentifier;
-        this.rsaIdentifierTwo = rsaDecryptionIdentifier;
+        this.rsaIdentifier = rsaIdentifier;
         this.ibeIdentifier = ibeIdentifier;
         this.namespaceServiceProviderEmailAddressUserConcatenation = Hashing.sha512().hashString(
                 namespaceServiceProviderEmailAddressUserConcatenation, StandardCharsets.UTF_8).toString();
     }
 
     /**
-     * Getter for the {@link Key} used to represent the first RSA part of the identifier.
+     * Getter for the {@link Key} used to represent the RSA part of the identifier.
      * @return  The RSA {@link Key}.
      */
-    public RSAEncryptionKeyType getRSAEncryptionIdentifier() {
-        return rsaIdentifierOne;
+    public RSAKeyType getRSAIdentifier() {
+        return rsaIdentifier;
     }
-
-    /**
-     * Getter for the {@link Key} used to represent the second RSA part of the identifier.
-     * @return  The RSA {@link Key}.
-     */
-    public RSADecryptionKeyType getRSADecryptionIdentifier() {return rsaIdentifierTwo;}
 
     /**
      * Getter for the IBE part of the identifier.
@@ -97,15 +84,13 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
      */
     public static Pair<PrivateEntityIdentifier, PublicEntityIdentifier> generateEntityIdentifierPair(
             @NotNull String namespaceEmailAddressConcatenation) {
-        KeyPair rsaKeyPairOne = RSACipherEncryptedSegment.generateKeyPair();
-        KeyPair rsaKeyPairTwo = RSACipherEncryptedSegment.generateKeyPair();
+        KeyPair rsaKeyPair = RSACipherEncryptedSegment.generateKeyPair();
         Pair<PublicParameters, BigInteger> ibePKG = IBEDecryptableSegment.generatePKG();
 
-        PrivateEntityIdentifier privateEntityIdentifier = new PrivateEntityIdentifier(
-                rsaKeyPairOne.getPrivate(), rsaKeyPairTwo.getPublic(), ibePKG,
-                namespaceEmailAddressConcatenation);
+        PrivateEntityIdentifier privateEntityIdentifier = new PrivateEntityIdentifier(rsaKeyPair.getPublic(),
+                ibePKG, namespaceEmailAddressConcatenation);
         PublicEntityIdentifier publicEntityIdentifier = new PublicEntityIdentifier(
-                rsaKeyPairOne.getPublic(), rsaKeyPairTwo.getPrivate(), ibePKG.getLeft(),
+                rsaKeyPair.getPrivate(), ibePKG.getLeft(),
                 namespaceEmailAddressConcatenation);
         return new ImmutablePair<>(privateEntityIdentifier, publicEntityIdentifier);
     }
@@ -115,14 +100,14 @@ public abstract class EntityIdentifier<RSAEncryptionKeyType extends Key, RSADecr
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EntityIdentifier that = (EntityIdentifier) o;
-        return rsaIdentifierOne.equals(that.rsaIdentifierOne) && rsaIdentifierTwo.equals(that.rsaIdentifierTwo) &&
+        return rsaIdentifier.equals(that.rsaIdentifier) &&
                 ibeIdentifier.equals(that.ibeIdentifier) &&
                 namespaceServiceProviderEmailAddressUserConcatenation.equals(that.namespaceServiceProviderEmailAddressUserConcatenation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rsaIdentifierOne, rsaIdentifierTwo, ibeIdentifier,
+        return Objects.hash(rsaIdentifier, ibeIdentifier,
                 namespaceServiceProviderEmailAddressUserConcatenation);
     }
 

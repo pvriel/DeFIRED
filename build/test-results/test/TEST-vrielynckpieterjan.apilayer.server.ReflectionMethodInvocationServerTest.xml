@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-17T08:35:59" hostname="MBPvanPieterJan" time="1.031">
+  <properties/>
+  <testcase name="receiveRequest()" classname="vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServerTest" time="1.031"/>
+  <system-out><![CDATA[The test method is called!
+]]></system-out>
+  <system-err><![CDATA[apr. 17, 2021 10:35:59 A.M. vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServer run
+INFO: ReflectionMethodInvocationServer (Thread[Thread-3,5,main]) is running.
+apr. 17, 2021 10:35:59 A.M. vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServer run
+WARNING: An IOException occurred while trying to handle the next request for ReflectionMethodInvocationServer (Thread[Thread-3,5,main]) (reason: java.io.IOException: First request already handled.).
+apr. 17, 2021 10:35:59 A.M. vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServer handleNextRequest
+SEVERE: The void vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServerTest$TestReflectionMethodInvocationServer.testMethod(java.lang.String,java.lang.Integer) Method was successfully invoked, but the Method returned (null) while a ReflectionMethodInvocationServerResponse instance was expected.
+apr. 17, 2021 10:35:59 A.M. vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServer run
+INFO: ReflectionMethodInvocationServer (Thread[Thread-3,5,main]) interrupted; awaiting termination...
+apr. 17, 2021 10:36:00 A.M. vrielynckpieterjan.apilayer.server.ReflectionMethodInvocationServer run
+INFO: ReflectionMethodInvocationServer (Thread[Thread-3,5,main]) terminated.
+]]></system-err>
+</testsuite>

@@ -18,12 +18,7 @@ class EntityIdentifierTest {
             "cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa " +
             "qui officia deserunt mollit anim id est laborum.";
 
-    @Test
-    void RSAIdentifierTest() {
-        RSACipherEncryptedSegment<String> encryptedSegment = new RSACipherEncryptedSegment<>(data, entityIdentifierPair.getRight());
-        String decrypted = encryptedSegment.decrypt(entityIdentifierPair.getLeft());
-        assertEquals(data, decrypted);
-    }
+
 
     @Test
     void IBEIdentifierTest() {
