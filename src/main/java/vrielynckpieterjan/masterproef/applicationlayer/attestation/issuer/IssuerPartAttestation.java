@@ -74,7 +74,6 @@ public class IssuerPartAttestation implements Serializable {
                 .encrypt(aesKeys.getRight());
 
         // Generate the AES encryption information segment.
-        // This part is encrypted using the namespace of the owner of the resources.
         aesEncryptionInformationSegment = new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
                 publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver,
                 rTreePolicy);

@@ -8,17 +8,32 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+/**
+ * Abstract class representing a server, of which the methods can be invoked externally
+ * in a reflection-oriented manner.
+ */
 abstract class ReflectionMethodInvocationServer extends Thread {
 
     private final static Logger logger = Logger.getLogger(ReflectionMethodInvocationServer.class.getName());
 
     private final ExecutorService executorService;
 
+    /**
+     * Constructor for the {@link ReflectionMethodInvocationServer} class.
+     * @param   amountOfThreads
+     *          The amount of simultaneous requests this {@link ReflectionMethodInvocationServer} instance can handle.
+     */
     protected ReflectionMethodInvocationServer(int amountOfThreads) {
         executorService = Executors.newFixedThreadPool(amountOfThreads);
         setDaemon(false);
     }
 
+    /**
+     * Method to receive the next {@link ReflectionMethodInvocationServerRequest} instance to handle for this server.
+     * @return  The {@link ReflectionMethodInvocationServerRequest}.
+     * @throws  IOException
+     *          If an IO-related problem occurred.
+     */
     abstract @NotNull ReflectionMethodInvocationServerRequest receiveRequest() throws IOException;
 
     @Override
@@ -34,13 +49,16 @@ abstract class ReflectionMethodInvocationServer extends Thread {
             }
         }
 
-        logger.info(String.format("ReflectionMethodInvocationServer (%s) interrupted; awaiting termination...", this));
-        try {
-            executorService.awaitTermination(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) { e.printStackTrace();}
-        logger.info(String.format("ReflectionMethodInvocationServer (%s) terminated.", this));
+        logger.info(String.format("ReflectionMethodInvocationServer (%s) interrupted; awaiting shutdown...", this));
+        executorService.shutdown();
+        logger.info(String.format("ReflectionMethodInvocationServer (%s) shut down.", this));
     }
 
+    /**
+     * Method to handle a received {@link ReflectionMethodInvocationServerRequest} instance.
+     * @param   request
+     *          The received request.
+     */
     private void handleNextRequest(@NotNull ReflectionMethodInvocationServerRequest request) {
         try {
             var method = this.getClass().getDeclaredMethod(request.getInvokedMethodName(), request.getParameterTypesInvocation());

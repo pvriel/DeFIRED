@@ -40,7 +40,7 @@ public class AESEncryptionInformationSegmentAttestation implements Serializable 
      * @param   publicEntityIdentifierReceiver
      *          The {@link PublicEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
      * @param   ibeIdentifier
-     *          The WIBE identifier to encrypt this {@link AESEncryptionInformationSegmentAttestation} with.
+     *          The IBE identifier to encrypt this {@link AESEncryptionInformationSegmentAttestation} with.
      * @return  The encrypted version of this instance as an {@link vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment}.
      * @throws  IllegalArgumentException
      *          If this instance could not be encrypted using the provided arguments.

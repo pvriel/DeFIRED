@@ -10,11 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.NamespaceAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.AESEncryptionInformationSegmentAttestation;
-import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.ProofInformationSegmentAttestation;
-import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.VerificationInformationSegmentAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
-import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
@@ -117,26 +114,28 @@ public class ProofObject implements Serializable {
         return currentPolicy;
     }
 
+    /**
+     * Method to check if the prover hosts an {@link Attestation} with the provided {@link StorageElementIdentifier}
+     * in his personal queue.
+     * @param   curAttestation
+     *          The final {@link Attestation} of the proof.
+     * @param   storageElementIdentifierToFind
+     *          The {@link StorageElementIdentifier} of the {@link Attestation} to find in the personal queue of the prover.
+     * @param   storageLayer
+     *          The {@link StorageLayer}.
+     * @throws  IllegalArgumentException
+     *          If the {@link Attestation} could not be found.
+     * @throws  IOException
+     *          If an IO-related problem occurred while consulting the {@link StorageLayer}.
+     */
     private static void verifyPersonalQueue(@NotNull Attestation curAttestation,
                                             @NotNull StorageElementIdentifier storageElementIdentifierToFind,
                                             @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
         var publicEntityIdentifierProver = curAttestation.getFirstLayer().getPublicEntityIdentifierReceiver();
-        Set<Attestation> foundAttestationsCurrentIdentifier = new HashSet<>();
-        foundAttestationsCurrentIdentifier.add(curAttestation);
+        var personalQueueProver = storageLayer.getPersonalQueueUser(publicEntityIdentifierProver);
 
         while (!curAttestation.getStorageLayerIdentifier().equals(storageElementIdentifierToFind)) {
-            var found = false;
-            for (var attestation : foundAttestationsCurrentIdentifier) {
-                try {
-                    var nextQueueElementIdentifier = attestation.getThirdLayer().decrypt(publicEntityIdentifierProver).getRight();
-                    foundAttestationsCurrentIdentifier = storageLayer.retrieve(nextQueueElementIdentifier, Attestation.class);
-                    curAttestation = attestation;
-                    found = true;
-                    break;
-                } catch (IllegalArgumentException ignored) {}
-            }
-
-            if (!found) throw new IllegalArgumentException("The personal queue of the prover could not be verified.");
+            curAttestation = personalQueueProver.next();
         }
     }
 
@@ -234,6 +233,24 @@ public class ProofObject implements Serializable {
         return result;
     }
 
+    /**
+     * Method to generate a {@link ProofObject} object for a given {@link Attestation}.
+     * @param   attestation
+     *          The final {@link Attestation} of the proof.
+     * @param   firstAESKey
+     *          The first AES key of the provided {@link Attestation}.
+     * @param   secondAESKey
+     *          The second AES key of the provided {@link Attestation}.
+     * @param   aesKeyNamespaceAttestationProver
+     *          The first AES key for the namespace attestation of the prover.
+     * @param   storageLayer
+     *          The {@link StorageLayer}.
+     * @return  The {@link ProofObject}.
+     * @throws  IllegalArgumentException
+     *          If the provided {@link Attestation} is not part of a proof.
+     * @throws  IOException
+     *          If an IO-related problem occurred while consulting the {@link StorageLayer}.
+     */
     public static @NotNull ProofObject generateProofObject
             (@NotNull Attestation attestation,
              @NotNull String firstAESKey,
@@ -268,6 +285,22 @@ public class ProofObject implements Serializable {
                 aesKeyNamespaceAttestationProver);
     }
 
+    /**
+     * Method to find the information about the previous {@link Attestation} of the proof.
+     * @param   policy
+     *          The {@link RTreePolicy} of the current {@link Attestation} of the proof.
+     * @param   publicEntityIdentifier
+     *          The {@link PublicEntityIdentifier} of the receiver of the previous {@link Attestation} of the proof.
+     * @param   ibePKG
+     *          The IBE PKG of the receiver of the previous {@link Attestation} of the proof.
+     * @param   storageLayer
+     *          The {@link StorageLayer}.
+     * @return  A {@link Triple}, containing the found {@link Attestation} together with its two AES keys.
+     * @throws  IllegalArgumentException
+     *          If the previous {@link Attestation} of the proof could not be found.
+     * @throws  IOException
+     *          If an IO-related exception occurred while consulting the {@link StorageLayer}.
+     */
     private static @NotNull Triple<Attestation, String, String> findPreviousAttestationForProof(@NotNull RTreePolicy policy,
             @NotNull PublicEntityIdentifier publicEntityIdentifier, @NotNull Pair<PublicParameters, BigInteger> ibePKG,
             @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {

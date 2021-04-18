@@ -2,7 +2,7 @@ package vrielynckpieterjan.masterproef.apilayer;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.masterproef.apilayer.fileserver.*;
+import vrielynckpieterjan.masterproef.apilayer.server.fileserver.*;
 import vrielynckpieterjan.masterproef.apilayer.server.SimpleAPILayerServer;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationSecret;
@@ -15,6 +15,9 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * Class representing the API layer of the framework.
+ */
 public class APILayer extends Thread implements Closeable, FileServerInterface {
 
     private final SimpleAPILayerServer server;
@@ -26,6 +29,20 @@ public class APILayer extends Thread implements Closeable, FileServerInterface {
             Collections.synchronizedMap(new HashMap<>());
     private final File resourcesLocation;
 
+    /**
+     * Constructor for the {@link APILayer} class.
+     * @param   amountOfThreads
+     *          The amount of simultaneous external connections the {@link SimpleAPILayerServer} of this instance
+     *          can handle.
+     * @param   port
+     *          The port on which the {@link SimpleAPILayerServer} can run.
+     * @param   storageLayer
+     *          The {@link StorageLayer} to consult.
+     * @param   resourcesLocation
+     *          The {@link File} location at which the resources of the cloud storage service provider may be stored.
+     * @throws  IOException
+     *          If the provided resourcesLocation argument can't be used to store the service provider's resources.
+     */
     public APILayer(int amountOfThreads, int port, @NotNull StorageLayer storageLayer,
                     @NotNull File resourcesLocation) throws IOException {
         server = new SimpleAPILayerServer(amountOfThreads, port, storageLayer, registeredUsers, revocationSecretsAcceptedPolicies,
@@ -36,10 +53,17 @@ public class APILayer extends Thread implements Closeable, FileServerInterface {
         this.resourcesLocation = resourcesLocation;
     }
 
-    public void registerUser(@NotNull Pair<PrivateEntityIdentifier, PublicEntityIdentifier> userIdentifiers,
-                             @NotNull StorageElementIdentifier currentStorageElementIdentifier) {
+    /**
+     * Method to internally register a user as a registered user of the cloud storage service provider.
+     * @param   userIdentifiers
+     *          The {@link PrivateEntityIdentifier} and {@link PublicEntityIdentifier} instances of the new user.
+     * @apiNote
+     *          This method does not generate or store a namespace attestation for the {@link StorageLayer}.
+     */
+    public void registerUser(@NotNull Pair<PrivateEntityIdentifier, PublicEntityIdentifier> userIdentifiers) {
         registeredUsers.put(userIdentifiers.getRight(), userIdentifiers.getLeft());
-        currentStorageElementIdentifiers.put(userIdentifiers.getRight(), currentStorageElementIdentifier);
+        currentStorageElementIdentifiers.put(userIdentifiers.getRight(),
+                new StorageElementIdentifier(userIdentifiers.getRight().getNamespaceServiceProviderEmailAddressUserConcatenation()));
     }
 
     @Override
@@ -72,7 +96,12 @@ public class APILayer extends Thread implements Closeable, FileServerInterface {
         return dir.delete();
     }
 
-    private void deleteContentDirectory(@NotNull File directory) throws IOException {
+    /**
+     * Method to recursively delete the content of a given {@link File} directory.
+     * @param   directory
+     *          The directory.
+     */
+    private void deleteContentDirectory(@NotNull File directory) {
         for (var fileOrDir: directory.listFiles()) {
             if (fileOrDir.isDirectory())
                 deleteContentDirectory(fileOrDir);
@@ -120,6 +149,15 @@ public class APILayer extends Thread implements Closeable, FileServerInterface {
         return file.delete();
     }
 
+    /**
+     * Method to convert a {@link FileServerRequest} to a {@link File} instance for the specified resources.
+     * @param   fileServerRequest
+     *          The {@link FileServerRequest} instance.
+     * @return  The converted {@link File}.
+     * @throws  IllegalArgumentException
+     *          If the provided {@link FileServerRequest} does not point to resources that are actually
+     *          stored by the cloud storage service provider.
+     */
     private @NotNull File obtainFileInstanceFor(@NotNull FileServerRequest fileServerRequest)
         throws IllegalArgumentException {
         var path = Path.of(resourcesLocation.getAbsolutePath(), fileServerRequest.getResourceLocation());
