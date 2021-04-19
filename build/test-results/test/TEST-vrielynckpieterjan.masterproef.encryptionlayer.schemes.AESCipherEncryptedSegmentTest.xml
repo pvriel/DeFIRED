@@ -1,33 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegmentTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2021-04-18T09:51:03" hostname="MBPvanPieterJan" time="0.138">
-  <properties/>
-  <testcase name="encrypt()" classname="vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegmentTest" time="0.003"/>
-  <testcase name="nonStringEncrypt()" classname="vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegmentTest" time="0.134"/>
-  <system-out><![CDATA[��??sr?Pvrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegmenth�<�Cc�@???xr?Mvrielynckpieterjan.masterproef.encryptionlayer.schemes.CipherEncryptedSegmentC�si_��???[??encryptedSegmentt??[Bxpur??[B��?�??T�???xp???�K�r�?�G�?��?M���]]>&#x7f;<![CDATA[4v����^���-?R��i�?!��p�?��>z)�����?�j��a���Q[�>?�t�6	{]]>&#x7f;<![CDATA[U�P���o��+J<r��W=�?�^`d�h��ġ 3�3aJ�x�3RVB�l�����FT��??��<��x��V�>���N�o_k�����?�ԕ�?���-?5b?�=5�(1?%�g%UJ�L�X?O�n?�C�����}���l32Q�P `0E`1�GP}ݷݺ�N?]?n��?�?lM�&??���?8[�)?]�����?6�H�m�2�?[Eŭ?�0;r6$,�#�-7c??�,.\���?~���|�ن�~]��gW��hsFH|�?-� �#���^ӳ��(�̻3�@jG�\Ut�?Z.Έ�?^rRl-�1�&M�(�]]>&#x7f;<![CDATA[邉�?j�g�O?+�E��h�?�G[��g���9�ݺ??H=?,���CӪ�aּ�CN�2�-Q�?:ן�???@����k���c�?+E�J?�p0���R��9�?�S^
-��??sr?Pvrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegmenth�<�Cc�@???xr?Mvrielynckpieterjan.masterproef.encryptionlayer.schemes.CipherEncryptedSegmentC�si_��???[??encryptedSegmentt??[Bxpur??[B��?�??T�???xp???�A??�?��;��j?�?�KиuXv��?�Fx:?s?�j�xP-�|?Fm��A�6��j�
-ҁy??m&ʿx�J?_��@���=?N?x�Ǔ�_?��� �?�?�N6��){]��+�Tr +ǩ�,Ĝ�m?���w�?Y.�?�����;�?qO$�l?�? P�B\o㢕�W.P�?�?=G?]??e!��bOn�nJ�]���s?
-�_s�d3/�k�??$�I��3?�??�&?}�1���?��_X�$�y�Q/ TcB�,�h�?���lV�P-�����w�?۪zcY��I�?U���E��?.��G���SR?�{�9�A�X��??�?�}<�1�	q�r?�}#4x8{>�?�v(k�q<�Ӑ|`���#���&?��|����Hr6��?Z8hp*�.-_??j?��������;��Y�a�?�?Z�@?�	y_N\��r3�c.7.��Ԕ�p�^l�k\?E5H��??�(��?��?<{A4�㮳����K����d�o��:?�c�x��+��]��!���Lڛ�{3�Z��������p�z׺?��5҅��^?�@��?�}�tN<�9"[�v�?��M��?�ۊ�U���$%]V�О�
-� ]D?�5�S;̾@�k���m���?�_�S�?1?���u���^_?p���?�sZ$��L?ʢ��,O�M�|
-?�?��?ms����ѵw�ձ�\�~��?�<���w�?�/�gm�=H?�g"ʡ��?Ճ�?�?ҧ`uF?��D'���?P??<??o�X�m�;va5�����UՂ9�JJB?�?P?,"�eX�?�8�7ɫvU�G\��?�GO?�?%g��-7{��FN��{������?��?�B���b0	RD7�?���qj�J��?�Ƃ-���3��U��?}y�K}?؎�r��x�p`�&q�@�+�}�?�?�~����?�=^hC??t?�L`�降?�?��6E?��:}?E���0�?L'�?/�d??}��}X��Ľ�,?��U�㠍M1q?��
-@so��p��{�.7f��
-cH<��Ǒ ?���/ͽ*�W��|Q�� *�Z�?��Υ�?(��K��lL��b�/?i��W�20Z?�1�9��R�c�`yk JJ�\�`��~���E��]]>&#x7f;<![CDATA[�����O??+-t?�*?����X4�YC�sv��[��)?.?�\?�Va����L��>"c,�?�v�O��Ҁ���?@p�C��P?�]����~?(BM]��~�?�'�b!-\�x�<	���<{4۱�W�t�&m��>Y?.I>Lk�e�!����t��e�?*��������ł�h�?d]]>&#x7f;<![CDATA[���&aqc��=`m?�E�����#��?d?~0Z��?v3�11�}C�~�?(��Z+��O�-��x?�H�@?�9+?��]��R2�q�??e7��4����-N{����X�����?JT�?mfU���<T�e�������o��fkj���sZ�{%l�?=�΀/�unS�O5��5?`c�=!��?���
-?��˼�?��?"�����t��e�?*�������%=h^���?�i�?'?ʹ
-��W,�AEp Zp-ukJծ)�??V��W2�K?0+1?�h�ǳ^f�?�Rx��O?
-CY�j�K?W��E��R2�q�??e7��4��?l�E���[��5+�&jB�K�Ч`V�%o??��?��/?]�]]>&#x7f;<![CDATA[3����x}��K���H
-����?$�?�$Q�#'�k�J�	?'�� ?�L�[��{?�1?���M01��?&oÍ�?�橿�2�2�}%~\e���'�Y��=�?�ö�{�b?��حS�^W?/�P2gTҮ;��gj?C�?hYϙ��Y�?wO����S?���G?20��2 �?�$%�U?����`�J��?�?��S�0?M8T%M����g�?�?%@����6?�\H]]>&#x7f;<![CDATA[�?�l�?9?zӸG/u*31I�?8?Te�����2�=��m@�x\,����Q�Z�2x?�����?A��%}��vx`�?���s��P�.�LV�t?.آ@��s��Wx�'�@�r�?�+�?j�U�1ܡ_GX�?��?�!�?#�g�U��Zp��?�?<Naw��%`��yt��ZGId7�]�ݾ?��9�?��ũ����Zʩ�f� �N�`]]>&#x7f;<![CDATA[$��?e
-�?4?`����?>����hGm�%�u���?�������1�P??|��R���?&:<BҤ{3Ң?@������mZ'���?d�?�g?��nb����??��,�T�
-aC��)�'��Ù#�<?zB�wg�?���?TR��N*G�?�Zl�}l���?���Q�?,����?)��n��A���o&�'�:n�%asm,2�gwB�k�Ῑ�xD?��??"�[F�	?9��
-�?ȟ�?��LQ�Eʎ_���k.a�O}]]>&#x8e;<![CDATA[W�"Z'?J�F�e�w�?^&��jȀ�??�ɫJ�?�������?�靰��'.s������$??��ۇ�Z?@G���m'G��® dle�Fs5/	I?ߤ9D??��1I�:�R���H�0_6��8Mu@(4"4�S�ג8�?�mj���y�����:�-��??�??��?�eɬ-k�?��\\?7?$o�ә/��Ud9�z�?ߨ8?��N����i3�,��	�%W�??���H?�����?�?�0?x9$?V?�e���}��;?�U.-��m��???�鼐Cv?�C��d3�d�gb���>t�X��Z�4�w;�����|����?���ֆ�H�&^i\?�H��^�ӓ?
-"T#L�~-�����Tcd���˜�,���e����?^�����S�?�6�B훼��Ӿ?]�b1?v�%?�>?�?D�Ca��?֞�t�PD��>?�����??E4,�5|6?�l�yn?T�????�t��Q�X��h���I�V�	n���??��?8M�?��O��?�̶>�}�Ҕ?��>o?�?<��\�>0������??'Q�#��9�$s�?�}QL0���c�k�)�'�PJ?n_��s1���͝p�%�3?���,_ܝ]]>&#x7f;<![CDATA[�ғw�?��d?7/�d�U��8(���݊�>�??Rw�s\a��Z{[�?_?FR�???��{\�W�?��?m)�䘖�?��E??&;�R�������.{?�ɚ1?�?X/u��@�3�?Q�n�@�?vM?mfzy*��XwyN8Z?��@2?\��(0���Io�efB}<3?$��??�0ձ�SQ�?>��l3���y?��?|��Bvw��?�?���>L����bǟ�����$V�U�Vt
-�?����??m�?ly�]]>&#x7f;<![CDATA[?���f����?���l�&ql=��i��{�V����jƨO�^��%��?�o?�?�S�?��AJn� Ca�p��%f�j�=L?�(�$B���3�p!��/ʅ��+ѐ�;H�c���c�!���\m��?��19�)j�]i!���/*p^v{�i>��51���?I6=??�?�+?WE�?H	[#�5�t?'?2�?�	N-��4~?N��.b�?�ݗ�4�i)f?���J�n��ƤN��
-]]></system-out>
-  <system-err><![CDATA[apr. 18, 2021 11:51:03 A.M. vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment adjustKeyLength
-INFO: [vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment@0] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
-apr. 18, 2021 11:51:03 A.M. vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment adjustKeyLength
-INFO: [vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment@37d05efb] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
-apr. 18, 2021 11:51:03 A.M. vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment adjustKeyLength
-INFO: [vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment@0] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
-apr. 18, 2021 11:51:03 A.M. vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment adjustKeyLength
-INFO: [vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment@426ce582] A key of 10 byte(s) has been provided for the AES-256 algorithm. The original key will be repeated to obtain a key of 32 bytes instead.
-]]></system-err>
-</testsuite>

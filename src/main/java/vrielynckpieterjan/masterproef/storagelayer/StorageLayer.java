@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.NamespaceAttestation;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
+import vrielynckpieterjan.masterproef.storagelayer.queue.PersonalQueueIterator;
 
 import java.io.IOException;
 import java.util.HashSet;

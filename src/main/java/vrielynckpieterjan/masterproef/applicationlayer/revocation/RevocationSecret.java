@@ -5,12 +5,13 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Class representing a revocation secret.
  */
-public class RevocationSecret {
+public class RevocationSecret implements Serializable {
 
     private final static int LENGTH_GENERATED_REVOCATION_SECRETS = 512;
 
