@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -173,7 +174,8 @@ public class KadServer
             dout.close();
 
             byte[] data = bout.toByteArray();
-
+            //System.out.printf("Length of message: %s bytes.%n", data.length);
+            //System.out.println(new String(data, StandardCharsets.UTF_8));
             if (data.length > DATAGRAM_BUFFER_SIZE)
             {
                 throw new IOException("Message is too big");

@@ -28,9 +28,9 @@ vrielynckpieterjan/masterproef/applicationlayer/attestation/issuer/IssuerPartNam
 vrielynckpieterjan/masterproef/storagelayer/StorageLayerTest.java
  vrielynckpieterjan.masterproef.storagelayer.StorageLayerTest
  vrielynckpieterjan.masterproef.storagelayer.StorageLayerTest$TestStorageElement
-vrielynckpieterjan/masterproef/applicationlayer/proof/ProofObjectTest.java
- vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObjectTest
 vrielynckpieterjan/masterproef/applicationlayer/revocation/RevocationObjectTest.java
  vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationObjectTest
 vrielynckpieterjan/masterproef/storagelayer/dht/DHTStorageLayerTest.java
  vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayerTest
+vrielynckpieterjan/masterproef/applicationlayer/proof/ProofObjectTest.java
+ vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObjectTest

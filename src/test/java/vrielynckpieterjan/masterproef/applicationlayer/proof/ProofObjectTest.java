@@ -14,6 +14,7 @@ import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
+import vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer;
 import vrielynckpieterjan.masterproef.storagelayer.map.HashMapStorageLayer;
 
 import java.io.IOException;
@@ -139,17 +140,22 @@ class ProofObjectTest {
                 System.currentTimeMillis() - counter));
 
         // 8) Initialized the storage layer.
-        var testStorageLayerUserA = new HashMapStorageLayer();
-        var testStorageLayerUserB = new HashMapStorageLayer();
-        var testStorageLayerUserC = new HashMapStorageLayer();
+        counter = System.currentTimeMillis();
+        var storageLayerUserA = new DHTStorageLayer(userA.getRight(), 5678);
+        var storageLayerUserB = new DHTStorageLayer(userB.getRight(), 5679, storageLayerUserA);
+        var storageLayerUserC = new DHTStorageLayer(userC.getRight(), 5680, storageLayerUserA, storageLayerUserB);
+        System.out.println(String.format("DHTStorageLayers initialized (time needed: %s milliseconds).",
+                System.currentTimeMillis() - counter));
 
-        testStorageLayerUserA.put(namespaceAttestationA);
-        testStorageLayerUserB.put(namespaceAttestationB);
-        testStorageLayerUserC.put(namespaceAttestationC);
-        testStorageLayerUserB.put(shareAttestation);
-        testStorageLayerUserC.put(delegateAttestation);
+        counter = System.currentTimeMillis();
+        storageLayerUserA.put(namespaceAttestationA);
+        storageLayerUserB.put(namespaceAttestationB);
+        storageLayerUserC.put(namespaceAttestationC);
+        storageLayerUserB.put(shareAttestation);
+        storageLayerUserC.put(delegateAttestation);
+        System.out.println(String.format("Generated Attestations stored in the DHT (time needed: %s milliseconds).",
+                System.currentTimeMillis() - counter));
 
-        //System.out.println(TestStorageLayer.storedElements.keySet());
 
         // 9) Generate the proof object manually.
         counter = System.currentTimeMillis();
@@ -184,27 +190,27 @@ class ProofObjectTest {
         counter = System.currentTimeMillis();
         RTreePolicy policyToProve = new RTreePolicy(PolicyRight.READ, "A", "B", "C");
         var automaticallyConstructedProof = ProofObject.generateProofObject(delegateAttestation, firstAESKeysForProofObject[2],
-                secondAESKeysForProofObject[2], firstAESKeysForProofObject[3], testStorageLayerUserC);
+                secondAESKeysForProofObject[2], firstAESKeysForProofObject[3], storageLayerUserC);
         System.out.println(String.format("Proof object automatically generated (time needed: %s milliseconds).",
                 System.currentTimeMillis() - counter));
         assertEquals(proof, automaticallyConstructedProof);
 
         // 11) Verify the proof object.
         counter = System.currentTimeMillis();
-        var provenPolicy = proof.verify(testStorageLayerUserA);
+        var provenPolicy = proof.verify(storageLayerUserA);
         System.out.println(String.format("Proof object verified (time needed: %s milliseconds).",
                 System.currentTimeMillis() - counter));
         assertEquals(policyToProve, provenPolicy);
 
         // 12) Revoke the share Attestation.
         counter = System.currentTimeMillis();
-        userAShareAttestationRevocationSecret.revealInStorageLayer(testStorageLayerUserA);
+        userAShareAttestationRevocationSecret.revealInStorageLayer(storageLayerUserA);
         System.out.println(String.format("One revocation secret revealed (time needed: %s milliseconds).",
                 System.currentTimeMillis() - counter));
 
         // 13) Check if the proof object can still be verified.
         counter = System.currentTimeMillis();
-        assertThrows(IllegalArgumentException.class, () -> proof.verify(testStorageLayerUserA));
+        assertThrows(IllegalArgumentException.class, () -> proof.verify(storageLayerUserA));
         System.out.println(String.format("Invalid proof object successfully detected (time needed: %s milliseconds).",
                 System.currentTimeMillis() - counter));
     }

@@ -17,12 +17,24 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
+/**
+ * Class representing a Kademlia DHT-based realization of the {@link StorageLayer} interface.
+ */
 public class DHTStorageLayer implements StorageLayer {
 
     private final static Logger logger = Logger.getLogger(DHTStorageLayer.class.getName());
 
     private final JKademliaNode node;
 
+    /**
+     * Constructor for the {@link DHTStorageLayer} class.
+     * @param   publicEntityIdentifier
+     *          The {@link PublicEntityIdentifier} to identify this {@link JKademliaNode} with.
+     * @param   port
+     *          The port on which the local part of the DHT should run.
+     * @throws  IOException
+     *          If the boot process for the DHT failed.
+     */
     public DHTStorageLayer(@NotNull PublicEntityIdentifier publicEntityIdentifier, int port) throws IOException {
         node = new JKademliaNode("",
                 new KademliaId(publicEntityIdentifier.getNamespaceServiceProviderEmailAddressUserConcatenation().substring(0, 20)),
@@ -30,6 +42,17 @@ public class DHTStorageLayer implements StorageLayer {
         logger.info(String.format("DHTStorageLayer (%s) initialized and running on port %s.", this, port));
     }
 
+    /**
+     * Constructor for the {@link DHTStorageLayer} class.
+     * @param   publicEntityIdentifier
+     *          The {@link PublicEntityIdentifier} to identify this {@link JKademliaNode} with.
+     * @param   port
+     *          The port on which the local part of the DHT should run.
+     * @param   otherStorageLayers
+     *          The other {@link DHTStorageLayer} instances to bootstrap with.
+     * @throws  IOException
+     *          If the boot process for the DHT failed.
+     */
     public DHTStorageLayer(@NotNull PublicEntityIdentifier publicEntityIdentifier, int port, DHTStorageLayer... otherStorageLayers)
             throws IOException {
         this(publicEntityIdentifier, port);
@@ -51,7 +74,7 @@ public class DHTStorageLayer implements StorageLayer {
 
     @Override
     public HashSet<StorageElement> retrieve(@NotNull StorageElementIdentifier identifier) throws IOException {
-        var getParameter = new GetParameter(new KademliaId(identifier.getIdentifier().substring(0, 20)),
+        var getParameter = new GetParameter(new KademliaId(adjustLengthStringForDHTIdentifiers(identifier.getIdentifier())),
                 DHTStorageElementContainer.class.getTypeName());
         try {
             var retrievedEntry = node.get(getParameter);
@@ -64,6 +87,20 @@ public class DHTStorageLayer implements StorageLayer {
         }
     }
 
+    /**
+     * Method to adjust the length of a provided String to 20 bytes.
+     * @param   originalString
+     *          The provided String, which may be shorter or longer than 20 bytes.
+     * @return  A repeated version of the provided String, from which the first 20 bytes are taken as a substring.
+     */
+    private static String adjustLengthStringForDHTIdentifiers(@NotNull String originalString) {
+        var copy = originalString.repeat((int) Math.ceil(20.0 / (double) originalString.length()));
+        return copy.substring(0, 20);
+    }
+
+    /**
+     * Class encapsulating the required functionality for the used Kademlia library.
+     */
     static class DHTStorageElementContainer implements KadContent, Serializable {
 
         private final HashSet<StorageElement> storedElements;
@@ -72,14 +109,11 @@ public class DHTStorageLayer implements StorageLayer {
             this.storedElements = storedElements;
         }
 
-        HashSet<StorageElement> getStoredElements() {
-            return storedElements;
-        }
-
         @Override
         public KademliaId getKey() {
             if (storedElements.size() == 0) return null;
-            else return new KademliaId(storedElements.iterator().next().getStorageLayerIdentifier().getIdentifier().substring(0, 20));
+            else return new KademliaId(adjustLengthStringForDHTIdentifiers(
+                    storedElements.iterator().next().getStorageLayerIdentifier().getIdentifier()));
         }
 
         @Override

@@ -313,7 +313,6 @@ public class ProofObject implements Serializable {
         // 3. Iterate over the personal queue, until the previous attestation for the proof is found.
         while (true) {
             var attestation = personalQueue.next();
-            System.out.println(attestation);
             var encryptedAESEncryptionInformationSegment = attestation.getFirstLayer().getAesEncryptionInformationSegment();
 
             try {

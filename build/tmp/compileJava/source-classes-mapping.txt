@@ -82,21 +82,21 @@ vrielynckpieterjan/masterproef/storagelayer/queue/PersonalQueueIterator.java
  vrielynckpieterjan.masterproef.storagelayer.queue.PersonalQueueIterator
 vrielynckpieterjan/masterproef/applicationlayer/attestation/issuer/IssuerPartNamespaceAttestation.java
  vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartNamespaceAttestation
-vrielynckpieterjan/masterproef/applicationlayer/proof/ProofObject.java
- vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObject
-vrielynckpieterjan/masterproef/apilayer/APILayer.java
- vrielynckpieterjan.masterproef.apilayer.APILayer
 vrielynckpieterjan/masterproef/apilayer/server/SimpleAPILayerServer.java
  vrielynckpieterjan.masterproef.apilayer.server.SimpleAPILayerServer
+vrielynckpieterjan/masterproef/apilayer/APILayer.java
+ vrielynckpieterjan.masterproef.apilayer.APILayer
+vrielynckpieterjan/masterproef/storagelayer/StorageLayer.java
+ vrielynckpieterjan.masterproef.storagelayer.StorageLayer
+ vrielynckpieterjan.masterproef.storagelayer.StorageLayer$1
 vrielynckpieterjan/masterproef/storagelayer/map/HashMapStorageLayer.java
  vrielynckpieterjan.masterproef.storagelayer.map.HashMapStorageLayer
 vrielynckpieterjan/masterproef/applicationlayer/attestation/NamespaceAttestation.java
  vrielynckpieterjan.masterproef.applicationlayer.attestation.NamespaceAttestation
 vrielynckpieterjan/masterproef/applicationlayer/revocation/RevocationCommitment.java
  vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationCommitment
-vrielynckpieterjan/masterproef/storagelayer/StorageLayer.java
- vrielynckpieterjan.masterproef.storagelayer.StorageLayer
- vrielynckpieterjan.masterproef.storagelayer.StorageLayer$1
+vrielynckpieterjan/masterproef/applicationlayer/proof/ProofObject.java
+ vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObject
 vrielynckpieterjan/masterproef/storagelayer/dht/DHTStorageLayer.java
  vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer
  vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer$DHTStorageElementContainer
