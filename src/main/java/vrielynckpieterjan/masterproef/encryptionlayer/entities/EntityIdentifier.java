@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Abstract class representing an entity identifier.
@@ -84,8 +85,14 @@ public abstract class EntityIdentifier<RSAKeyType extends Key,
      */
     public static Pair<PrivateEntityIdentifier, PublicEntityIdentifier> generateEntityIdentifierPair(
             @NotNull String namespaceEmailAddressConcatenation) {
-        KeyPair rsaKeyPair = RSACipherEncryptedSegment.generateKeyPair();
-        Pair<PublicParameters, BigInteger> ibePKG = IBEDecryptableSegment.generatePKG();
+        final var keyPair = new AtomicReference<KeyPair>();
+        final var PKG = new AtomicReference<Pair<PublicParameters, BigInteger>>();
+        new Thread(() -> keyPair.set(RSACipherEncryptedSegment.generateKeyPair())).start();
+        new Thread(() -> PKG.set(IBEDecryptableSegment.generatePKG())).start();
+
+        while (keyPair.get() == null || PKG.get() == null) {}
+        var rsaKeyPair = keyPair.get();
+        var ibePKG = PKG.get();
 
         PrivateEntityIdentifier privateEntityIdentifier = new PrivateEntityIdentifier(rsaKeyPair.getPublic(),
                 ibePKG, namespaceEmailAddressConcatenation);
