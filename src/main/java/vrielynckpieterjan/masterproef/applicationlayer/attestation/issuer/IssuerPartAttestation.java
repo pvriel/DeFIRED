@@ -16,6 +16,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Class representing the issuer's part of an {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation}.
@@ -65,18 +66,30 @@ public class IssuerPartAttestation implements Serializable {
         this.revocationCommitment = revocationCommitment;
         empiricalPublicKey = empiricalRSAKeyPair.getPublic();
 
+        // Multi-threading optimization preparation.
+        var atomicReferenceVerificationInformationSegment = new AtomicReference<AESCipherEncryptedSegment<VerificationInformationSegmentAttestation>>();
+        var atomicReferenceProofInformationSegment = new AtomicReference<AESCipherEncryptedSegment<ProofInformationSegmentAttestation>>();
+        var atomicReferenceAESEncryptionInformationSegment = new AtomicReference<IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation>>();
+
         // Generate the verification information segment.
-        verificationInformationSegment = new VerificationInformationSegmentAttestation(empiricalRSAKeyPair.getPrivate(),
-                privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, rTreePolicy).encrypt(aesKeys.getLeft());
+        new Thread(() -> atomicReferenceVerificationInformationSegment.set(new VerificationInformationSegmentAttestation(empiricalRSAKeyPair.getPrivate(),
+                privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, rTreePolicy).encrypt(aesKeys.getLeft()))).start();
+
 
         // Generate the proof information segment.
-        proofInformationSegment = new ProofInformationSegmentAttestation(privateEntityIdentifierIssuer)
-                .encrypt(aesKeys.getRight());
+        new Thread(() -> atomicReferenceProofInformationSegment.set(new ProofInformationSegmentAttestation(privateEntityIdentifierIssuer)
+                .encrypt(aesKeys.getRight()))).start();
 
         // Generate the AES encryption information segment.
-        aesEncryptionInformationSegment = new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
-                publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver,
-                rTreePolicy);
+        new Thread(() -> atomicReferenceAESEncryptionInformationSegment.set(new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
+                publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver, rTreePolicy)));
+
+        // Multi-threading optimization finalization.
+        while (atomicReferenceVerificationInformationSegment.get() == null ||
+                atomicReferenceProofInformationSegment.get() == null || atomicReferenceAESEncryptionInformationSegment == null) {}
+        verificationInformationSegment = atomicReferenceVerificationInformationSegment.get();
+        proofInformationSegment = atomicReferenceProofInformationSegment.get();
+        aesEncryptionInformationSegment = atomicReferenceAESEncryptionInformationSegment.get();
 
         // Generate the signature for the plaintext header at the end.
         if (!(this instanceof IssuerPartNamespaceAttestation)) updateSignature(empiricalRSAKeyPair.getPublic());
