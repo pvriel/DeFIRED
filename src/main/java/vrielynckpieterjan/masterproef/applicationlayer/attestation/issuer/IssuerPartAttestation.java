@@ -82,11 +82,11 @@ public class IssuerPartAttestation implements Serializable {
 
         // Generate the AES encryption information segment.
         new Thread(() -> atomicReferenceAESEncryptionInformationSegment.set(new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
-                publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver, rTreePolicy)));
+                publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver, rTreePolicy))).start();
 
         // Multi-threading optimization finalization.
         while (atomicReferenceVerificationInformationSegment.get() == null ||
-                atomicReferenceProofInformationSegment.get() == null || atomicReferenceAESEncryptionInformationSegment == null) {}
+                atomicReferenceProofInformationSegment.get() == null || atomicReferenceAESEncryptionInformationSegment.get() == null) {}
         verificationInformationSegment = atomicReferenceVerificationInformationSegment.get();
         proofInformationSegment = atomicReferenceProofInformationSegment.get();
         aesEncryptionInformationSegment = atomicReferenceAESEncryptionInformationSegment.get();

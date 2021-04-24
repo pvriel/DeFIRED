@@ -21,8 +21,8 @@ class DHTStorageLayerTest {
     private final Pair<PrivateEntityIdentifier, PublicEntityIdentifier> userTwo =
             EntityIdentifier.generateEntityIdentifierPair("testTwo");
 
-    private final DHTStorageLayer dhtStorageLayerOne = new DHTStorageLayer(userOne.getRight(), 5678);
-    private final DHTStorageLayer getDhtStorageLayerTwo = new DHTStorageLayer(userTwo.getRight(), 5679, dhtStorageLayerOne);
+    private final DHTStorageLayer dhtStorageLayerOne = new DHTStorageLayer(userOne.getRight(), 5878);
+    private final DHTStorageLayer getDhtStorageLayerTwo = new DHTStorageLayer(userTwo.getRight(), 5879, dhtStorageLayerOne);
 
     DHTStorageLayerTest() throws IOException { }
 
