@@ -19,12 +19,10 @@ import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 /**
  * Class representing a proof object.
@@ -78,39 +76,55 @@ public class ProofObject implements Serializable {
      *          If the {@link ProofObject} could not be verified.
      */
     public @NotNull RTreePolicy verify(@NotNull StorageLayer storageLayer) throws IOException, IllegalArgumentException {
-        logger.info(String.format("Trying to verify ProofObject (%s)...", this));
+        // 1. Verify the chain of attestations.
+        // 2. Verify the namespace attestation of the prover.
+        // 3. Verify the personal queue.
+        final AtomicReference<Exception> thrownException = new AtomicReference<>();
+        final AtomicReference<Exception> thrownProverThreadException = new AtomicReference<>();
+        final Map<Integer, Pair<Attestation, RTreePolicy>> retrievedAttestationElements = Collections.synchronizedMap(new HashMap<>());
+        final Thread proverThread = new Thread(() -> {
+            try {
+                var publicEntityIdentifierProver = retrievedAttestationElements.get(storageElementIdentifiers.length - 1)
+                        .getLeft().getFirstLayer().getPublicEntityIdentifierReceiver();
+                var namespaceAttestationPairProver = searchAndExtractRTreePolicyFromAttestation(new StorageElementIdentifier(publicEntityIdentifierProver.getNamespaceServiceProviderEmailAddressUserConcatenation()),
+                        aesKeyNamespaceAttestationProver, storageLayer);
+                if (!(namespaceAttestationPairProver.getLeft() instanceof NamespaceAttestation))
+                    throw new IllegalArgumentException(String.format("Could not verify the NamespaceAttestation of the prover" +
+                            " with PublicEntityIdentifier (%s).", publicEntityIdentifierProver));
+                verifyPersonalQueue(namespaceAttestationPairProver.getLeft(), storageElementIdentifiers[storageElementIdentifiers.length - 1],
+                        storageLayer);
+            } catch (IOException | IllegalArgumentException e) {
+                thrownProverThreadException.set(e);
+            }
+        });
 
-        RTreePolicy currentPolicy = null;
-        PublicEntityIdentifier publicEntityIdentifierProver = null;
-        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
-            logger.info(String.format("Verifying the %sth Attestation with StorageElementIdentifier (%s)" +
-                    " for ProofObject (%s)...", i, storageElementIdentifiers[i], this));
-            var currentPairAttestation = searchAndExtractRTreePolicyFromAttestation(
-                    storageElementIdentifiers[i], aesKeys[i], storageLayer);
+        IntStream.range(0, storageElementIdentifiers.length).parallel().forEach(index -> {
+            if (thrownException.get() != null) return;
 
-            var retrievedAttestation = currentPairAttestation.getLeft();
-            if (i == 0 && !(retrievedAttestation instanceof NamespaceAttestation)) throw new IllegalArgumentException(
-                    "ProofObject does not start with a NamespaceAttestation.");
-            if (i == storageElementIdentifiers.length - 1) publicEntityIdentifierProver = retrievedAttestation.getFirstLayer().getPublicEntityIdentifierReceiver();
+            try {
+                var currentPairAttestation = searchAndExtractRTreePolicyFromAttestation(
+                        storageElementIdentifiers[index], aesKeys[index], storageLayer);
+                var retrievedAttestation = currentPairAttestation.getLeft();
+                if (index == 0 && !(retrievedAttestation instanceof NamespaceAttestation))
+                    throw new IllegalArgumentException("ProofObject does not start with a NamespaceAttestation.");
 
-            var retrievedPolicy = currentPairAttestation.getRight();
-            currentPolicy = mergePoliciesForVerificationProcess(currentPolicy, retrievedPolicy);
-        }
+                retrievedAttestationElements.put(index, currentPairAttestation);
+                if (index == storageElementIdentifiers.length - 1) proverThread.start();
+            } catch (IOException | IllegalArgumentException e) {
+                thrownException.set(e);
+            }
+        });
+        if (thrownException.get() != null) throw new IllegalArgumentException(thrownException.get());
 
-        logger.info(String.format("Verifying the NamespaceAttestation of the prover with PublicEntityIdentifier (%s)" +
-                " for ProofObject (%s)...", publicEntityIdentifierProver, this));
-        var namespaceAttestationPairProver = searchAndExtractRTreePolicyFromAttestation(new StorageElementIdentifier(publicEntityIdentifierProver.getNamespaceServiceProviderEmailAddressUserConcatenation()),
-                aesKeyNamespaceAttestationProver, storageLayer);
-        if (!(namespaceAttestationPairProver.getLeft() instanceof NamespaceAttestation))
-            throw new IllegalArgumentException(String.format("Could not verify the NamespaceAttestation of the prover" +
-                    " with PublicEntityIdentifier (%s).", publicEntityIdentifierProver));
+        RTreePolicy currentPolicy = retrievedAttestationElements.get(0).getRight();
+        for (var i = 1; i < storageElementIdentifiers.length; i ++)
+            currentPolicy = mergePoliciesForVerificationProcess(currentPolicy,
+                    retrievedAttestationElements.get(i).getRight());
 
-        logger.info(String.format("Verifying that the prover with PublicEntityIdentifier (%s) is hosting" +
-                " his personal queue...", publicEntityIdentifierProver));
-        verifyPersonalQueue(namespaceAttestationPairProver.getLeft(), storageElementIdentifiers[storageElementIdentifiers.length - 1],
-                storageLayer);
-
-        logger.info(String.format("ProofObject (%s) verified.", this));
+        try {
+            proverThread.join();
+        } catch (InterruptedException ignored) { }
+        if (thrownProverThreadException.get() != null) throw new IllegalArgumentException(thrownProverThreadException.get());
         return currentPolicy;
     }
 

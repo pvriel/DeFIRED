@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="vrielynckpieterjan.Sollicitatie" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-26T15:34:07" hostname="MacBook-Pro-van-Pieter-Jan.local" time="0.02">
+  <properties/>
+  <testcase name="test_two()" classname="vrielynckpieterjan.Sollicitatie" time="0.02"/>
+  <system-out><![CDATA[-1869596475
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
