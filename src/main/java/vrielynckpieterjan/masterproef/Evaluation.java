@@ -9,6 +9,7 @@ import vrielynckpieterjan.masterproef.apilayer.macaroon.APILayerMacaroonManager;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.NamespaceAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.AESEncryptionInformationSegmentAttestation;
+import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartNamespaceAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
@@ -26,9 +27,11 @@ import vrielynckpieterjan.masterproef.storagelayer.map.HashMapStorageLayer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight.WRITE;
@@ -45,7 +48,9 @@ public class Evaluation {
     private final static InetSocketAddress referenceAPILayer = new InetSocketAddress("localhost", 5678);
 
     public static void main(String[] args) throws IOException {
+        macaroonSpeedTest();
         performEntityIdentifiersTest();
+        performAESKeyInformationDecryptionTest();
         performRevocationCommitmentGenerationTest();
         performPolicyGenerationTest();
         performIssuerPartNamespaceAttestationGenerationTest();
@@ -53,9 +58,19 @@ public class Evaluation {
         performReceiverPartNamespaceAttestationGenerationTest();
         fullyDecryptOneAttestationTest();
         performMacaroonGenerationAndVerificationTest();
-
         performProofObjectTestSamePolicy();
-        performProofObjectTestDifferentPolicy();
+    }
+
+    private static void macaroonSpeedTest() {
+        var manager = new APILayerMacaroonManager();
+        var macaroons = new ArrayList<APILayerMacaroon>();
+        runTest(iteration -> {
+            macaroons.add(manager.registerPolicy(new RTreePolicy(WRITE, "A", "B", "C")));
+        }, "Generating Macaroon from policy", 1000);
+
+        runTest(iteration -> {
+            manager.returnVerifiedPolicy(macaroons.get(iteration));
+        }, "Verifying Macaroon", 1000);
     }
 
     private static void fullyDecryptOneAttestationTest() {
@@ -82,74 +97,41 @@ public class Evaluation {
         }, "Checking if attestation is valid using the ephemeral RSA keypair", 100);
     }
 
-    private static void performProofObjectTestDifferentPolicy() throws IOException {
-        // Generate the policy.
-        var originalPolicy = new RTreePolicy(generatedPoliciesNamespaceAttestations.get(0), WRITE, RandomStringUtils.randomAlphanumeric(20));
-        var policies = new ArrayList<RTreePolicy>();
-        for (var i = 0; i < 100; i ++) {
-            policies.add(originalPolicy);
-            originalPolicy = new RTreePolicy(originalPolicy, WRITE, RandomStringUtils.randomAlphanumeric(20));
-        }
+    private static void performAESKeyInformationDecryptionTest() {
+        var issuer = generatedEntityIdentifiers.get(0);
+        var receiver = generatedEntityIdentifiers.get(1);
 
-        // Generate all the necessary attestations and obtain their keys.
-        var attestations = new ArrayList<Attestation>();
-        var keysAttestations = new ArrayList<Pair<String, String>>();
-        for (var i = 0; i < 100; i ++) {
-            var issuerIdentifiers = generatedEntityIdentifiers.get(Math.max(i - 1, 0));
-            var receiverIdentifiers = generatedEntityIdentifiers.get(i);
-            var issuerPartAttestation = new IssuerPartNamespaceAttestation(
-                    issuerIdentifiers.getLeft(),
-                    issuerIdentifiers.getRight(),
-                    receiverIdentifiers.getRight(),
-                    new RevocationCommitment(new RevocationSecret()), policies.get(i), referenceAPILayer);
-            var attestation = new Attestation(generatedNextStorageElementIdentifierNamespaceAttestations.get(i),
-                    issuerPartAttestation, new RevocationCommitment(new RevocationSecret()),
-                    new StorageElementIdentifier(),
-                    receiverIdentifiers.getLeft());
-            attestations.add(attestation);
-
-            var aesKeysSegment = attestation.getFirstLayer().getAesEncryptionInformationSegment().decrypt(receiverIdentifiers.getLeft(), policies.get(i));
-            keysAttestations.add(aesKeysSegment.getAesKeyInformation());
-        }
-
-        // Obtain the first AES keys of the namespace attestations.
-        var firstAESKeysNamespaceAttestations = new ArrayList<String>();
-        for (var i = 0; i < 100; i ++) {
-            var namespaceAttestation = generatedNamespaceAttestations.get(i);
-            var policyNamespaceAttestation = generatedPoliciesNamespaceAttestations.get(i);
-            var receiverNamespaceAttestation = generatedEntityIdentifiers.get(i);
-            var aesKeysSegment = namespaceAttestation.getFirstLayer().getAesEncryptionInformationSegment()
-                    .decrypt(receiverNamespaceAttestation.getLeft(), policyNamespaceAttestation);
-            firstAESKeysNamespaceAttestations.add(aesKeysSegment.getAesKeyInformation().getLeft());
-        }
-
-        // Storing everything in the storage layer.
-        var storageLayer = new HashMapStorageLayer();
-        generatedNamespaceAttestations.forEach(storageLayer::put);
-        attestations.forEach(storageLayer::put);
-
-        // The actual test.
-        var proofs = new ArrayList<ProofObject>();
-        double timer;
+        var originalPolicy = new RTreePolicy(WRITE, RandomStringUtils.randomAlphanumeric(20));
+        var currentPolicy = originalPolicy.clone();
+        var generatedPolicies = new ArrayList<RTreePolicy>();
         for (var i = 0; i < 30; i ++) {
-            timer = System.currentTimeMillis();
-            var proof = ProofObject.generateProofObject(attestations.get(i),
-                    keysAttestations.get(i).getLeft(),
-                    keysAttestations.get(i).getRight(),
-                    firstAESKeysNamespaceAttestations.get(i),
-                    storageLayer);
-            System.out.printf("[%e milliseconds]\tProof object constructed for %s attestation(s) (different policy)%n",
-                    System.currentTimeMillis() - timer, i + 1);
-            proofs.add(proof);
+            generatedPolicies.add(currentPolicy);
+            currentPolicy = new RTreePolicy(currentPolicy, WRITE, RandomStringUtils.randomAlphanumeric(20));
         }
 
+        var issuerPartAttestation = new IssuerPartAttestation(issuer.getLeft(), issuer.getRight(),
+                receiver.getRight(), new RevocationCommitment(new RevocationSecret()), originalPolicy);
+        var attestation = new Attestation(new StorageElementIdentifier(), issuerPartAttestation, new RevocationCommitment(new RevocationSecret()),
+                new StorageElementIdentifier(), receiver.getLeft());
+
+        // The actual test part.
         for (var i = 0; i < 30; i ++) {
-            timer = System.currentTimeMillis();
-            proofs.get(i).verify(storageLayer);
-            System.out.printf("[%e milliseconds]\tProof object verified for %s attestation(s) (different policy)%n",
-                    System.currentTimeMillis() - timer, i + 1);
+            var timer = System.currentTimeMillis();
+            var atomicBoolean = new AtomicBoolean();
+            generatedPolicies.get(i).generateRTreePolicyVariations().parallelStream().forEach(rTreePolicy -> {
+                if (atomicBoolean.get()) return;
+                try {
+                    attestation.getFirstLayer().getAesEncryptionInformationSegment()
+                            .decrypt(receiver.getLeft(), rTreePolicy);
+                    atomicBoolean.set(true);
+                } catch (IllegalArgumentException ignored) {}
+            });
+
+            System.out.printf("[%e milliseconds] decrypting AES key information segment with" +
+                    " a level %s nested RTreePolicy%n", (double) System.currentTimeMillis() - timer, i);
         }
     }
+
 
     private static void performProofObjectTestSamePolicy() throws IOException {
         // Generate the policy.

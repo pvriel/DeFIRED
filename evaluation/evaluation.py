@@ -26,3 +26,18 @@ plt.plot(proof_object_construction_x, trend_function(proof_object_construction_x
 plt.xlabel("Amount of attestations")
 plt.ylabel("Time (milliseconds)")
 plt.show()
+
+
+decrypting_aes_key_information_segment_nested_policies_x = [i for i in range(0, 30)]
+decrypting_aes_key_information_segment_nested_policies_y = [104.3, 102.9, 156.1, 179.2, 272.3, 313.6, 333.2,
+                                                            303.8, 448.7, 470.4, 522.2, 507.5, 483, 648.2,
+                                                            716.1, 734.7, 623, 650, 645, 637, 600.5, 773.5,
+                                                            700.6, 750, 806.4, 871.5, 872.2, 772.1, 832.5,
+                                                            1001.7]
+trend = np.polyfit(decrypting_aes_key_information_segment_nested_policies_x, decrypting_aes_key_information_segment_nested_policies_y, 1)
+trend_function = np.poly1d(trend)
+plt.plot(decrypting_aes_key_information_segment_nested_policies_x, decrypting_aes_key_information_segment_nested_policies_y)
+plt.plot(decrypting_aes_key_information_segment_nested_policies_x, trend_function(decrypting_aes_key_information_segment_nested_policies_x), "r--")
+plt.xlabel("Length of policy")
+plt.ylabel("Time (milliseconds)")
+plt.show()
