@@ -52,14 +52,16 @@ vrielynckpieterjan/masterproef/storagelayer/map/HashMapStorageLayer.java
  vrielynckpieterjan.masterproef.storagelayer.map.HashMapStorageLayer
 vrielynckpieterjan/masterproef/apilayer/server/fileserver/FileServerListDirectoryRequest.java
  vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerListDirectoryRequest
+vrielynckpieterjan/masterproef/apilayer/server/fileserver/FileServerWriteRequest.java
+ vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerWriteRequest
 vrielynckpieterjan/masterproef/applicationlayer/attestation/issuer/IssuerPartAttestation.java
  vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartAttestation
 vrielynckpieterjan/masterproef/storagelayer/StorageElement.java
  vrielynckpieterjan.masterproef.storagelayer.StorageElement
 vrielynckpieterjan/masterproef/encryptionlayer/schemes/AESCipherEncryptedSegment.java
  vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment
-vrielynckpieterjan/masterproef/apilayer/server/fileserver/FileServerWriteRequest.java
- vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerWriteRequest
+vrielynckpieterjan/masterproef/apilayer/server/fileserver/FileServerDeleteFileRequest.java
+ vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerDeleteFileRequest
 vrielynckpieterjan/masterproef/apilayer/macaroon/RTreePolicyMacaroonElement.java
  vrielynckpieterjan.masterproef.apilayer.macaroon.RTreePolicyMacaroonElement
 vrielynckpieterjan/masterproef/apilayer/macaroon/APILayerMacaroonManager.java
@@ -94,11 +96,11 @@ vrielynckpieterjan/masterproef/apilayer/macaroon/APILayerMacaroon.java
  vrielynckpieterjan.masterproef.apilayer.macaroon.APILayerMacaroon
 vrielynckpieterjan/masterproef/apilayer/server/fileserver/FileServerCreateFileRequest.java
  vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerCreateFileRequest
-vrielynckpieterjan/masterproef/apilayer/server/fileserver/FileServerDeleteFileRequest.java
- vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerDeleteFileRequest
 vrielynckpieterjan/masterproef/applicationlayer/proof/ProofObject.java
  vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObject
 vrielynckpieterjan/masterproef/apilayer/server/SimpleAPILayerServer.java
  vrielynckpieterjan.masterproef.apilayer.server.SimpleAPILayerServer
 vrielynckpieterjan/masterproef/Evaluation.java
  vrielynckpieterjan.masterproef.Evaluation
+vrielynckpieterjan/masterproef/Demo.java
+ vrielynckpieterjan.masterproef.Demo

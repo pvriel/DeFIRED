@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObjectTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-30T17:36:39" hostname="MacBook-Pro-van-Pieter-Jan.local" time="13.432">
+<testsuite name="vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObjectTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-06-20T19:27:16" hostname="MBPvanPieterJan" time="7.611">
   <properties/>
-  <testcase name="test()" classname="vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObjectTest" time="13.432"/>
-  <system-out><![CDATA[Entity identifiers generated (time needed: 967 milliseconds).
+  <testcase name="test()" classname="vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObjectTest" time="7.611"/>
+  <system-out><![CDATA[Entity identifiers generated (time needed: 831 milliseconds).
 The generate PublicEntityIdentifiers:
 Cloud:	f7fdaf01fb1ab8509854b0dcaf05b2adeda38c764f291ddea092386bfef4dbee09fca39cb265e597d8042324671ca7d3f4e4363504b6cc57f6aedb2d4a6b8964
 userA:	22d614e8ec1b06e2a07eede8bbd0913946a7e5955d012a64d31528f9f0d98d376771b4d66ab40a210073d074d34e50861c6eefb511ea4f463dde5e64df9e44b1
 userB:	5c02314e93e8426ddbce33ed64c5f66b91b08ae7dd24bb3bc3b582746369e16f135e7aacec02e2e8f32e83a2e0d166db02be61f55fcbdee6c27db4c7e2a363a4
 userC:	22de819389b8dd8a689fea35b2cc82a3544ee59b33be325c452b16241549bc66fda5855c9bb983c5f1d9ed460715849bf105d15ff01912cc623de1dc86019539
-Policies generated (time needed: 4 milliseconds).
-Storage identifiers generated (time needed: 1 milliseconds).
-Revocation secrets and commitments generated (time needed: 37 milliseconds).
-Issuer's parts generated (time needed: 1154 milliseconds).
-Attestations generated (time needed: 4 milliseconds).
-DHTStorageLayers initialized (time needed: 5839 milliseconds).
-Generated Attestations stored in the DHT (time needed: 3275 milliseconds).
-Proof object manually generated (time needed: 743 milliseconds).
-Proof object automatically generated (time needed: 1067 milliseconds).
-Proof object verified (time needed: 187 milliseconds).
-One revocation secret revealed (time needed: 26 milliseconds).
-Invalid proof object successfully detected (time needed: 96 milliseconds).
+Policies generated (time needed: 25 milliseconds).
+Storage identifiers generated (time needed: 0 milliseconds).
+Revocation secrets and commitments generated (time needed: 1 milliseconds).
+Issuer's parts generated (time needed: 1473 milliseconds).
+Attestations generated (time needed: 5 milliseconds).
+DHTStorageLayers initialized (time needed: 587 milliseconds).
+Generated Attestations stored in the DHT (time needed: 3115 milliseconds).
+Proof object manually generated (time needed: 520 milliseconds).
+Proof object automatically generated (time needed: 771 milliseconds).
+Proof object verified (time needed: 162 milliseconds).
+One revocation secret revealed (time needed: 25 milliseconds).
+Invalid proof object successfully detected (time needed: 82 milliseconds).
 ]]></system-out>
-  <system-err><![CDATA[apr. 30, 2021 7:36:46 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
-INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4c41706) initialized and running on port 5678.
-apr. 30, 2021 7:36:46 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
-INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@1b30b34d) initialized and running on port 5679.
-apr. 30, 2021 7:36:46 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
-INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@1b30b34d) bootstrapped using DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4c41706).
-apr. 30, 2021 7:36:46 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
-INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@6689fc9c) initialized and running on port 5680.
-apr. 30, 2021 7:36:46 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
-INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@6689fc9c) bootstrapped using DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4c41706).
-apr. 30, 2021 7:36:47 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
-INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@6689fc9c) bootstrapped using DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@1b30b34d).
+  <system-err><![CDATA[jun. 20, 2021 9:27:19 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
+INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@2900519) initialized and running on port 5678.
+jun. 20, 2021 9:27:19 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
+INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4d9d5405) initialized and running on port 5679.
+jun. 20, 2021 9:27:19 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
+INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4d9d5405) bootstrapped using DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@2900519).
+jun. 20, 2021 9:27:19 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
+INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4562a914) initialized and running on port 5680.
+jun. 20, 2021 9:27:19 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
+INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4562a914) bootstrapped using DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@2900519).
+jun. 20, 2021 9:27:19 P.M. vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer <init>
+INFO: DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4562a914) bootstrapped using DHTStorageLayer (vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer@4d9d5405).
 ]]></system-err>
 </testsuite>

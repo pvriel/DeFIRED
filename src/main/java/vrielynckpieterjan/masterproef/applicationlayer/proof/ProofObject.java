@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -271,6 +272,8 @@ public class ProofObject implements Serializable {
              @NotNull String secondAESKey,
              @NotNull String aesKeyNamespaceAttestationProver,
              @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
+        logger.info(String.format("Trying to generate a proof object for attestation (%s) with AES keys (%s, %s)...",
+                attestation, firstAESKey, secondAESKey));
         if (attestation instanceof NamespaceAttestation) {
             return new ProofObject(new StorageElementIdentifier[]{attestation.getStorageLayerIdentifier()},
                     new String[]{firstAESKey}, aesKeyNamespaceAttestationProver);
