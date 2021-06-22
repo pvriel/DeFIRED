@@ -12,6 +12,7 @@ public class APILayerMacaroon implements Serializable {
 
     private final PublicIdentifierMacaroonElement publicIdentifier;
     private final RTreePolicyMacaroonElement rTreePolicyMacaroonElement;
+    private final String signature;
 
     /**
      * Constructor for the {@link APILayerMacaroon} class.
@@ -27,6 +28,9 @@ public class APILayerMacaroon implements Serializable {
                             @NotNull RTreePolicy rTreePolicy) {
         publicIdentifier = new PublicIdentifierMacaroonElement(macaroonSecret, macaroonPublicIdentifier);
         rTreePolicyMacaroonElement = new RTreePolicyMacaroonElement(publicIdentifier, rTreePolicy);
+
+        var tempSignature = publicIdentifier.generateSignature(macaroonSecret);
+        signature = rTreePolicyMacaroonElement.generateSignature(tempSignature);
     }
 
     /**
@@ -57,5 +61,13 @@ public class APILayerMacaroon implements Serializable {
 
         generatedSignature = rTreePolicyMacaroonElement.generateSignature(generatedSignature);
         return rTreePolicyMacaroonElement.getSignature().equals(generatedSignature);
+    }
+
+    @Override
+    public String toString() {
+        return "APILayerMacaroon{" +
+                "publicIdentifier=" + publicIdentifier +
+                ", rTreePolicyMacaroonElement=" + rTreePolicyMacaroonElement +
+                ", signature=" +  signature + '}';
     }
 }

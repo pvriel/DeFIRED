@@ -17,4 +17,9 @@ class PublicIdentifierMacaroonElement extends MacaroonElement<String> {
     public PublicIdentifierMacaroonElement(@NotNull String macaroonSecret, @NotNull String encapsulatedObject) {
         super(macaroonSecret, encapsulatedObject);
     }
+
+    @Override
+    public String toString() {
+        return getEncapsulatedObject();
+    }
 }

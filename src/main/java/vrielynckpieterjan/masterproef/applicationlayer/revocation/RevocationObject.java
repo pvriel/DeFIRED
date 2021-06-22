@@ -45,4 +45,12 @@ public class RevocationObject extends StorageElement {
                 .toString();
         return reconstructedRevocationCommitment.equals(getStorageLayerIdentifier().getIdentifier());
     }
+
+    @Override
+    public String toString() {
+        return "RevocationObject{" +
+                "revocationCommitment=" + getStorageLayerIdentifier() +
+                ", revealedSecret=" + revealedSecret +
+                '}';
+    }
 }

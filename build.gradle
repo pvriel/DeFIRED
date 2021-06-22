@@ -10,6 +10,11 @@ repositories {
     mavenCentral()
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'vrielynckpieterjan.masterproef.Demo'
+    }
+}
 dependencies {
     implementation project(':Kademlia')
     implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'

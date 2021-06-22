@@ -67,4 +67,11 @@ public class RevocationSecret implements Serializable {
         RevocationObject revocationObject = new RevocationObject(revocationCommitment, this);
         storageLayer.put(revocationObject);
     }
+
+    @Override
+    public String toString() {
+        return "RevocationSecret{" +
+                "secret='" + secret + '\'' +
+                '}';
+    }
 }

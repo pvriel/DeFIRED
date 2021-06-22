@@ -18,4 +18,9 @@ class RTreePolicyMacaroonElement extends MacaroonElement<RTreePolicy> {
     public RTreePolicyMacaroonElement(@NotNull MacaroonElement previousElement, @NotNull RTreePolicy encapsulatedObject) {
         super(previousElement, encapsulatedObject);
     }
+
+    @Override
+    public String toString() {
+        return getEncapsulatedObject().toString();
+    }
 }

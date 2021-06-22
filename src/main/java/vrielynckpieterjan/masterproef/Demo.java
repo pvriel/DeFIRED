@@ -2,6 +2,7 @@ package vrielynckpieterjan.masterproef;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import vrielynckpieterjan.masterproef.apilayer.macaroon.APILayerMacaroonManager;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.NamespaceAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartAttestation;
@@ -10,6 +11,7 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.Policy
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.applicationlayer.proof.ProofObject;
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationCommitment;
+import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationObject;
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationSecret;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
@@ -32,6 +34,7 @@ public class Demo {
     public static void main(String[] args) throws IOException {
         // Generating the storage layer.
         var storageLayer = new HashMapStorageLayer();
+        var macaroonManager = new APILayerMacaroonManager();
 
         // Generating encryption keys for the cloud storage service providers.
         var cloudA = EntityIdentifier.generateEntityIdentifierPair("cloudA");
@@ -96,6 +99,7 @@ public class Demo {
         issuersReceiversAttestationsDemo.add(new ImmutablePair<>(userB, userC));
         List<String> entityNames = new ArrayList<>(Arrays.asList("userA", "userB", "userA", "userC", "userB", "userC"));
         List<Attestation> generatedAttestationsForDemo = new ArrayList<>();
+        List<RevocationSecret> revocationSecrets = new ArrayList<>();
         for (var issuerReceiverCombination: issuersReceiversAttestationsDemo) {
             var issuer = issuerReceiverCombination.getLeft();
             var receiver = issuerReceiverCombination.getRight();
@@ -104,10 +108,12 @@ public class Demo {
             var newNextStorageElementIdentifierPersonalQueue = new StorageElementIdentifier();
             var oldNextStorageLayerIdentifier = queueStorageElementIdentifiers.get(receiver.getRight());
             queueStorageElementIdentifiers.put(receiver.getRight(), newNextStorageElementIdentifierPersonalQueue);
+            var lastRevocationSecret = new RevocationSecret();
             var attestation = new Attestation(oldNextStorageLayerIdentifier, issuerPartAttestation,
-                    new RevocationCommitment(new RevocationSecret()),
+                    new RevocationCommitment(lastRevocationSecret),
                     newNextStorageElementIdentifierPersonalQueue, receiver.getLeft());
             storageLayer.put(attestation);
+            revocationSecrets.add(lastRevocationSecret);
             generatedAttestationsForDemo.add(attestation);
             System.out.printf("%sAttestation (%s --> %s):%s\t%s%n", BLUE, entityNames.remove(0), entityNames.remove(0), RESET, attestation);
         }
@@ -119,8 +125,55 @@ public class Demo {
         var firstEphemeralAESKeyNamespaceAttestationUserC = aesKeys.getAesKeyInformation().getLeft();
         aesKeys = generatedAttestationsForDemo.get(2).getFirstLayer().getAesEncryptionInformationSegment()
                 .decrypt(userC.getLeft(), policy);
+
+        // Generating the first proof object.
+        System.out.printf("%n%sGenerating first variant of the proof object (userA --> userB --> userC):%s%n", BLUE, RESET);
         Logger.getLogger(ProofObject.class.getName()).setLevel(Level.ALL);
-        ProofObject.generateProofObject(generatedAttestationsForDemo.get(2), aesKeys.getAesKeyInformation().getLeft(),
+        var proofObjectOne = ProofObject.generateProofObject(generatedAttestationsForDemo.get(2), aesKeys.getAesKeyInformation().getLeft(),
                 aesKeys.getAesKeyInformation().getRight(), firstEphemeralAESKeyNamespaceAttestationUserC, storageLayer);
+        System.out.printf("%sResulting proof object:%s%n%s%n", BLUE, RESET, proofObjectOne);
+        var macaroonOne = macaroonManager.registerPolicy(proofObjectOne.verify(storageLayer));
+        System.out.printf("%sResulting macaroon:%s%n%s%n%n", BLUE, RESET, macaroonOne);
+
+        // Generating the second proof object.
+        aesKeys = generatedAttestationsForDemo.get(1).getFirstLayer().getAesEncryptionInformationSegment()
+                .decrypt(userC.getLeft(), policy);
+        System.out.printf("%sGenerating second variant of the proof object (userA --> userC):%s%n", BLUE, RESET);
+        var proofObjectTwo = ProofObject.generateProofObject(generatedAttestationsForDemo.get(1),
+                aesKeys.getAesKeyInformation().getLeft(), aesKeys.getAesKeyInformation().getRight(), firstEphemeralAESKeyNamespaceAttestationUserC, storageLayer);
+        System.out.printf("%sResulting proof object:%s%n%s%n", BLUE, RESET, proofObjectTwo);
+        var macaroonTwo = macaroonManager.registerPolicy(proofObjectTwo.verify(storageLayer));
+        System.out.printf("%sResulting macaroon:%s%n%s%n%n", BLUE, RESET, macaroonTwo);
+
+        // Revoking the attestation user A --> user B
+        var revocationObject = new RevocationObject(new RevocationCommitment(revocationSecrets.get(0)), revocationSecrets.get(0));
+        System.out.printf("%sRevoking the attestation (userA --> userB):%s%n%s%n%n", BLUE, RESET, revocationObject);
+        storageLayer.put(revocationObject);
+
+        // Generating the second proof object.
+        aesKeys = generatedAttestationsForDemo.get(1).getFirstLayer().getAesEncryptionInformationSegment()
+                .decrypt(userC.getLeft(), policy);
+        System.out.printf("%sGenerating second variant of the proof object (userA --> userC):%s%n", BLUE, RESET);
+        proofObjectTwo = ProofObject.generateProofObject(generatedAttestationsForDemo.get(1),
+                aesKeys.getAesKeyInformation().getLeft(), aesKeys.getAesKeyInformation().getRight(), firstEphemeralAESKeyNamespaceAttestationUserC, storageLayer);
+        System.out.printf("%sResulting proof object:%s%n%s%n", BLUE, RESET, proofObjectTwo);
+        macaroonTwo = macaroonManager.registerPolicy(proofObjectTwo.verify(storageLayer));
+        System.out.printf("%sResulting macaroon:%s%n%s%n%n", BLUE, RESET, macaroonTwo);
+
+        // Generating the first proof object.
+        System.out.printf("%n%sGenerating first variant of the proof object (userA --> userB --> userC):%s%n", BLUE, RESET);
+        Logger.getLogger(ProofObject.class.getName()).setLevel(Level.ALL);
+        aesKeys = generatedAttestationsForDemo.get(2).getFirstLayer().getAesEncryptionInformationSegment()
+                .decrypt(userC.getLeft(), policy);
+        try {
+            proofObjectOne = ProofObject.generateProofObject(generatedAttestationsForDemo.get(2), aesKeys.getAesKeyInformation().getLeft(),
+                    aesKeys.getAesKeyInformation().getRight(), firstEphemeralAESKeyNamespaceAttestationUserC, storageLayer);
+            System.out.printf("%sResulting proof object:%s%n%s%n", BLUE, RESET, proofObjectOne);
+            macaroonOne = macaroonManager.registerPolicy(proofObjectOne.verify(storageLayer));
+            System.out.printf("%sResulting macaroon:%s%n%s%n%n", BLUE, RESET, macaroonOne);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

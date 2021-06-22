@@ -295,11 +295,16 @@ public class ProofObject implements Serializable {
         var secondAESKeyPreviousAttestation = informationPreviousAttestationProof.getRight();
 
         // 3. Recursively generate the proof object.
-        var proofObjectPreviousAttestationsProof = generateProofObject(previousAttestation,
-                firstAESKeyPreviousAttestation, secondAESKeyPreviousAttestation, aesKeyNamespaceAttestationProver, storageLayer);
-        return new ProofObject(ArrayUtils.add(proofObjectPreviousAttestationsProof.storageElementIdentifiers, attestation.getStorageLayerIdentifier()),
-                ArrayUtils.add(proofObjectPreviousAttestationsProof.aesKeys, firstAESKey),
-                aesKeyNamespaceAttestationProver);
+        try {
+            var proofObjectPreviousAttestationsProof = generateProofObject(previousAttestation,
+                    firstAESKeyPreviousAttestation, secondAESKeyPreviousAttestation, aesKeyNamespaceAttestationProver, storageLayer);
+            return new ProofObject(ArrayUtils.add(proofObjectPreviousAttestationsProof.storageElementIdentifiers, attestation.getStorageLayerIdentifier()),
+                    ArrayUtils.add(proofObjectPreviousAttestationsProof.aesKeys, firstAESKey),
+                    aesKeyNamespaceAttestationProver);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(String.format("Could not generate a proof object; no previous" +
+                    " Attestation found for Attestation object (%s).", attestation));
+        }
     }
 
     /**
