@@ -59,7 +59,7 @@ public class Demo {
         allEntities.addAll(clouds);
         allEntities.addAll(users);
         for (var entity: allEntities) {
-            System.out.printf("%s%s%s%n%sPublic RSA key:%s\t%s%n%sPrivate RSA key:%s\t%s%n%sIBE parameters:%s\t%s%n%sStorage layer identifier first attestation in personal queue:%s\t%s%n%n",
+            System.out.printf("%s%s%s%n%sPublic EC key:%s\t%s%n%sPrivate EC key:%s\t%s%n%sIBE parameters:%s\t%s%n%sStorage layer identifier first attestation in personal queue:%s\t%s%n%n",
                     BLUE, entity.getLeft(), RESET,
                     GREEN, RESET, entity.getRight().getLeft().getRSAIdentifier(),
                     GREEN, RESET, entity.getRight().getRight().getRSAIdentifier(),
