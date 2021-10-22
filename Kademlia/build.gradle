@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'vrielynckpieterjan'
+group 'anonymous'
 version '1.0-SNAPSHOT'
 
 repositories {

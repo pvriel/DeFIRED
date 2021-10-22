@@ -3,7 +3,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
-group 'vrielynckpieterjan'
+group 'anonymous'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -12,7 +12,7 @@ repositories {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'vrielynckpieterjan.masterproef.Demo'
+        attributes 'Main-Class': 'anonymous.DFRDF.Demo'
     }
 }
 dependencies {

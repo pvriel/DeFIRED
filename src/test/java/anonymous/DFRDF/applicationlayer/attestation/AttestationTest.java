@@ -1,0 +1,53 @@
+package anonymous.DFRDF.applicationlayer.attestation;
+
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Test;
+import anonymous.DFRDF.applicationlayer.attestation.issuer.IssuerPartAttestation;
+import anonymous.DFRDF.applicationlayer.attestation.issuer.IssuerPartNamespaceAttestation;
+import anonymous.DFRDF.applicationlayer.attestation.policy.PolicyRight;
+import anonymous.DFRDF.applicationlayer.attestation.policy.RTreePolicy;
+import anonymous.DFRDF.applicationlayer.revocation.RevocationCommitment;
+import anonymous.DFRDF.applicationlayer.revocation.RevocationSecret;
+import anonymous.DFRDF.encryptionlayer.entities.EntityIdentifier;
+import anonymous.DFRDF.encryptionlayer.entities.PrivateEntityIdentifier;
+import anonymous.DFRDF.encryptionlayer.entities.PublicEntityIdentifier;
+import anonymous.DFRDF.storagelayer.StorageElementIdentifier;
+
+import java.net.InetSocketAddress;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AttestationTest {
+
+    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> issuerIdentifiers = EntityIdentifier.generateEntityIdentifierPair("");
+    Pair<PrivateEntityIdentifier, PublicEntityIdentifier> receiverIdentifiers = EntityIdentifier.generateEntityIdentifierPair("");
+    RevocationCommitment revocationCommitment = new RevocationCommitment(new RevocationSecret());
+    RTreePolicy rTreePolicy = new RTreePolicy(PolicyRight.WRITE, "A", "B", "C");
+    InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 5678);
+    IssuerPartAttestation issuerPartAttestation = new IssuerPartNamespaceAttestation(
+            issuerIdentifiers.getLeft(), issuerIdentifiers.getRight(), receiverIdentifiers.getRight(),
+            revocationCommitment, rTreePolicy, inetSocketAddress);
+
+    StorageElementIdentifier storageElementIdentifier = new StorageElementIdentifier("test");
+    Attestation attestation = new Attestation(storageElementIdentifier, issuerPartAttestation, revocationCommitment,
+            storageElementIdentifier, receiverIdentifiers.getLeft());
+
+    @Test
+    void isValid() {
+        assertTrue(attestation.isValid(receiverIdentifiers.getLeft(), receiverIdentifiers.getRight(), issuerIdentifiers.getRight(),
+                rTreePolicy));
+
+        /*
+        Why the following part of this test:
+        In Java: serializing & deserializing an object ==> different memory allocation, which means the hashes
+        of the objects may be different if the Attestation class is incorrectly implemented.
+
+        P.S.: Yes it took me a lot of time to fix this...
+         */
+        byte[] serializedAttestation = SerializationUtils.serialize(attestation);
+        Attestation deserializedAttestation = SerializationUtils.deserialize(serializedAttestation);
+        assertTrue(deserializedAttestation.isValid(receiverIdentifiers.getLeft(), receiverIdentifiers.getRight(),
+                issuerIdentifiers.getRight(), rTreePolicy));
+    }
+}
