@@ -1,6 +1,11 @@
 package vrielynckpieterjan.masterproef.encryptionlayer.schemes;
 
+import cryptid.CryptID;
+import cryptid.ibe.IdentityBasedEncryption;
+import cryptid.ibe.domain.CipherTextTuple;
 import cryptid.ibe.domain.PublicParameters;
+import cryptid.ibe.domain.SecurityLevel;
+import cryptid.ibe.exception.SetupException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -10,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IBEDecryptableSegmentTest {
 
@@ -30,5 +35,32 @@ class IBEDecryptableSegmentTest {
 
         String decrypted = ibeDecryptableSegment.decrypt(new ImmutableTriple<>(pkg.getLeft(), pkg.getRight(), identity));
         assertEquals(data, decrypted);
+    }
+
+    @Test
+    void speedPrivateKeyGenerationTest() throws SetupException {
+        IdentityBasedEncryption ibe = CryptID.setupBonehFranklin(SecurityLevel.LOWEST);
+
+        String message = "Ironic.";
+        String identity = "darth.plagueis@sith.com";
+
+        // Encrypt the message
+        CipherTextTuple cipherText = ibe.encrypt(message, identity);
+
+        // Obtain the private key corresponding to the identity
+        int amountOfRounds = 100;
+        double result = 0.0;
+
+        for (int i = 0; i < amountOfRounds; i ++) {
+            long startTime = System.currentTimeMillis();
+            ibe.extract(identity);
+            long endTime = System.currentTimeMillis();
+            result += endTime - startTime;
+        }
+
+        result /= amountOfRounds;
+        System.out.println(result);
+
+
     }
 }

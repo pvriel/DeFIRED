@@ -17,7 +17,7 @@ public interface Receiver
      * @param conversationId The ID of this conversation, used for further conversations
      * @param incoming       The incoming
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void receive(Message incoming, int conversationId) throws IOException;
 

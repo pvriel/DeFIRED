@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -48,7 +47,7 @@ public class ProofObject implements Serializable {
      *          If one of the two provided arrays has length zero, the lengths don't match
      *          or one of the two arrays contains a null value.
      */
-    protected ProofObject(StorageElementIdentifier[] storageElementIdentifiers,
+    public ProofObject(StorageElementIdentifier[] storageElementIdentifiers,
                        String[] aesKeys, @NotNull String aesKeyNamespaceAttestationProver) throws IllegalArgumentException {
         if (storageElementIdentifiers.length == 0) throw new IllegalArgumentException("Not enough StorageElementIdentifiers provided.");
         if (storageElementIdentifiers.length != aesKeys.length) throw new IllegalArgumentException(String.format("" +

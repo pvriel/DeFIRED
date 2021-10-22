@@ -5,7 +5,7 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreeP
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.RSACipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
 
 import java.io.Serializable;
 import java.security.PrivateKey;
@@ -19,14 +19,14 @@ import java.security.PrivateKey;
  */
 public class VerificationInformationSegmentAttestation implements Serializable {
 
-    private final RSACipherEncryptedSegment<PrivateKey> encryptedEmpiricalPrivateRSAKey;
+    private final ECCipherEncryptedSegment<PrivateKey> encryptedEmpiricalPrivateECKey;
     private final PublicEntityIdentifier publicEntityIdentifierIssuer;
     private final RTreePolicy rTreePolicy;
 
     /**
      * Constructor for the {@link VerificationInformationSegmentAttestation} class.
-     * @param   empiricalPrivateRSAKey
-     *          The empirical RSA {@link PrivateKey} instance of the {@link IssuerPartAttestation}.
+     * @param   empiricalPrivateECKey
+     *          The empirical EC {@link PrivateKey} instance of the {@link IssuerPartAttestation}.
      * @param   privateEntityIdentifierIssuer
      *          The {@link PrivateEntityIdentifier} of the entity issuing the {@link IssuerPartAttestation}.
      * @param   publicEntityIdentifierIssuer
@@ -34,12 +34,12 @@ public class VerificationInformationSegmentAttestation implements Serializable {
      * @param   rTreePolicy
      *          The {@link RTreePolicy} describing the policy of the {@link IssuerPartAttestation}.
      */
-    public VerificationInformationSegmentAttestation(@NotNull PrivateKey empiricalPrivateRSAKey,
+    public VerificationInformationSegmentAttestation(@NotNull PrivateKey empiricalPrivateECKey,
                                                      @NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,
                                                      @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
                                                      @NotNull RTreePolicy rTreePolicy)
         throws IllegalArgumentException {
-        encryptedEmpiricalPrivateRSAKey = new RSACipherEncryptedSegment<>(empiricalPrivateRSAKey, privateEntityIdentifierIssuer);
+        encryptedEmpiricalPrivateECKey = new ECCipherEncryptedSegment<>(empiricalPrivateECKey, privateEntityIdentifierIssuer);
         this.publicEntityIdentifierIssuer = publicEntityIdentifierIssuer;
         this.rTreePolicy = rTreePolicy;
     }
@@ -66,12 +66,12 @@ public class VerificationInformationSegmentAttestation implements Serializable {
     }
 
     /**
-     * Getter for the {@link RSACipherEncryptedSegment} instance, representing an RSA encrypted version
-     * of the empirical RSA {@link PrivateKey} instance for the {@link IssuerPartAttestation}.
-     * @return  The {@link RSACipherEncryptedSegment}.
+     * Getter for the {@link ECCipherEncryptedSegment} instance, representing an EC encrypted version
+     * of the empirical EC {@link PrivateKey} instance for the {@link IssuerPartAttestation}.
+     * @return  The {@link ECCipherEncryptedSegment}.
      */
-    public RSACipherEncryptedSegment<PrivateKey> getEncryptedEmpiricalPrivateRSAKey() {
-        return encryptedEmpiricalPrivateRSAKey;
+    public ECCipherEncryptedSegment<PrivateKey> getEncryptedEmpiricalPrivateECKey() {
+        return encryptedEmpiricalPrivateECKey;
     }
 
     /**

@@ -27,7 +27,7 @@ public interface Streamable
      *
      * @param out
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void toStream(DataOutputStream out) throws IOException;
 
@@ -36,7 +36,7 @@ public interface Streamable
      *
      * @param out
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void fromStream(DataInputStream out) throws IOException;
 }

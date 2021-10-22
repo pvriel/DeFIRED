@@ -17,7 +17,7 @@ import java.util.Set;
  * @implNote
  *          This class is implemented as a subclass of the {@link StorageElementIdentifier} class,
  *          due to the fact that {@link RevocationCommitment}s can also be used as identifiers
- *          for the {@link vrielynckpieterjan.masterproef.storagelayer.StorageLayer} to store {@link RevocationObject}s
+ *          for the {@link StorageLayer} to store {@link RevocationObject}s
  *          with.
  */
 public class RevocationCommitment extends StorageElementIdentifier {
@@ -39,6 +39,17 @@ public class RevocationCommitment extends StorageElementIdentifier {
      */
     public RevocationCommitment(@NotNull RevocationSecret revocationSecret) {
         this(Hashing.sha512().hashString(revocationSecret.getSecret(), StandardCharsets.UTF_8).toString());
+    }
+
+    /**
+     * constructor for the {@link RevocationCommitment} class.
+     * This constructor generates a new {@link RevocationSecret}, and uses that for the {@link RevocationCommitment}({@link RevocationSecret})
+     * constructor.
+     * <br>
+     * DO NOT USE THIS CONSTRUCTOR FOR PRODUCTION PURPOSES!
+     */
+    public RevocationCommitment() {
+        this(new RevocationSecret());
     }
 
     /**

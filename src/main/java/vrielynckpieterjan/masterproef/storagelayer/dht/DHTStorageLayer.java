@@ -146,4 +146,10 @@ public class DHTStorageLayer implements StorageLayer {
             return SerializationUtils.deserialize(data);
         }
     }
+
+    @Override
+    public void shutdown() throws IOException {
+        logger.warning(String.format("Shutting down DHTStorageLayer (%s)...", this));
+        node.shutdown(false);
+    }
 }

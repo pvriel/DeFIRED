@@ -17,7 +17,7 @@ import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
-import vrielynckpieterjan.masterproef.storagelayer.map.HashMapStorageLayer;
+import vrielynckpieterjan.masterproef.storagelayer.map.MultiMappedStorageLayer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -33,7 +33,8 @@ public class Demo {
 
     public static void main(String[] args) throws IOException {
         // Generating the storage layer.
-        var storageLayer = new HashMapStorageLayer();
+        System.out.println("Running...");
+        var storageLayer = new MultiMappedStorageLayer();
         var macaroonManager = new APILayerMacaroonManager();
 
         // Generating encryption keys for the cloud storage service providers.
@@ -58,7 +59,7 @@ public class Demo {
         allEntities.addAll(clouds);
         allEntities.addAll(users);
         for (var entity: allEntities) {
-            System.out.printf("%s%s%s%n%sPublic RSA key:%s\t%s%n%sPrivate RSA key:%s\t%s%n%sIBE parameters:%s\t%s%n%sStorage layer identifier namespace attestation:%s\t%s%n%n",
+            System.out.printf("%s%s%s%n%sPublic RSA key:%s\t%s%n%sPrivate RSA key:%s\t%s%n%sIBE parameters:%s\t%s%n%sStorage layer identifier first attestation in personal queue:%s\t%s%n%n",
                     BLUE, entity.getLeft(), RESET,
                     GREEN, RESET, entity.getRight().getLeft().getRSAIdentifier(),
                     GREEN, RESET, entity.getRight().getRight().getRSAIdentifier(),
@@ -86,7 +87,7 @@ public class Demo {
                     user.getRight().getRight(), user.getRight().getLeft());
             storageLayer.put(namespaceAttestation);
             if (i == 2) namespaceAttestationUserC = namespaceAttestation;
-            System.out.printf("%sNamespace attestation %s:%s\t%s%n", BLUE, user.getLeft(), RESET, namespaceAttestation);
+            System.out.printf("%nFirst attestation in personal queue of %s%s%s:\t%s%n", BLUE, user.getLeft(), RESET, namespaceAttestation);
         }
         System.out.println();
 
@@ -117,6 +118,23 @@ public class Demo {
             generatedAttestationsForDemo.add(attestation);
             System.out.printf("%sAttestation (%s --> %s):%s\t%s%n", BLUE, entityNames.remove(0), entityNames.remove(0), RESET, attestation);
         }
+
+        // Personal queues
+        entityNames.add("userA");
+        entityNames.add("userB");
+        entityNames.add("userC");
+        for (var i = 0; i < 3; i ++) {
+            var personalQueue = storageLayer.getPersonalQueueUser(users.get(i).getRight().getRight());
+            System.out.printf("%n%sPersonal queue of %s:%s%n", BLUE, entityNames.remove(0), RESET);
+            while (true) {
+                try {
+                    System.out.printf("%sNext attestation found:%s\t%s%n", BLUE, RESET, personalQueue.next());
+                } catch (IllegalArgumentException e) {
+                    break;
+                }
+            }
+        }
+
 
         // Obtain the first ephemeral AES key of the namespace attestation of user C.
         var aesEncryptionInformationSegmentNamespaceAttestationUserC =
@@ -172,6 +190,7 @@ public class Demo {
             macaroonOne = macaroonManager.registerPolicy(proofObjectOne.verify(storageLayer));
             System.out.printf("%sResulting macaroon:%s%n%s%n%n", BLUE, RESET, macaroonOne);
         } catch (Exception e) {
+            System.out.printf("%sAn exception is thrown... as expected!%s%n", GREEN, RESET);
             e.printStackTrace();
         }
 

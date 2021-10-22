@@ -174,8 +174,8 @@ public class JKademliaNode implements KademliaNode
      *
      * @return A Kademlia instance loaded from a stored state in a file
      *
-     * @throws java.io.FileNotFoundException
-     * @throws java.lang.ClassNotFoundException
+     * @throws FileNotFoundException
+     * @throws ClassNotFoundException
      */
     public static JKademliaNode loadFromFile(String ownerId) throws FileNotFoundException, IOException, ClassNotFoundException
     {
@@ -190,8 +190,8 @@ public class JKademliaNode implements KademliaNode
      *
      * @return A Kademlia instance loaded from a stored state in a file
      *
-     * @throws java.io.FileNotFoundException
-     * @throws java.lang.ClassNotFoundException
+     * @throws FileNotFoundException
+     * @throws ClassNotFoundException
      */
     public static JKademliaNode loadFromFile(String ownerId, KadConfiguration iconfig) throws FileNotFoundException, IOException, ClassNotFoundException
     {

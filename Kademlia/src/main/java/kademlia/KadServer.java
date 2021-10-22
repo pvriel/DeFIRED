@@ -67,7 +67,7 @@ public class KadServer
      * @param config
      * @param statistician A statistician to manage the server statistics
      *
-     * @throws java.net.SocketException
+     * @throws SocketException
      */
     public KadServer(int udpPort, KademliaMessageFactory mFactory, Node localNode, KadConfiguration config, KadStatistician statistician) throws SocketException
     {
@@ -106,7 +106,7 @@ public class KadServer
      * @return Integer The communication ID of this message
      *
      * @throws IOException
-     * @throws kademlia.exceptions.KadServerDownException
+     * @throws KadServerDownException
      */
     public synchronized int sendMessage(Node to, Message msg, Receiver recv) throws IOException, KadServerDownException
     {
@@ -148,7 +148,7 @@ public class KadServer
      * @param msg  The reply message
      * @param comm The communication ID - the one received
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public synchronized void reply(Node to, Message msg, int comm) throws IOException
     {

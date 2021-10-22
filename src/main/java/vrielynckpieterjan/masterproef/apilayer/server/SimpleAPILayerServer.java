@@ -102,10 +102,10 @@ public class SimpleAPILayerServer extends TCPReflectionMethodInvocationServer {
             // 1.2) Verify the authenticity of the first layer.
             var verificationInformation = issuerPartAttestation.getVerificationInformationSegment()
                     .decrypt(firstAESKey);
-            var ephemeralPrivateRSAKey = verificationInformation.getEncryptedEmpiricalPrivateRSAKey()
+            var ephemeralPrivateECKey = verificationInformation.getEncryptedEmpiricalPrivateECKey()
                     .decrypt(verificationInformation.getPublicEntityIdentifierIssuer());
-            var ephemeralPublicRSAKey = issuerPartAttestation.getEmpiricalPublicKey();
-            if (!issuerPartAttestation.hasValidSignature(ephemeralPrivateRSAKey, ephemeralPublicRSAKey))
+            var ephemeralPublicECKey = issuerPartAttestation.getEmpiricalPublicKey();
+            if (!issuerPartAttestation.hasValidSignature(ephemeralPrivateECKey, ephemeralPublicECKey))
                 throw new IllegalArgumentException("Invalid first layer provided.");
 
             // 2) Generate the full attestation & register the revocation commitment.

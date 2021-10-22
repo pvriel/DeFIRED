@@ -23,7 +23,7 @@ public interface KadSerializer<T>
      * @param data The data to write
      * @param out  The output Stream to write to
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void write(T data, DataOutputStream out) throws IOException;
 
@@ -34,8 +34,8 @@ public interface KadSerializer<T>
      *
      * @return T Data of type T
      *
-     * @throws java.io.IOException
-     * @throws java.lang.ClassNotFoundException
+     * @throws IOException
+     * @throws ClassNotFoundException
      */
     public T read(DataInputStream in) throws IOException, ClassNotFoundException;
 }

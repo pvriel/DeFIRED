@@ -9,7 +9,7 @@ import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIden
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.RSACipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
 
 import java.io.Serializable;
 import java.security.KeyPair;
@@ -26,7 +26,7 @@ public class IssuerPartAttestation implements Serializable {
     private final PublicEntityIdentifier publicEntityIdentifierReceiver;
     private final RevocationCommitment revocationCommitment;
     private final PublicKey empiricalPublicKey;
-    private RSACipherEncryptedSegment<Integer> encryptedSignature;
+    private ECCipherEncryptedSegment<Integer> encryptedSignature;
 
     private final AESCipherEncryptedSegment<VerificationInformationSegmentAttestation> verificationInformationSegment;
 
@@ -46,8 +46,8 @@ public class IssuerPartAttestation implements Serializable {
      *          The {@link RevocationCommitment} of the issuer for the attestation.
      * @param   rTreePolicy
      *          The {@link RTreePolicy} for this attestation.
-     * @param   empiricalRSAKeyPair
-     *          The empirical RSA {@link KeyPair} for this attestation.
+     * @param   empiricalECKeyPair
+     *          The empirical EC {@link KeyPair} for this attestation.
      * @throws  IllegalArgumentException
      *          If an invalid key was provided for the encryption schemes used during the construction process.
      */
@@ -56,7 +56,7 @@ public class IssuerPartAttestation implements Serializable {
                                  @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
                                  @NotNull RevocationCommitment revocationCommitment,
                                  @NotNull RTreePolicy rTreePolicy,
-                                 @NotNull KeyPair empiricalRSAKeyPair)
+                                 @NotNull KeyPair empiricalECKeyPair)
         throws IllegalArgumentException {
         // First, generate the necessary encryption keys.
         Pair<String, String> aesKeys = new ImmutablePair<>(AESCipherEncryptedSegment.generateAESKey(), AESCipherEncryptedSegment.generateAESKey());
@@ -64,7 +64,7 @@ public class IssuerPartAttestation implements Serializable {
         // Generate the plaintext header, except for the signature.
         this.publicEntityIdentifierReceiver = publicEntityIdentifierReceiver;
         this.revocationCommitment = revocationCommitment;
-        empiricalPublicKey = empiricalRSAKeyPair.getPublic();
+        empiricalPublicKey = empiricalECKeyPair.getPublic();
 
         // Multi-threading optimization preparation.
         var atomicReferenceVerificationInformationSegment = new AtomicReference<AESCipherEncryptedSegment<VerificationInformationSegmentAttestation>>();
@@ -72,27 +72,37 @@ public class IssuerPartAttestation implements Serializable {
         var atomicReferenceAESEncryptionInformationSegment = new AtomicReference<IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation>>();
 
         // Generate the verification information segment.
-        new Thread(() -> atomicReferenceVerificationInformationSegment.set(new VerificationInformationSegmentAttestation(empiricalRSAKeyPair.getPrivate(),
-                privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, rTreePolicy).encrypt(aesKeys.getLeft()))).start();
+        var threadOne = new Thread(() -> atomicReferenceVerificationInformationSegment.set(new VerificationInformationSegmentAttestation(empiricalECKeyPair.getPrivate(),
+                privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, rTreePolicy).encrypt(aesKeys.getLeft())));
 
 
         // Generate the proof information segment.
-        new Thread(() -> atomicReferenceProofInformationSegment.set(new ProofInformationSegmentAttestation(privateEntityIdentifierIssuer)
-                .encrypt(aesKeys.getRight()))).start();
+        var threadTwo = new Thread(() -> atomicReferenceProofInformationSegment.set(new ProofInformationSegmentAttestation(privateEntityIdentifierIssuer)
+                .encrypt(aesKeys.getRight())));
 
         // Generate the AES encryption information segment.
-        new Thread(() -> atomicReferenceAESEncryptionInformationSegment.set(new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
-                publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver, rTreePolicy))).start();
+        var threadThree = new Thread(() -> atomicReferenceAESEncryptionInformationSegment.set(new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
+                publicEntityIdentifierReceiver).encrypt(publicEntityIdentifierReceiver, rTreePolicy)));
 
         // Multi-threading optimization finalization.
-        while (atomicReferenceVerificationInformationSegment.get() == null ||
-                atomicReferenceProofInformationSegment.get() == null || atomicReferenceAESEncryptionInformationSegment.get() == null) {}
+        threadOne.start();
+        threadTwo.start();
+        threadThree.start();
+        try {
+            threadOne.join();
+            threadTwo.join();
+            threadThree.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
         verificationInformationSegment = atomicReferenceVerificationInformationSegment.get();
         proofInformationSegment = atomicReferenceProofInformationSegment.get();
         aesEncryptionInformationSegment = atomicReferenceAESEncryptionInformationSegment.get();
 
         // Generate the signature for the plaintext header at the end.
-        if (!(this instanceof IssuerPartNamespaceAttestation)) updateSignature(empiricalRSAKeyPair.getPublic());
+        if (!(this instanceof IssuerPartNamespaceAttestation)) updateSignature(empiricalECKeyPair.getPublic());
     }
 
     /**
@@ -118,7 +128,7 @@ public class IssuerPartAttestation implements Serializable {
             throws IllegalArgumentException {
         this(privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, publicEntityIdentifierReceiver,
                 revocationCommitment, rTreePolicy,
-                RSACipherEncryptedSegment.generateKeyPair());
+                ECCipherEncryptedSegment.generateKeyPair());
     }
 
     /**
@@ -131,32 +141,32 @@ public class IssuerPartAttestation implements Serializable {
 
     /**
      * Method to update the signature of the {@link IssuerPartAttestation}.
-     * @param   empiricalPublicRSAKey
-     *          The empirical RSA {@link PublicKey} to encrypt the signature with.
+     * @param   empiricalPublicECKey
+     *          The empirical EC {@link PublicKey} to encrypt the signature with.
      */
-    protected void updateSignature(@NotNull PublicKey empiricalPublicRSAKey) {
+    protected void updateSignature(@NotNull PublicKey empiricalPublicECKey) {
         Integer fullHash = hashCode();
-        encryptedSignature = new RSACipherEncryptedSegment<>(fullHash, empiricalPublicRSAKey);
+        encryptedSignature = new ECCipherEncryptedSegment<>(fullHash, empiricalPublicECKey);
     }
 
     /**
      * Method to check if the {@link IssuerPartAttestation} has a valid signature.
-     * @param   empiricalPrivateRSAKey
-     *          The empirical private RSA key of the attestation.
-     * @param   empiricalPublicRSAKey
-     *          The empirical public RSA key of the attestation.
+     * @param   empiricalPrivateECKey
+     *          The empirical private EC key of the attestation.
+     * @param   empiricalPublicECKey
+     *          The empirical public EC key of the attestation.
      * @return  True if the {@link IssuerPartAttestation} has a valid signature; false otherwise.
      * @throws  IllegalArgumentException
      *          If the provided {@link java.security.Key} arguments can't be used to verify the signature.
      */
-    public boolean hasValidSignature(@NotNull PrivateKey empiricalPrivateRSAKey, @NotNull PublicKey empiricalPublicRSAKey)
+    public boolean hasValidSignature(@NotNull PrivateKey empiricalPrivateECKey, @NotNull PublicKey empiricalPublicECKey)
         throws IllegalArgumentException {
         // 1) Check if the two provided Keys actually form a pair.
-        if (!RSACipherEncryptedSegment.keysPartOfKeypair(empiricalPrivateRSAKey, empiricalPublicRSAKey)) return false;
+        if (!ECCipherEncryptedSegment.keysPartOfKeypair(empiricalPrivateECKey, empiricalPublicECKey)) return false;
 
         // 2) Check if the signature is valid.
         Integer calculatedUnencryptedVersionSignature = hashCode();
-        Integer decryptedSignature = encryptedSignature.decrypt(empiricalPrivateRSAKey);
+        Integer decryptedSignature = encryptedSignature.decrypt(empiricalPrivateECKey);
         return calculatedUnencryptedVersionSignature.equals(decryptedSignature);
     }
 
@@ -187,12 +197,12 @@ public class IssuerPartAttestation implements Serializable {
         VerificationInformationSegmentAttestation verificationInformationSegmentAttestation =
                 verificationInformationSegment.decrypt(aesKey);
 
-        // 4) Decrypt the encrypted version of the ephemeral public RSA key.
-        PrivateKey empiricalPrivateRSAKey = verificationInformationSegmentAttestation.getEncryptedEmpiricalPrivateRSAKey()
+        // 4) Decrypt the encrypted version of the ephemeral public EC key.
+        PrivateKey empiricalPrivateECKey = verificationInformationSegmentAttestation.getEncryptedEmpiricalPrivateECKey()
                 .decrypt(publicEntityIdentifierIssuer);
 
         // 5) The actual verification part.
-        return hasValidSignature(empiricalPrivateRSAKey, empiricalPublicKey);
+        return hasValidSignature(empiricalPrivateECKey, empiricalPublicKey);
     }
 
     /**
@@ -204,7 +214,7 @@ public class IssuerPartAttestation implements Serializable {
     }
 
     /**
-     * Getter for the empirical RSA {@link PublicKey}.
+     * Getter for the empirical EC {@link PublicKey}.
      * @return  The {@link PublicKey}.
      */
     public PublicKey getEmpiricalPublicKey() {

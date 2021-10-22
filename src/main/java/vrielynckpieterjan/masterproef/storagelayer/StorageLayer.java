@@ -89,5 +89,12 @@ public interface StorageLayer {
                 return foundAttestation.get();
             }
         };
+
+
     }
+
+    /**
+     * Method to shut down the {@link StorageLayer} (if possible).
+     */
+    default void shutdown() throws IOException {}
 }

@@ -44,7 +44,7 @@ public interface KademliaDHT
      *
      * @return boolean true if we stored the content, false if the content already exists and is up to date
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public boolean store(JKademliaStorageEntry content) throws IOException;
 
@@ -58,8 +58,8 @@ public interface KademliaDHT
      *
      * @return A KadContent object
      *
-     * @throws java.io.FileNotFoundException
-     * @throws java.lang.ClassNotFoundException
+     * @throws FileNotFoundException
+     * @throws ClassNotFoundException
      */
     public JKademliaStorageEntry retrieve(KademliaId key, int hashCode) throws FileNotFoundException, IOException, ClassNotFoundException;
 
@@ -79,7 +79,7 @@ public interface KademliaDHT
      *
      * @return KadContent The content object
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public JKademliaStorageEntry get(KademliaStorageEntryMetadata entry) throws IOException, NoSuchElementException;
 
@@ -90,7 +90,7 @@ public interface KademliaDHT
      *
      * @return KadContent A KadContent found on the DHT satisfying the given criteria
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public JKademliaStorageEntry get(GetParameter param) throws NoSuchElementException, IOException;
 
@@ -100,7 +100,7 @@ public interface KademliaDHT
      * @param content The Content to Remove
      *
      *
-     * @throws kademlia.exceptions.ContentNotFoundException
+     * @throws ContentNotFoundException
      */
     public void remove(KadContent content) throws ContentNotFoundException;
 
