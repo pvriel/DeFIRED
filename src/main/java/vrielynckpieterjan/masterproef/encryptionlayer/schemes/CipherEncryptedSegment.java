@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 /**
  * Abstract class representing a {@link DecryptableSegment}, which is
- * encrypted / decrypted by using {@link javax.crypto.Cipher} instances.
+ * encrypted / decrypted by using {@link Cipher} instances.
  * @param   <DecryptedObjectType>
  *          The type of the decrypted version of the object.
  * @param   <EncryptionKey>

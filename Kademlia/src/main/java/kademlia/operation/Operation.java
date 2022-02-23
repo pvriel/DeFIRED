@@ -15,7 +15,7 @@ public interface Operation
     /**
      * Starts an operation and returns when the operation is finished
      *
-     * @throws kademlia.exceptions.RoutingException
+     * @throws RoutingException
      */
     public void execute() throws IOException, RoutingException;
 }

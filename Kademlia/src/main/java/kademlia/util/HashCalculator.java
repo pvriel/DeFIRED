@@ -19,7 +19,7 @@ public class HashCalculator
      *
      * @return byte[20] The hashed string
      *
-     * @throws java.security.NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException
      */
     public static byte[] sha1Hash(String toHash) throws NoSuchAlgorithmException
     {
@@ -41,7 +41,7 @@ public class HashCalculator
      *
      * @return byte[20] The hashed string
      *
-     * @throws java.security.NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException
      */
     public static byte[] sha1Hash(String toHash, String salt) throws NoSuchAlgorithmException
     {
@@ -62,7 +62,7 @@ public class HashCalculator
      *
      * @return byte[16] The hashed string
      *
-     * @throws java.security.NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException
      */
     public static byte[] md5Hash(String toHash) throws NoSuchAlgorithmException
     {
@@ -84,7 +84,7 @@ public class HashCalculator
      *
      * @return byte[16] The hashed string
      *
-     * @throws java.security.NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException
      */
     public static byte[] md5Hash(String toHash, String salt) throws NoSuchAlgorithmException
     {

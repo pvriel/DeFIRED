@@ -35,7 +35,7 @@ public class BucketRefreshOperation implements Operation
      * Then Do a NodeLookupOperation for each of the generated NodeIds,
      * This will find the K-Closest nodes to that ID, and update the necessary K-Bucket
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     @Override
     public synchronized void execute() throws IOException

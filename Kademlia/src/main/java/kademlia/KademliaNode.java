@@ -71,7 +71,7 @@ public interface KademliaNode
      *
      * @return Integer How many nodes the content was stored on
      *
-     * @throws java.io.IOException
+     * @throws IOException
      *
      */
     public int put(KadContent content) throws IOException;
@@ -84,7 +84,7 @@ public interface KademliaNode
      *
      * @return Integer How many nodes the content was stored on
      *
-     * @throws java.io.IOException
+     * @throws IOException
      *
      */
     public int put(JKademliaStorageEntry entry) throws IOException;
@@ -94,7 +94,7 @@ public interface KademliaNode
      *
      * @param content The content to put on the DHT
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void putLocally(KadContent content) throws IOException;
 
@@ -105,15 +105,15 @@ public interface KademliaNode
      *
      * @return DHTContent The content
      *
-     * @throws java.io.IOException
-     * @throws kademlia.exceptions.ContentNotFoundException
+     * @throws IOException
+     * @throws ContentNotFoundException
      */
     public JKademliaStorageEntry get(GetParameter param) throws NoSuchElementException, IOException, ContentNotFoundException;
 
     /**
      * Allow the user of the System to call refresh even out of the normal Kad refresh timing
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void refresh() throws IOException;
 

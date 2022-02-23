@@ -6,7 +6,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.RSACipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -87,10 +87,20 @@ public abstract class EntityIdentifier<RSAKeyType extends Key,
             @NotNull String namespaceEmailAddressConcatenation) {
         final var keyPair = new AtomicReference<KeyPair>();
         final var PKG = new AtomicReference<Pair<PublicParameters, BigInteger>>();
-        new Thread(() -> keyPair.set(RSACipherEncryptedSegment.generateKeyPair())).start();
-        new Thread(() -> PKG.set(IBEDecryptableSegment.generatePKG())).start();
 
-        while (keyPair.get() == null || PKG.get() == null) {}
+        var rsaThread = new Thread(() -> keyPair.set(ECCipherEncryptedSegment.generateKeyPair()));
+        var ibeThread = new Thread(() -> PKG.set(IBEDecryptableSegment.generatePKG()));
+
+        rsaThread.start();
+        ibeThread.start();
+        try {
+            ibeThread.join();
+            rsaThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
         var rsaKeyPair = keyPair.get();
         var ibePKG = PKG.get();
 

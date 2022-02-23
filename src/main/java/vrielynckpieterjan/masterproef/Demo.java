@@ -17,7 +17,7 @@ import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
-import vrielynckpieterjan.masterproef.storagelayer.map.HashMapStorageLayer;
+import vrielynckpieterjan.masterproef.storagelayer.map.MultiMappedStorageLayer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,8 +34,7 @@ public class Demo {
     public static void main(String[] args) throws IOException {
         // Generating the storage layer.
         System.out.println("Running...");
-        var storageLayer = new HashMapStorageLayer(); // To prevent IO-related problems from happening during
-        // the demo; can be replaced with an instance of the DHTStorageLayer class.
+        var storageLayer = new MultiMappedStorageLayer();
         var macaroonManager = new APILayerMacaroonManager();
 
         // Generating encryption keys for the cloud storage service providers.
@@ -60,7 +59,7 @@ public class Demo {
         allEntities.addAll(clouds);
         allEntities.addAll(users);
         for (var entity: allEntities) {
-            System.out.printf("%s%s%s%n%sPublic RSA key:%s\t%s%n%sPrivate RSA key:%s\t%s%n%sIBE parameters:%s\t%s%n%sStorage layer identifier first attestation in personal queue:%s\t%s%n%n",
+            System.out.printf("%s%s%s%n%sPublic EC key:%s\t%s%n%sPrivate EC key:%s\t%s%n%sIBE parameters:%s\t%s%n%sStorage layer identifier first attestation in personal queue:%s\t%s%n%n",
                     BLUE, entity.getLeft(), RESET,
                     GREEN, RESET, entity.getRight().getLeft().getRSAIdentifier(),
                     GREEN, RESET, entity.getRight().getRight().getRSAIdentifier(),

@@ -9,9 +9,8 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.Policy
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationCommitment;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
-import vrielynckpieterjan.masterproef.storagelayer.map.HashMapStorageLayer;
+import vrielynckpieterjan.masterproef.storagelayer.map.MultiMappedStorageLayer;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +21,7 @@ class StorageLayerTest {
 
     @BeforeEach
     void setUp() {
-        storageLayer = new HashMapStorageLayer();
+        storageLayer = new MultiMappedStorageLayer();
     }
 
     @Test

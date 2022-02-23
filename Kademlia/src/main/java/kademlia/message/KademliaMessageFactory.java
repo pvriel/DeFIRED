@@ -21,7 +21,7 @@ public interface KademliaMessageFactory
      *
      * @return A message
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public Message createMessage(byte code, DataInputStream in) throws IOException;
 

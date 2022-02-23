@@ -77,8 +77,8 @@ public class NodeLookupOperation implements Operation, Receiver
     }
 
     /**
-     * @throws java.io.IOException
-     * @throws kademlia.exceptions.RoutingException
+     * @throws IOException
+     * @throws RoutingException
      */
     @Override
     public synchronized void execute() throws IOException, RoutingException
@@ -252,7 +252,7 @@ public class NodeLookupOperation implements Operation, Receiver
      *
      * @param comm
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     @Override
     public synchronized void receive(Message incoming, int comm) throws IOException
@@ -285,7 +285,7 @@ public class NodeLookupOperation implements Operation, Receiver
      *
      * @param comm
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     @Override
     public synchronized void timeout(int comm) throws IOException

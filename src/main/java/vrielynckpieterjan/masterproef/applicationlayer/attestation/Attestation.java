@@ -8,7 +8,7 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreeP
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationCommitment;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.RSACipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElement;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
@@ -23,14 +23,14 @@ import java.security.PublicKey;
 public class Attestation extends StorageElement {
 
     private final IssuerPartAttestation firstLayer;
-    private final RSACipherEncryptedSegment<Pair<Integer, RevocationCommitment>> secondLayer;
-    private final RSACipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> thirdLayer;
+    private final ECCipherEncryptedSegment<Pair<Integer, RevocationCommitment>> secondLayer;
+    private final ECCipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> thirdLayer;
 
     /**
      * Constructor for the {@link Attestation} class.
      * @param   identifier
      *          The {@link StorageElementIdentifier} which will be used / is used to store this
-     *          {@link Attestation} with in the {@link vrielynckpieterjan.masterproef.storagelayer.StorageLayer} of the framework.
+     *          {@link Attestation} with in the {@link StorageLayer} of the framework.
      * @param   firstLayer
      *          The issuer's generated part of the {@link Attestation}.
      * @param   revocationCommitmentReceiver
@@ -51,9 +51,9 @@ public class Attestation extends StorageElement {
         this.firstLayer = firstLayer;
 
         int signatureFirstLayer = firstLayer.hashCode();
-        secondLayer = new RSACipherEncryptedSegment<>(new ImmutablePair<>(
+        secondLayer = new ECCipherEncryptedSegment<>(new ImmutablePair<>(
                 signatureFirstLayer, revocationCommitmentReceiver), privateEntityIdentifierReceiver);
-        thirdLayer = new RSACipherEncryptedSegment<>(new ImmutablePair<>(
+        thirdLayer = new ECCipherEncryptedSegment<>(new ImmutablePair<>(
                 signatureFirstLayer, storageElementIdentifierNextQueueElement), privateEntityIdentifierReceiver);
     }
 
@@ -81,19 +81,19 @@ public class Attestation extends StorageElement {
 
     /**
      * Method to check the validity of the {@link Attestation}.
-     * @param   empiricalPrivateRSAKey
-     *          The empirical RSA {@link PrivateKey} of the {@link Attestation}.
-     * @param   empiricalPublicRSAKey
-     *          The empirical RSA {@link PublicKey} of the {@link Attestation}.
+     * @param   empiricalPrivateECKey
+     *          The empirical EC {@link PrivateKey} of the {@link Attestation}.
+     * @param   empiricalPublicECKey
+     *          The empirical EC {@link PublicKey} of the {@link Attestation}.
      * @param   publicEntityIdentifierReceiver
      *          The {@link PublicEntityIdentifier} of the user receiving the {@link Attestation}.
      * @return  True if the {@link Attestation} is valid; false otherwise.
      * @throws  IllegalArgumentException
      *          If the validity can't be checked with the provided encryption keys.
      */
-    public boolean isValid(@NotNull PrivateKey empiricalPrivateRSAKey, @NotNull PublicKey empiricalPublicRSAKey,
+    public boolean isValid(@NotNull PrivateKey empiricalPrivateECKey, @NotNull PublicKey empiricalPublicECKey,
                            @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver) throws IllegalArgumentException {
-        if (!firstLayer.hasValidSignature(empiricalPrivateRSAKey, empiricalPublicRSAKey)) return false;
+        if (!firstLayer.hasValidSignature(empiricalPrivateECKey, empiricalPublicECKey)) return false;
         return areSecondAndThirdLayerValid(publicEntityIdentifierReceiver);
     }
 
@@ -108,11 +108,11 @@ public class Attestation extends StorageElement {
     public @NotNull RTreePolicy validateAndReturnPolicy(@NotNull String firstAESKey) throws IllegalArgumentException {
         var verificationInformationSegment = getFirstLayer().getVerificationInformationSegment().decrypt(firstAESKey);
 
-        var empiricalPrivateRSAKey = verificationInformationSegment.getEncryptedEmpiricalPrivateRSAKey()
+        var empiricalPrivateECKey = verificationInformationSegment.getEncryptedEmpiricalPrivateECKey()
                 .decrypt(verificationInformationSegment.getPublicEntityIdentifierIssuer());
-        var empiricalPublicRSAKey = getFirstLayer().getEmpiricalPublicKey();
+        var empiricalPublicECKey = getFirstLayer().getEmpiricalPublicKey();
         var publicEntityIdentifierReceiver = getFirstLayer().getPublicEntityIdentifierReceiver();
-        if (!isValid(empiricalPrivateRSAKey, empiricalPublicRSAKey, publicEntityIdentifierReceiver))
+        if (!isValid(empiricalPrivateECKey, empiricalPublicECKey, publicEntityIdentifierReceiver))
             throw new IllegalArgumentException("Attestation is not valid.");
 
         return verificationInformationSegment.getRTreePolicy();
@@ -159,7 +159,7 @@ public class Attestation extends StorageElement {
      * Getter for the second layer.
      * @return  The second layer.
      */
-    public RSACipherEncryptedSegment<Pair<Integer, RevocationCommitment>> getSecondLayer() {
+    public ECCipherEncryptedSegment<Pair<Integer, RevocationCommitment>> getSecondLayer() {
         return secondLayer;
     }
 
@@ -175,7 +175,7 @@ public class Attestation extends StorageElement {
      * Getter for the third layer.
      * @return  The third layer.
      */
-    public RSACipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> getThirdLayer() {
+    public ECCipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> getThirdLayer() {
         return thirdLayer;
     }
 }

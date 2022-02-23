@@ -15,7 +15,6 @@ import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIden
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer;
-import vrielynckpieterjan.masterproef.storagelayer.map.HashMapStorageLayer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

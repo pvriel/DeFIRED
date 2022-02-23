@@ -41,7 +41,7 @@ public class ContentRefreshOperation implements Operation
 
  We assume that our JKademliaRoutingTable is updated, and we can get the K closest nodes from that table
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     @Override
     public void execute() throws IOException

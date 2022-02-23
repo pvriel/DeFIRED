@@ -5,7 +5,7 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreeP
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationCommitment;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.RSACipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
 
 import java.net.InetSocketAddress;
 import java.security.KeyPair;
@@ -27,7 +27,7 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
      * @param publicEntityIdentifierReceiver               The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
      * @param revocationCommitment                         The {@link RevocationCommitment} of the issuer for the attestation.
      * @param rTreePolicy                                  The {@link RTreePolicy} for this attestation.
-     * @param empiricalRSAKeyPair                           The empirical RSA {@link KeyPair} for this attestation.
+     * @param empiricalECKeyPair                           The empirical EC {@link KeyPair} for this attestation.
      * @param referenceAPILayer                             The reference to the API layer for this attestation.
      * @throws IllegalArgumentException If an invalid key was provided for the encryption schemes used during the construction process.
      */
@@ -36,12 +36,12 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
                                           @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
                                           @NotNull RevocationCommitment revocationCommitment,
                                           @NotNull RTreePolicy rTreePolicy,
-                                          @NotNull KeyPair empiricalRSAKeyPair,
+                                          @NotNull KeyPair empiricalECKeyPair,
                                           @NotNull InetSocketAddress referenceAPILayer) throws IllegalArgumentException {
         super(privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, publicEntityIdentifierReceiver,
-                revocationCommitment, rTreePolicy, empiricalRSAKeyPair);
+                revocationCommitment, rTreePolicy, empiricalECKeyPair);
         this.referenceAPILayer = referenceAPILayer;
-        updateSignature(empiricalRSAKeyPair.getPublic());
+        updateSignature(empiricalECKeyPair.getPublic());
     }
 
     /**
@@ -62,7 +62,7 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
                                           @NotNull RTreePolicy rTreePolicy,
                                           @NotNull InetSocketAddress referenceAPILayer) throws IllegalArgumentException {
         this(privateEntityIdentifierIssuer, publicEntityIdentifierIssuer, publicEntityIdentifierReceiver, revocationCommitment, rTreePolicy,
-                RSACipherEncryptedSegment.generateKeyPair(), referenceAPILayer);
+                ECCipherEncryptedSegment.generateKeyPair(), referenceAPILayer);
     }
 
     @Override

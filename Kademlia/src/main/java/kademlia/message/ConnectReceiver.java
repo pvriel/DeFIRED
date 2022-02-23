@@ -27,7 +27,7 @@ public class ConnectReceiver implements Receiver
      *
      * @param comm
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     @Override
     public void receive(Message incoming, int comm) throws IOException
@@ -49,7 +49,7 @@ public class ConnectReceiver implements Receiver
      *
      * @param comm
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     @Override
     public void timeout(int comm) throws IOException

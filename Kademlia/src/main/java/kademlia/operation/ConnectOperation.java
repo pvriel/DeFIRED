@@ -122,7 +122,7 @@ public class ConnectOperation implements Operation, Receiver
      *
      * @param comm
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     @Override
     public synchronized void timeout(int comm) throws IOException
