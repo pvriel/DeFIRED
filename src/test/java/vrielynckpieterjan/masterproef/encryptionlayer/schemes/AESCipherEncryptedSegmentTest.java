@@ -31,10 +31,10 @@ class AESCipherEncryptedSegmentTest {
         String key = "magicalKey";
         AESCipherEncryptedSegment<PublicEntityIdentifier> aesCipherEncryptedSegment = new AESCipherEncryptedSegment<>(
                 publicEntityIdentifier, key);
-
-        System.out.println(new String(SerializationUtils.serialize(aesCipherEncryptedSegment)));
-
         PublicEntityIdentifier decryptedSegment = aesCipherEncryptedSegment.decrypt(key);
+        assertEquals(decryptedSegment.getNamespaceServiceProviderEmailAddressUserConcatenation(), publicEntityIdentifier.getNamespaceServiceProviderEmailAddressUserConcatenation());
+        assertEquals(decryptedSegment.getRSAIdentifier(), publicEntityIdentifier.getRSAIdentifier());
+        assertEquals(decryptedSegment.getIBEIdentifier(), publicEntityIdentifier.getIBEIdentifier());
         assertEquals(decryptedSegment, publicEntityIdentifier);
     }
 }

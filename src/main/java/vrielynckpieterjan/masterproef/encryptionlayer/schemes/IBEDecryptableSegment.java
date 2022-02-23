@@ -182,6 +182,26 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
         }
     }
 
+    public @NotNull DecryptedObjectType decrypt(@NotNull IbeClient ibeClient, @NotNull PrivateKey privateKey) throws IllegalArgumentException {
+        try {
+            String decryptedObjectAsString = ibeClient.decrypt(privateKey, encryptedSegment).get();
+            return convertStringToDecryptedObjectType(decryptedObjectAsString);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public @NotNull DecryptedObjectType decrypt(@NotNull PublicParameters publicParameters, @NotNull PrivateKey privateKey) throws IllegalArgumentException {
+        try {
+            IbeClient ibeClient = componentFactory.obtainClient(publicParameters);
+            return decrypt(ibeClient, privateKey);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    // TODO: try to remove as many decrypt methods below this line as possible.
+
     @Override
     public @NotNull DecryptedObjectType decrypt(@NotNull Triple<PublicParameters, BigInteger, String> publicParametersBigIntegerStringTriple)
             throws IllegalArgumentException {
@@ -227,8 +247,16 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
                                                                                 @NotNull BigInteger masterSecret)
             throws ComponentConstructionException {
         IbeClient ibeClient = componentFactory.obtainClient(publicParameters);
-        PrivateKeyGenerator privateKeyGenerator = componentFactory.obtainPrivateKeyGenerator(publicParameters, masterSecret);
+        PrivateKeyGenerator privateKeyGenerator = obtainPKG(publicParameters, masterSecret);
         return new ImmutablePair<>(ibeClient, privateKeyGenerator);
+    }
+
+    public static @NotNull PrivateKeyGenerator obtainPKG(@NotNull PrivateEntityIdentifier privateEntityIdentifier) throws ComponentConstructionException {
+        return obtainPKG(privateEntityIdentifier.getIBEIdentifier().getLeft(), privateEntityIdentifier.getIBEIdentifier().getRight());
+    }
+
+    private static @NotNull PrivateKeyGenerator obtainPKG(@NotNull PublicParameters publicParameters, @NotNull BigInteger masterSecret) throws ComponentConstructionException {
+        return componentFactory.obtainPrivateKeyGenerator(publicParameters, masterSecret);
     }
 
     /**

@@ -1,5 +1,6 @@
 package vrielynckpieterjan.masterproef.applicationlayer.proof;
 
+import cryptid.ibe.domain.PrivateKey;
 import cryptid.ibe.domain.PublicParameters;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -284,11 +285,11 @@ public class ProofObject implements Serializable {
                 .getProofInformationSegment().decrypt(secondAESKey);
         var policy = verificationInformationSegment.getRTreePolicy();
         var publicEntityIdentifier = verificationInformationSegment.getPublicEntityIdentifierIssuer();
-        var ibePKG = proverInformationSegment.getIBEPKG();
+        var extractedPrivateKeys = proverInformationSegment.getPrivateKeysIBE();
 
         // 2. Find the previous attestation of the proof.
         var informationPreviousAttestationProof = findPreviousAttestationForProof(
-                policy, publicEntityIdentifier, ibePKG, storageLayer);
+                publicEntityIdentifier, extractedPrivateKeys, storageLayer);
         var previousAttestation = informationPreviousAttestationProof.getLeft();
         var firstAESKeyPreviousAttestation = informationPreviousAttestationProof.getMiddle();
         var secondAESKeyPreviousAttestation = informationPreviousAttestationProof.getRight();
@@ -308,12 +309,10 @@ public class ProofObject implements Serializable {
 
     /**
      * Method to find the information about the previous {@link Attestation} of the proof.
-     * @param   policy
-     *          The {@link RTreePolicy} of the current {@link Attestation} of the proof.
      * @param   publicEntityIdentifier
      *          The {@link PublicEntityIdentifier} of the receiver of the previous {@link Attestation} of the proof.
-     * @param   ibePKG
-     *          The IBE PKG of the receiver of the previous {@link Attestation} of the proof.
+     * @param   delegatedPrivateKeys
+     *          The delegated {@link PrivateKey}s.
      * @param   storageLayer
      *          The {@link StorageLayer}.
      * @return  A {@link Triple}, containing the found {@link Attestation} together with its two AES keys.
@@ -322,27 +321,25 @@ public class ProofObject implements Serializable {
      * @throws  IOException
      *          If an IO-related exception occurred while consulting the {@link StorageLayer}.
      */
-    private static @NotNull Triple<Attestation, String, String> findPreviousAttestationForProof(@NotNull RTreePolicy policy,
-            @NotNull PublicEntityIdentifier publicEntityIdentifier, @NotNull Pair<PublicParameters, BigInteger> ibePKG,
+    private static @NotNull Triple<Attestation, String, String> findPreviousAttestationForProof(
+            @NotNull PublicEntityIdentifier publicEntityIdentifier,
+            @NotNull Set<PrivateKey> delegatedPrivateKeys,
             @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
         // 1. Find the personal queue of the user.
         var personalQueue = storageLayer.getPersonalQueueUser(publicEntityIdentifier);
 
-        // 2. Generate the possible policies for the decryption process.
-        var policies = policy.generateRTreePolicyVariations();
-
-        // 3. Iterate over the personal queue, until the previous attestation for the proof is found.
+        // 2. Iterate over the personal queue, until the previous attestation for the proof is found.
         while (true) {
             var attestation = personalQueue.next();
             var encryptedAESEncryptionInformationSegment = attestation.getFirstLayer().getAesEncryptionInformationSegment();
 
             try {
                 AtomicReference<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment = new AtomicReference<>();
-                policies.parallelStream().forEach(rTreePolicy -> {
+                delegatedPrivateKeys.parallelStream().forEach(delegatedPrivateKey -> {
                     if (aesEncryptionInformationSegment.get() != null) return;
                     try {
                         aesEncryptionInformationSegment.set(encryptedAESEncryptionInformationSegment.decrypt(
-                                new ImmutableTriple<>(ibePKG.getLeft(), ibePKG.getRight(), rTreePolicy.toString())));
+                                publicEntityIdentifier.getIBEIdentifier(), delegatedPrivateKey));
                     } catch (IllegalArgumentException ignored) {}
                 });
                 if (aesEncryptionInformationSegment.get() == null) continue;

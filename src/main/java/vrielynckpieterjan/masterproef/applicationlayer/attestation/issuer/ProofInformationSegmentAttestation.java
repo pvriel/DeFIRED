@@ -1,5 +1,6 @@
 package vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer;
 
+import cryptid.ibe.domain.PrivateKey;
 import cryptid.ibe.domain.PublicParameters;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -9,31 +10,23 @@ import vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncrypted
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.Set;
 
 /**
  * Class representing the proof information segment of the {@link IssuerPartAttestation}.
  */
 public class ProofInformationSegmentAttestation implements Serializable {
 
-    private final PublicParameters publicParametersIBE;
-    private final BigInteger masterSecretIBE;
+    @NotNull
+    private final Set<PrivateKey> privateKeysIBE;
 
     /**
      * Constructor for the {@link ProofInformationSegmentAttestation} class.
-     * @param   privateEntityIdentifierIssuer
-     *          The {@link PrivateEntityIdentifier} of the user issuing the {@link IssuerPartAttestation}.
+     * @param   privateKeysIBE
+     *          The delegated {@link PrivateKey}s.
      */
-    public ProofInformationSegmentAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer) {
-        publicParametersIBE = privateEntityIdentifierIssuer.getIBEIdentifier().getLeft();
-        masterSecretIBE = privateEntityIdentifierIssuer.getIBEIdentifier().getRight();
-    }
-
-    /**
-     * Getter for the IBE PKG of the issuer of the {@link IssuerPartAttestation}.
-     * @return  The IBE PKG.
-     */
-    public Pair<PublicParameters, BigInteger> getIBEPKG() {
-        return new ImmutablePair<>(publicParametersIBE, masterSecretIBE);
+    public ProofInformationSegmentAttestation(@NotNull Set<PrivateKey> privateKeysIBE) {
+        this.privateKeysIBE = privateKeysIBE;
     }
 
     /**
@@ -47,5 +40,14 @@ public class ProofInformationSegmentAttestation implements Serializable {
     public @NotNull AESCipherEncryptedSegment<ProofInformationSegmentAttestation> encrypt(@NotNull String aesKey)
         throws IllegalArgumentException {
         return new AESCipherEncryptedSegment<>(this, aesKey);
+    }
+
+    /**
+     * Getter for the IBE {@link PrivateKey}s of the issuer.
+     * @return The {@link PrivateKey}s.
+     */
+    @NotNull
+    public Set<PrivateKey> getPrivateKeysIBE() {
+        return privateKeysIBE;
     }
 }

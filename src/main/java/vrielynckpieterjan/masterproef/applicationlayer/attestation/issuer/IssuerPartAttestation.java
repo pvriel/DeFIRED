@@ -1,5 +1,8 @@
 package vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer;
 
+import cryptid.ibe.PrivateKeyGenerator;
+import cryptid.ibe.domain.PublicParameters;
+import cryptid.ibe.exception.ComponentConstructionException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -12,10 +15,14 @@ import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegm
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -70,6 +77,7 @@ public class IssuerPartAttestation implements Serializable {
         var atomicReferenceVerificationInformationSegment = new AtomicReference<AESCipherEncryptedSegment<VerificationInformationSegmentAttestation>>();
         var atomicReferenceProofInformationSegment = new AtomicReference<AESCipherEncryptedSegment<ProofInformationSegmentAttestation>>();
         var atomicReferenceAESEncryptionInformationSegment = new AtomicReference<IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation>>();
+        var thrownException = new AtomicReference<IllegalArgumentException>();
 
         // Generate the verification information segment.
         var threadOne = new Thread(() -> atomicReferenceVerificationInformationSegment.set(new VerificationInformationSegmentAttestation(empiricalECKeyPair.getPrivate(),
@@ -77,8 +85,20 @@ public class IssuerPartAttestation implements Serializable {
 
 
         // Generate the proof information segment.
-        var threadTwo = new Thread(() -> atomicReferenceProofInformationSegment.set(new ProofInformationSegmentAttestation(privateEntityIdentifierIssuer)
-                .encrypt(aesKeys.getRight())));
+        var threadTwo = new Thread(() -> {
+            try {
+                PrivateKeyGenerator pkgIssuer = IBEDecryptableSegment.obtainPKG(privateEntityIdentifierIssuer);
+                List<RTreePolicy> policyList = rTreePolicy.generateRTreePolicyVariations();
+                Set<cryptid.ibe.domain.PrivateKey> IBEKeys = new HashSet<>();
+                for (RTreePolicy policy : policyList) {
+                    IBEKeys.add(pkgIssuer.extract(policy.toString()));
+                }
+                atomicReferenceProofInformationSegment.set(new ProofInformationSegmentAttestation(IBEKeys)
+                        .encrypt(aesKeys.getRight()));
+            } catch (ComponentConstructionException e) {
+                thrownException.set(new IllegalArgumentException(e));
+            }
+        });
 
         // Generate the AES encryption information segment.
         var threadThree = new Thread(() -> atomicReferenceAESEncryptionInformationSegment.set(new AESEncryptionInformationSegmentAttestation(rTreePolicy, aesKeys,
@@ -96,6 +116,7 @@ public class IssuerPartAttestation implements Serializable {
             e.printStackTrace();
             System.exit(1);
         }
+        if (thrownException.get() != null) throw thrownException.get();
 
         verificationInformationSegment = atomicReferenceVerificationInformationSegment.get();
         proofInformationSegment = atomicReferenceProofInformationSegment.get();
