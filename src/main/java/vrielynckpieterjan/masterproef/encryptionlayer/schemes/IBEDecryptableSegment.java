@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  *              The type of the decrypted version of the {@link IBEDecryptableSegment}.
  */
 public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
-        implements DecryptableSegment<DecryptedObjectType, Triple<PublicParameters, BigInteger, String>> {
+        implements DecryptableSegment<DecryptedObjectType, Pair<PublicParameters, PrivateKey>> {
 
     private final static Logger logger = Logger.getLogger(IBEDecryptableSegment.class.getName());
     private static SecureRandom secureRandom;
@@ -105,6 +105,22 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
     }
 
     /**
+     * Constructor for the {@link IBEDecryptableSegment} class.
+     * @param   originalObject
+     *          The original object to encrypt.
+     * @param   publicEntityIdentifier
+     *          A {@link PublicEntityIdentifier} to encrypt the original object with.
+     * @param   usedIBEIdentifier
+     *          The IBE identifier (as a {@link RTreePolicy} instance) used to encrypt this specific object with.
+     * @throws  IllegalArgumentException
+     *          If an invalid IBE identifier or {@link PublicEntityIdentifier} was provided.
+     */
+    public IBEDecryptableSegment(@NotNull DecryptedObjectType originalObject, @NotNull PublicEntityIdentifier publicEntityIdentifier,
+                                 @NotNull RTreePolicy usedIBEIdentifier) throws IllegalArgumentException {
+        this(originalObject, publicEntityIdentifier, usedIBEIdentifier.toString());
+    }
+
+    /**
      * Method to generate an IBE encryption PKG.
      * @return  A {@link Pair}, containing a {@link PublicParameters} to represent the public parameters of the PKG
      *          and a {@link BigInteger} to represent the master secret of the PKG.
@@ -119,6 +135,17 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
             e.printStackTrace();
             System.exit(1);
             return null;
+        }
+    }
+
+    public static @NotNull PrivateKey generatePrivateKey(@NotNull PrivateEntityIdentifier privateEntityIdentifier,
+                                                         @NotNull String id) throws IllegalArgumentException {
+        try {
+            PrivateKeyGenerator privateKeyGenerator = componentFactory.obtainPrivateKeyGenerator(
+                    privateEntityIdentifier.getIBEIdentifier().getLeft(), privateEntityIdentifier.getIBEIdentifier().getRight());
+            return privateKeyGenerator.extract(id);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -200,55 +227,37 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
         }
     }
 
-    // TODO: try to remove as many decrypt methods below this line as possible.
-
-    @Override
-    public @NotNull DecryptedObjectType decrypt(@NotNull Triple<PublicParameters, BigInteger, String> publicParametersBigIntegerStringTriple)
-            throws IllegalArgumentException {
-        // Decryption part.
-        String decryptedObjectAsString;
+    public @NotNull DecryptedObjectType decrypt(@NotNull PublicParameters publicParameters, @NotNull BigInteger masterSecret,
+                                                @NotNull String id) throws IllegalArgumentException {
         try {
-            // Construct the necessary part of the PKG to decrypt the CipherTextTuple.
-            var ibeClientAndPKG = obtainIBEClientAndPKG(publicParametersBigIntegerStringTriple.getLeft(),
-                    publicParametersBigIntegerStringTriple.getMiddle());
-            var ibeClient = ibeClientAndPKG.getLeft();
-            var privateKeyGenerator = ibeClientAndPKG.getRight();
-            // Actual decryption part.
-            PrivateKey privateKey = privateKeyGenerator.extract(publicParametersBigIntegerStringTriple.getRight());
-            Optional<String> optionalDecryptedString = ibeClient.decrypt(privateKey, encryptedSegment);
-
-            if (optionalDecryptedString.isEmpty())
-                throw new IllegalArgumentException("IBEEncryptedSegment could not be decrypted using the provided arguments.");
-            decryptedObjectAsString =  optionalDecryptedString.get();
-        } catch (ComponentConstructionException e) {
+            PrivateKeyGenerator privateKeyGenerator = componentFactory.obtainPrivateKeyGenerator(publicParameters, masterSecret);
+            PrivateKey privateKey = privateKeyGenerator.extract(id);
+            return decrypt(publicParameters, privateKey);
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
-
-        // Convert String to original object type and return.
-       try {
-           return convertStringToDecryptedObjectType(decryptedObjectAsString);
-       } catch (IOException | ClassNotFoundException e) {
-           throw new IllegalArgumentException(e);
-       }
     }
 
-    /**
-     * Method to obtain the {@link IbeClient} and {@link PrivateKeyGenerator} for a given {@link PublicParameters}
-     * and {@link BigInteger} instance.
-     * @param   publicParameters
-     *          The {@link PublicParameters}.
-     * @param   masterSecret
-     *          The {@link BigInteger}.
-     * @return  An {@link ImmutablePair}, containing the {@link IbeClient} and {@link PrivateKeyGenerator} instances.
-     * @throws  ComponentConstructionException
-     *          If one of the provided arguments is invalid.
-     */
-    private @NotNull Pair<IbeClient, PrivateKeyGenerator> obtainIBEClientAndPKG(@NotNull PublicParameters publicParameters,
-                                                                                @NotNull BigInteger masterSecret)
-            throws ComponentConstructionException {
-        IbeClient ibeClient = componentFactory.obtainClient(publicParameters);
-        PrivateKeyGenerator privateKeyGenerator = obtainPKG(publicParameters, masterSecret);
-        return new ImmutablePair<>(ibeClient, privateKeyGenerator);
+    public @NotNull DecryptedObjectType decrypt(@NotNull PublicParameters publicParameters, @NotNull BigInteger masterSecret,
+                                                @NotNull RTreePolicy rTreePolicy) throws IllegalArgumentException {
+        return decrypt(publicParameters, masterSecret, rTreePolicy.toString());
+    }
+
+    @Override
+    public @NotNull DecryptedObjectType decrypt(@NotNull Pair<PublicParameters, PrivateKey> decryptionPair) throws IllegalArgumentException {
+        return decrypt(decryptionPair.getLeft(), decryptionPair.getRight());
+    }
+
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier,
+                                                @NotNull String id) throws IllegalArgumentException {
+        return decrypt(privateEntityIdentifier.getIBEIdentifier().getLeft(),
+                privateEntityIdentifier.getIBEIdentifier().getRight(),
+                id);
+    }
+
+    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier,
+                                                @NotNull RTreePolicy rTreePolicy) throws IllegalArgumentException {
+        return decrypt(privateEntityIdentifier, rTreePolicy.toString());
     }
 
     public static @NotNull PrivateKeyGenerator obtainPKG(@NotNull PrivateEntityIdentifier privateEntityIdentifier) throws ComponentConstructionException {
@@ -257,63 +266,6 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
 
     private static @NotNull PrivateKeyGenerator obtainPKG(@NotNull PublicParameters publicParameters, @NotNull BigInteger masterSecret) throws ComponentConstructionException {
         return componentFactory.obtainPrivateKeyGenerator(publicParameters, masterSecret);
-    }
-
-    /**
-     * Method to decrypt the {@link IBEDecryptableSegment}.
-     * @param   publicParameters
-     *          The {@link PublicParameters} of the IBE PKG.
-     * @param   bigInteger
-     *          The master secret as a {@link BigInteger} for the IBE PKG.
-     * @param   policy
-     *          The {@link RTreePolicy} instance to decrypt this {@link IBEDecryptableSegment} with.
-     * @return  The decrypted an deserialized segment.
-     * @throws  IllegalArgumentException
-     *          If the {@link IBEDecryptableSegment} could not be decrypted using the provided arguments.
-     * @apiNote
-     *          This method does not try to decrypt the {@link IBEDecryptableSegment} using the possible policies
-     *          for the parent directories of the provided {@link RTreePolicy} argument.
-     *          If this is required however, it's the caller's responsibility to call this method for each variation.
-     */
-    public @NotNull DecryptedObjectType decrypt(@NotNull PublicParameters publicParameters, @NotNull BigInteger bigInteger,
-                                                @NotNull RTreePolicy policy)
-            throws IllegalArgumentException {
-        return this.decrypt(new ImmutableTriple<>(publicParameters, bigInteger, policy.toString()));
-    }
-
-    /**
-     * Method to decrypt the {@link IBEDecryptableSegment}.
-     * @param   privateEntityIdentifier
-     *          The {@link PrivateEntityIdentifier} to decrypt the {@link IBEDecryptableSegment} with.
-     * @param   ibeIdentifier
-     *          The IBE identifier to decrypt the {@link IBEDecryptableSegment} with.
-     * @return  The decrypted and deserialized {@link IBEDecryptableSegment}.
-     * @throws  IllegalArgumentException
-     *          If the provided key or IBE identifier can't be used to decrypt the {@link IBEDecryptableSegment}.
-     */
-    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, @NotNull String ibeIdentifier)
-            throws IllegalArgumentException {
-        return this.decrypt(new ImmutableTriple<>(privateEntityIdentifier.getIBEIdentifier().getLeft(),
-                privateEntityIdentifier.getIBEIdentifier().getRight(), ibeIdentifier));
-    }
-
-    /**
-     * Method to decrypt the {@link IBEDecryptableSegment}.
-     * @param   privateEntityIdentifier
-     *          The {@link PrivateEntityIdentifier} to decrypt this instance with.
-     * @param   policy
-     *          The {@link RTreePolicy} instance to decrypt this {@link IBEDecryptableSegment} with.
-     * @return  The decrypted and deserialized segment.
-     * @throws  IllegalArgumentException
-     *          If the provided arguments could not be used to decrypt this {@link IBEDecryptableSegment} with.
-     * @apiNote
-     *          This method does not try to decrypt the {@link IBEDecryptableSegment} using the possible policies
-     *          for the parent directories of the provided {@link RTreePolicy} argument.
-     *          If this is required however, it's the caller's responsibility to call this method for each variation.
-     */
-    public @NotNull DecryptedObjectType decrypt(@NotNull PrivateEntityIdentifier privateEntityIdentifier, @NotNull RTreePolicy policy)
-        throws IllegalArgumentException {
-        return this.decrypt(privateEntityIdentifier, policy.toString());
     }
 
     @Override

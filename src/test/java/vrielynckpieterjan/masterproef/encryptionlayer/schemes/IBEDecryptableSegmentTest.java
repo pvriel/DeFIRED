@@ -33,7 +33,7 @@ class IBEDecryptableSegmentTest {
 
         System.out.println(new String(SerializationUtils.serialize(ibeDecryptableSegment), StandardCharsets.UTF_8)); // Debug purposes.
 
-        String decrypted = ibeDecryptableSegment.decrypt(new ImmutableTriple<>(pkg.getLeft(), pkg.getRight(), identity));
+        String decrypted = ibeDecryptableSegment.decrypt(pkg.getLeft(), pkg.getRight(), identity);
         assertEquals(data, decrypted);
     }
 

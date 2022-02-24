@@ -1,7 +1,6 @@
 package vrielynckpieterjan.masterproef.applicationlayer.proof;
 
 import cryptid.ibe.domain.PrivateKey;
-import cryptid.ibe.domain.PublicParameters;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -18,8 +17,6 @@ import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
@@ -28,7 +25,7 @@ import java.util.stream.IntStream;
 /**
  * Class representing a proof object.
  */
-public class ProofObject implements Serializable {
+public class ProofObject extends AbstractProofObject {
 
     private final static Logger logger = Logger.getLogger(ProofObject.class.getName());
 

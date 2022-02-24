@@ -79,7 +79,7 @@ public interface StorageLayer {
                             !attestation.areSecondAndThirdLayerValid(publicEntityIdentifier) ||
                             attestation.isRevoked(StorageLayer.this)) return;
                         foundAttestation.set(attestation);
-                    } catch (IOException ignored) { return;}
+                    } catch (Exception ignored) { return;}
                 });
                 if (foundAttestation.get() == null) throw new IllegalArgumentException("Next attestation in personal queue not found.");
 

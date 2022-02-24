@@ -208,7 +208,7 @@ public class IssuerPartAttestation implements Serializable {
                                      @NotNull RTreePolicy policy) throws IllegalArgumentException {
         // 1) Decrypt the AES encryption information segment.
         AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegmentAttestation =
-                aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver, policy.toString());
+                aesEncryptionInformationSegment.decrypt(privateEntityIdentifierReceiver, policy);
 
         // 2) Obtain the AES key information segment.
         Pair<String, String> aesKeyInformationSegment = aesEncryptionInformationSegmentAttestation.getAesKeyInformation();
