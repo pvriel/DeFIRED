@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"kademlia"},{"l":"kademlia.dht"},{"l":"kademlia.exceptions"},{"l":"kademlia.message"},{"l":"kademlia.node"},{"l":"kademlia.operation"},{"l":"kademlia.routing"},{"l":"kademlia.simulations"},{"l":"kademlia.util"},{"l":"kademlia.util.serializer"}];updateSearchResults();
