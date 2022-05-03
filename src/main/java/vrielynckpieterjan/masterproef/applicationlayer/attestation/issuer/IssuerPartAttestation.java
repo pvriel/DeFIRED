@@ -46,17 +46,6 @@ public class IssuerPartAttestation implements Exportable {
 
     private final IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment;
 
-
-    public static void main(String[] args) throws IOException {
-        var policy = new RTreePolicy(PolicyRight.READ, "A");
-        var entityPair = EntityIdentifier.generateEntityIdentifierPair("test");
-        var issuerPartAttestation = new IssuerPartAttestation(entityPair.getLeft(),
-                entityPair.getRight(), entityPair.getRight(), new RevocationCommitment(), policy);
-        var serialized = ExportableUtils.serialize(issuerPartAttestation);
-        var deserialized = ExportableUtils.deserialize(serialized, IssuerPartAttestation.class);
-        System.out.println(deserialized.equals(issuerPartAttestation));
-    }
-
     protected IssuerPartAttestation(@NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
                                     @NotNull RevocationCommitment revocationCommitment,
                                     @NotNull PublicKey empiricalPublicKey,
