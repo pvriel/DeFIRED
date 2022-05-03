@@ -7,7 +7,9 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -43,6 +45,15 @@ abstract class CipherEncryptedSegment<DecryptedObjectType extends Serializable, 
     public CipherEncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull EncryptionKey encryptionKey) throws IllegalArgumentException {
         byte[] serializedOriginalObject = SerializationUtils.serialize(originalObject);
         encryptedSegment = encrypt(serializedOriginalObject, encryptionKey);
+    }
+
+    /**
+     * Constructor for the {@link CipherEncryptedSegment} class.
+     * @param   encryptedSegment
+     *          The (already) encrypted segment as a byte array.
+     */
+    protected CipherEncryptedSegment(byte[] encryptedSegment) {
+        this.encryptedSegment = encryptedSegment;
     }
 
     /**
@@ -120,4 +131,10 @@ abstract class CipherEncryptedSegment<DecryptedObjectType extends Serializable, 
     public int hashCode() {
         return Arrays.hashCode(encryptedSegment);
     }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        return encryptedSegment;
+    }
+
 }

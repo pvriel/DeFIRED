@@ -6,13 +6,18 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.AESEncryptionInformationSegmentAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartAttestation;
+import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
+import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 import vrielynckpieterjan.masterproef.storagelayer.queue.PersonalQueueIterator;
 
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +53,19 @@ public class DisproofObject extends AbstractProofObject {
         this.includedPrivateKeys = new HashMap<>();
         policyToDisprove.generateRTreePolicyVariations().forEach(rTreePolicy ->
                 includedPrivateKeys.put(rTreePolicy, IBEDecryptableSegment.generatePrivateKey(privateEntityIdentifierProver, rTreePolicy.toString())));
+    }
+
+    /**
+     * Constructor for the {@link DisproofObject} class.
+     * @param   includedPrivateKeys
+     *          The included private keys.
+     * @param   publicEntityIdentifierOfProver
+     *          The public entity identifier of the prover.
+     */
+    protected DisproofObject(@NotNull Map<RTreePolicy, PrivateKey> includedPrivateKeys,
+                             @NotNull PublicEntityIdentifier publicEntityIdentifierOfProver) {
+        this.includedPrivateKeys = includedPrivateKeys;
+        this.publicEntityIdentifierOfProver = publicEntityIdentifierOfProver;
     }
 
     /**
@@ -110,5 +128,84 @@ public class DisproofObject extends AbstractProofObject {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DisproofObject)) return false;
+
+        DisproofObject that = (DisproofObject) o;
+
+        if (!includedPrivateKeys.equals(that.includedPrivateKeys)) return false;
+        return publicEntityIdentifierOfProver.equals(that.publicEntityIdentifierOfProver);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = includedPrivateKeys.hashCode();
+        result = 31 * result + publicEntityIdentifierOfProver.hashCode();
+        return result;
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream;
+        ObjectOutputStream objectOutputStream;
+        int length = 4 + 2 * includedPrivateKeys.size() * 4;
+        byte[][] serializedRTreePolicies = new byte[includedPrivateKeys.size()][];
+        byte[][] serializedPrivateKeys = new byte[includedPrivateKeys.size()][];
+        int i = 0;
+        for (Map.Entry<RTreePolicy, PrivateKey> entry : includedPrivateKeys.entrySet()) {
+            serializedRTreePolicies[i] = ExportableUtils.serialize(entry.getKey());
+            byteArrayOutputStream = new ByteArrayOutputStream();
+            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(entry.getValue());
+            serializedPrivateKeys[i] = byteArrayOutputStream.toByteArray();
+            length += serializedRTreePolicies[i].length + serializedPrivateKeys[i].length;
+            i ++;
+        }
+        byte[] serializedPublicEntityIdentifierOfProver = ExportableUtils.serialize(publicEntityIdentifierOfProver);
+        length += serializedPublicEntityIdentifierOfProver.length;
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+        byteBuffer.putInt(includedPrivateKeys.size());
+        for (i = 0; i < serializedRTreePolicies.length; i ++) {
+            byteBuffer.putInt(serializedRTreePolicies[i].length);
+            byteBuffer.put(serializedRTreePolicies[i]);
+            byteBuffer.putInt(serializedPrivateKeys[i].length);
+            byteBuffer.put(serializedPrivateKeys[i]);
+        }
+        byteBuffer.put(serializedPublicEntityIdentifierOfProver);
+
+        return byteBuffer.array();
+    }
+
+    @NotNull
+    public static DisproofObject deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream byteArrayInputStream;
+        ObjectInputStream objectInputStream;
+
+        Map<RTreePolicy, PrivateKey> includedPrivateKeys = new HashMap<>();
+        int amountOfIterations = byteBuffer.getInt();
+        for (int i = 0; i < amountOfIterations; i ++) {
+            byte[] rTreePolicyAsByteArray = new byte[byteBuffer.getInt()];
+            byteBuffer.get(rTreePolicyAsByteArray);
+            RTreePolicy rTreePolicy = ExportableUtils.deserialize(rTreePolicyAsByteArray, RTreePolicy.class);
+
+            byte[] privateKeyAsByteArray = new byte[byteBuffer.getInt()];
+            byteBuffer.get(privateKeyAsByteArray);
+            byteArrayInputStream = new ByteArrayInputStream(privateKeyAsByteArray);
+            objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            PrivateKey privateKey = (PrivateKey) objectInputStream.readObject();
+
+            includedPrivateKeys.put(rTreePolicy, privateKey);
+        }
+
+        byte[] publicEntityIdentifierOfProverAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(publicEntityIdentifierOfProverAsByteArray);
+        PublicEntityIdentifier publicEntityIdentifierOfProver = ExportableUtils.deserialize(publicEntityIdentifierOfProverAsByteArray, PublicEntityIdentifier.class);
+
+        return new DisproofObject(includedPrivateKeys, publicEntityIdentifierOfProver);
     }
 }

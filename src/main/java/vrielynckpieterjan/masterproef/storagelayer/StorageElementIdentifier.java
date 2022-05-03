@@ -2,14 +2,19 @@ package vrielynckpieterjan.masterproef.storagelayer;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
  * Class representing an identifier / pointer for a {@link StorageElement} in the {@link StorageLayer}.
  */
-public class StorageElementIdentifier implements Serializable {
+public class StorageElementIdentifier implements Exportable {
 
     private final String identifier;
 
@@ -66,5 +71,16 @@ public class StorageElementIdentifier implements Serializable {
         return "StorageElementIdentifier{" +
                 "identifier='" + identifier + '\'' +
                 '}';
+    }
+
+    @Override
+    public byte[] serialize() {
+        return identifier.getBytes(StandardCharsets.UTF_8);
+    }
+
+    @NotNull
+    public static StorageElementIdentifier deserialize(@NotNull ByteBuffer byteBuffer) {
+        String identifier = new String(byteBuffer.array(), StandardCharsets.UTF_8);
+        return new StorageElementIdentifier(identifier);
     }
 }

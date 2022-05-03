@@ -2,8 +2,13 @@ package vrielynckpieterjan.masterproef.applicationlayer.attestation.policy;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight.*;
@@ -11,7 +16,7 @@ import static vrielynckpieterjan.masterproef.applicationlayer.attestation.policy
 /**
  * Class expressing an RTree policy expression.
  */
-public class RTreePolicy implements Serializable, Cloneable {
+public class RTreePolicy implements Exportable, Cloneable {
 
     private PolicyRight policyRight;
     private final String[] namespaceDirectoryExpression;
@@ -163,5 +168,16 @@ public class RTreePolicy implements Serializable, Cloneable {
         int result = Objects.hash(policyRight);
         result = 31 * result + Arrays.hashCode(namespaceDirectoryExpression);
         return result;
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        return toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    @NotNull
+    public static RTreePolicy deserialize(@NotNull ByteBuffer byteBuffer) {
+        String policyAsString = new String(byteBuffer.array(), StandardCharsets.UTF_8);
+        return convertStringToRTreePolicy(policyAsString);
     }
 }

@@ -79,5 +79,11 @@ class StorageLayerTest {
         public TestStorageElement(@NotNull StorageElementIdentifier identifier) {
             super(identifier);
         }
+
+        @Override
+        public byte[] serialize() {
+            // Not used for test.
+            return new byte[0];
+        }
     }
 }

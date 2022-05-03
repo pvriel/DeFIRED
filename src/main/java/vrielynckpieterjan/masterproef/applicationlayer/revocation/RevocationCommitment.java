@@ -7,6 +7,7 @@ import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
@@ -66,5 +67,15 @@ public class RevocationCommitment extends StorageElementIdentifier {
             if (revocationObject.isValid()) return true;
         }
         return false;
+    }
+
+    @Override
+    public byte[] serialize() {
+        return super.serialize();
+    }
+
+    @NotNull
+    public static RevocationCommitment deserialize(@NotNull ByteBuffer byteBuffer) {
+        return new RevocationCommitment(new String(byteBuffer.array(), StandardCharsets.UTF_8));
     }
 }

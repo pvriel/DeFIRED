@@ -5,12 +5,16 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import javax.crypto.Cipher;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -34,6 +38,18 @@ public class ECCipherEncryptedSegment<DecryptedObjectType extends Serializable>
     }
 
     private AESCipherEncryptedSegment<byte[]> encapsulatedAESEncryptedSegment;
+
+    /**
+     * Constructor for the {@link ECCipherEncryptedSegment} class.
+     * @param   encryptedSegment
+     *          The encrypted segment for the {@link CipherEncryptedSegment} superclass.
+     * @param   encapsulatedAESEncryptedSegment
+     *          The encapsulated AES encrypted segment.
+     */
+    protected ECCipherEncryptedSegment(byte[] encryptedSegment, @NotNull AESCipherEncryptedSegment<byte[]> encapsulatedAESEncryptedSegment) {
+        super(encryptedSegment);
+        this.encapsulatedAESEncryptedSegment = encapsulatedAESEncryptedSegment;
+    }
 
     /**
      * Constructor for the {@link ECCipherEncryptedSegment} class.
@@ -168,5 +184,31 @@ public class ECCipherEncryptedSegment<DecryptedObjectType extends Serializable>
         return "ECCipherEncryptedSegment{" +
                 "encapsulatedAESEncryptedSegment=" + encapsulatedAESEncryptedSegment +
                 '}';
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        byte[] encryptedSegment = super.serialize();
+        byte[] encapsulatedAESEncryptedSegment = ExportableUtils.serialize(this.encapsulatedAESEncryptedSegment);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(encryptedSegment.length + encapsulatedAESEncryptedSegment.length + 4);
+        byteBuffer.putInt(encryptedSegment.length);
+        byteBuffer.put(encryptedSegment);
+        byteBuffer.put(encapsulatedAESEncryptedSegment);
+
+        return byteBuffer.array();
+    }
+
+    @NotNull
+    public static ECCipherEncryptedSegment deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
+        byte[] encryptedSegment = new byte[byteBuffer.getInt()];
+        byteBuffer.get(encryptedSegment);
+
+        byte[] encapsulatedAESEncryptedSegmentAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(encapsulatedAESEncryptedSegmentAsByteArray);
+        AESCipherEncryptedSegment<byte[]> encapsulatedAESEncryptedSegment =
+                ExportableUtils.deserialize(encapsulatedAESEncryptedSegmentAsByteArray, AESCipherEncryptedSegment.class);
+
+        return new ECCipherEncryptedSegment(encryptedSegment, encapsulatedAESEncryptedSegment);
     }
 }

@@ -1,6 +1,7 @@
 package vrielynckpieterjan.masterproef.encryptionlayer.schemes;
 
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
 
 import java.io.Serializable;
 
@@ -11,7 +12,7 @@ import java.io.Serializable;
  * @param   <DecryptionKey>
  *          The type of the key required to perform the decryption process.
  */
-public interface DecryptableSegment<DecryptedObjectType extends Serializable, DecryptionKey> extends Serializable {
+public interface DecryptableSegment<DecryptedObjectType extends Serializable, DecryptionKey> extends Exportable {
 
     /**
      * Method to decrypt the {@link DecryptableSegment}.

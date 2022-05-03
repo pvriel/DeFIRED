@@ -7,12 +7,19 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
-import java.io.Serializable;
+import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -24,7 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *          The type used to represent the IBE part of the identifier.
  */
 public abstract class EntityIdentifier<RSAKeyType extends Key,
-        IBEEncryptionKeyType> implements Serializable {
+        IBEEncryptionKeyType> implements Exportable {
 
     private final RSAKeyType rsaIdentifier;
     private final IBEEncryptionKeyType ibeIdentifier;
@@ -38,15 +45,35 @@ public abstract class EntityIdentifier<RSAKeyType extends Key,
      *          The IBE part of the identifier.
      * @param   namespaceServiceProviderEmailAddressUserConcatenation
      *          A concatenation of the namespace and the e-mail address of the user.
-     *          This value should not be hashed yet.
+     * @param   hashConcatenation
+     *          Boolean indicating if the namespaceServiceProviderEmailAddressUserConcatenation parameter should yet be hashed.
      */
     protected EntityIdentifier(@NotNull RSAKeyType rsaIdentifier,
                             @NotNull IBEEncryptionKeyType ibeIdentifier,
-                            @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
+                            @NotNull String namespaceServiceProviderEmailAddressUserConcatenation,
+                               boolean hashConcatenation) {
         this.rsaIdentifier = rsaIdentifier;
         this.ibeIdentifier = ibeIdentifier;
-        this.namespaceServiceProviderEmailAddressUserConcatenation = Hashing.sha512().hashString(
-                namespaceServiceProviderEmailAddressUserConcatenation, StandardCharsets.UTF_8).toString();
+        this.namespaceServiceProviderEmailAddressUserConcatenation = (hashConcatenation)? Hashing.sha512().hashString(
+                namespaceServiceProviderEmailAddressUserConcatenation, StandardCharsets.UTF_8).toString() :
+            namespaceServiceProviderEmailAddressUserConcatenation;
+    }
+
+    /**
+     * Constructor for the {@link EntityIdentifier} class.
+     * @param   rsaIdentifier
+     *          The {@link Key} used to represent the RSA part of the identifier.
+     * @param   ibeIdentifier
+     *          The IBE part of the identifier.
+     * @param   namespaceServiceProviderEmailAddressUserConcatenation
+     *          A concatenation of the namespace and the e-mail address of the user.
+     *          This value should not be hashed yet.
+     */
+    @Deprecated
+    protected EntityIdentifier(@NotNull RSAKeyType rsaIdentifier,
+                               @NotNull IBEEncryptionKeyType ibeIdentifier,
+                               @NotNull String namespaceServiceProviderEmailAddressUserConcatenation) {
+        this(rsaIdentifier, ibeIdentifier, namespaceServiceProviderEmailAddressUserConcatenation, true);
     }
 
     /**
@@ -117,6 +144,7 @@ public abstract class EntityIdentifier<RSAKeyType extends Key,
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EntityIdentifier that = (EntityIdentifier) o;
+
         return rsaIdentifier.equals(that.rsaIdentifier) &&
                 ibeIdentifier.equals(that.ibeIdentifier) &&
                 namespaceServiceProviderEmailAddressUserConcatenation.equals(that.namespaceServiceProviderEmailAddressUserConcatenation);
@@ -131,5 +159,30 @@ public abstract class EntityIdentifier<RSAKeyType extends Key,
     @Override
     public String toString() {
         return namespaceServiceProviderEmailAddressUserConcatenation;
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(rsaIdentifier);
+        objectOutputStream.flush();
+        byte[] rsaIdentifierAsByteArray = byteArrayOutputStream.toByteArray();
+
+        byteArrayOutputStream = new ByteArrayOutputStream();
+        objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(ibeIdentifier);
+        objectOutputStream.flush();
+        byte[] ibeIdentifierAsByteArray = byteArrayOutputStream.toByteArray();
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(rsaIdentifierAsByteArray.length + ibeIdentifierAsByteArray.length +
+                namespaceServiceProviderEmailAddressUserConcatenation.length() + 4 * 2);
+        byteBuffer.putInt(rsaIdentifierAsByteArray.length);
+        byteBuffer.put(rsaIdentifierAsByteArray);
+        byteBuffer.putInt(ibeIdentifierAsByteArray.length);
+        byteBuffer.put(ibeIdentifierAsByteArray);
+        byteBuffer.put(namespaceServiceProviderEmailAddressUserConcatenation.getBytes(StandardCharsets.UTF_8));
+
+        return byteBuffer.array();
     }
 }

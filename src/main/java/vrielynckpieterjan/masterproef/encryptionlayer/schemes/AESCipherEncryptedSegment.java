@@ -2,10 +2,13 @@ package vrielynckpieterjan.masterproef.encryptionlayer.schemes;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
@@ -27,6 +30,15 @@ public class AESCipherEncryptedSegment<DecryptedObjectType extends Serializable>
      */
     public AESCipherEncryptedSegment(@NotNull DecryptedObjectType originalObject, @NotNull String encryptionKey) throws IllegalArgumentException {
         super(originalObject, encryptionKey);
+    }
+
+    /**
+     * Constructor for the {@link AESCipherEncryptedSegment} class.
+     * @param   encryptedSegment
+     *          The (already) encrypted segment as a byte array.
+     */
+    protected AESCipherEncryptedSegment(byte[] encryptedSegment) {
+        super(encryptedSegment);
     }
 
     @Override
@@ -92,5 +104,10 @@ public class AESCipherEncryptedSegment<DecryptedObjectType extends Serializable>
      */
     public static String generateAESKey() {
         return RandomStringUtils.randomAlphanumeric(32);
+    }
+
+    @NotNull
+    public static AESCipherEncryptedSegment deserialize(@NotNull ByteBuffer byteBuffer) {
+        return new AESCipherEncryptedSegment(byteBuffer.array());
     }
 }

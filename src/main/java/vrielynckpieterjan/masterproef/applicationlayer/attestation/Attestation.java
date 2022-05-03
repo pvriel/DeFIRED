@@ -4,16 +4,20 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartAttestation;
+import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationCommitment;
+import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElement;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -25,6 +29,16 @@ public class Attestation extends StorageElement {
     private final IssuerPartAttestation firstLayer;
     private final ECCipherEncryptedSegment<Pair<Integer, RevocationCommitment>> secondLayer;
     private final ECCipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> thirdLayer;
+
+    protected Attestation(@NotNull StorageElementIdentifier storageElementIdentifier,
+                          @NotNull IssuerPartAttestation firstLayer,
+                          @NotNull ECCipherEncryptedSegment<Pair<Integer, RevocationCommitment>> secondLayer,
+                          @NotNull ECCipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> thirdLayer) {
+        super(storageElementIdentifier);
+        this.firstLayer = firstLayer;
+        this.secondLayer = secondLayer;
+        this.thirdLayer = thirdLayer;
+    }
 
     /**
      * Constructor for the {@link Attestation} class.
@@ -177,5 +191,66 @@ public class Attestation extends StorageElement {
      */
     public ECCipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> getThirdLayer() {
         return thirdLayer;
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        byte[] storageElementIdentifierAsByteArray = super.serialize();
+        byte[] firstLayerAsByteArray = ExportableUtils.serialize(firstLayer);
+        byte[] secondLayerAsByteArray = ExportableUtils.serialize(secondLayer);
+        byte[] thirdLayerAsByteArray = ExportableUtils.serialize(thirdLayer);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(3 * 4 + storageElementIdentifierAsByteArray.length +
+                firstLayerAsByteArray.length + secondLayerAsByteArray.length + thirdLayerAsByteArray.length);
+        byteBuffer.putInt(storageElementIdentifierAsByteArray.length);
+        byteBuffer.put(storageElementIdentifierAsByteArray);
+        byteBuffer.putInt(firstLayerAsByteArray.length);
+        byteBuffer.put(firstLayerAsByteArray);
+        byteBuffer.putInt(secondLayerAsByteArray.length);
+        byteBuffer.put(secondLayerAsByteArray);
+        byteBuffer.put(thirdLayerAsByteArray);
+
+        return byteBuffer.array();
+    }
+
+    @NotNull
+    public static Attestation deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
+        byte[][] receivedByteArrays = new byte[4][];
+        for (int i = 0; i < receivedByteArrays.length - 1; i ++) {
+            byte[] array = new byte[byteBuffer.getInt()];
+            byteBuffer.get(array);
+            receivedByteArrays[i] = array;
+        }
+        receivedByteArrays[3] = new byte[byteBuffer.remaining()];
+        byteBuffer.get(receivedByteArrays[3]);
+
+        StorageElementIdentifier storageElementIdentifier = ExportableUtils.deserialize(receivedByteArrays[0], StorageElementIdentifier.class);
+        IssuerPartAttestation firstLayer = ExportableUtils.deserialize(receivedByteArrays[1], IssuerPartAttestation.class);
+        ECCipherEncryptedSegment<Pair<Integer, RevocationCommitment>> secondLayer =
+                ExportableUtils.deserialize(receivedByteArrays[2], ECCipherEncryptedSegment.class);
+        ECCipherEncryptedSegment<Pair<Integer, StorageElementIdentifier>> thirdLayer =
+                ExportableUtils.deserialize(receivedByteArrays[3], ECCipherEncryptedSegment.class);
+
+        return new Attestation(storageElementIdentifier, firstLayer, secondLayer, thirdLayer);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Attestation)) return false;
+
+        Attestation that = (Attestation) o;
+
+        if (!getFirstLayer().equals(that.getFirstLayer())) return false;
+        if (!getSecondLayer().equals(that.getSecondLayer())) return false;
+        return getThirdLayer().equals(that.getThirdLayer());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getFirstLayer().hashCode();
+        result = 31 * result + getSecondLayer().hashCode();
+        result = 31 * result + getThirdLayer().hashCode();
+        return result;
     }
 }

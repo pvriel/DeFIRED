@@ -2,16 +2,19 @@ package vrielynckpieterjan.masterproef.applicationlayer.revocation;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
  * Class representing a revocation secret.
  */
-public class RevocationSecret implements Serializable {
+public class RevocationSecret implements Exportable {
 
     private final static int LENGTH_GENERATED_REVOCATION_SECRETS = 512;
 
@@ -73,5 +76,16 @@ public class RevocationSecret implements Serializable {
         return "RevocationSecret{" +
                 "secret='" + secret + '\'' +
                 '}';
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        return secret.getBytes(StandardCharsets.UTF_8);
+    }
+
+    @NotNull
+    public static RevocationSecret deserialize(@NotNull ByteBuffer byteBuffer) {
+        String secret = new String(byteBuffer.array(), StandardCharsets.UTF_8);
+        return new RevocationSecret(secret);
     }
 }

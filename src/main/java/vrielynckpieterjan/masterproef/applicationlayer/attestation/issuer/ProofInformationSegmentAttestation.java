@@ -5,17 +5,24 @@ import cryptid.ibe.domain.PublicParameters;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
-import java.io.Serializable;
+import java.io.*;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Class representing the proof information segment of the {@link IssuerPartAttestation}.
  */
-public class ProofInformationSegmentAttestation implements Serializable {
+public class ProofInformationSegmentAttestation implements Exportable {
 
     @NotNull
     private final Set<PrivateKey> privateKeysIBE;
@@ -42,6 +49,21 @@ public class ProofInformationSegmentAttestation implements Serializable {
         return new AESCipherEncryptedSegment<>(this, aesKey);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProofInformationSegmentAttestation)) return false;
+
+        ProofInformationSegmentAttestation that = (ProofInformationSegmentAttestation) o;
+
+        return getPrivateKeysIBE().equals(that.getPrivateKeysIBE());
+    }
+
+    @Override
+    public int hashCode() {
+        return getPrivateKeysIBE().hashCode();
+    }
+
     /**
      * Getter for the IBE {@link PrivateKey}s of the issuer.
      * @return The {@link PrivateKey}s.
@@ -49,5 +71,49 @@ public class ProofInformationSegmentAttestation implements Serializable {
     @NotNull
     public Set<PrivateKey> getPrivateKeysIBE() {
         return privateKeysIBE;
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream;
+        ObjectOutputStream objectOutputStream;
+        int length = 4 + privateKeysIBE.size() * 4;
+        byte[][] privateKeysAsByteArrays = new byte[privateKeysIBE.size()][];
+        int i = 0;
+        for (PrivateKey privateKey : privateKeysIBE) {
+            byteArrayOutputStream = new ByteArrayOutputStream();
+            objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(privateKey);
+            privateKeysAsByteArrays[i] = byteArrayOutputStream.toByteArray();
+            length += privateKeysAsByteArrays[i].length;
+            i ++;
+        }
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+        byteBuffer.putInt(privateKeysIBE.size());
+        for (i = 0; i < privateKeysAsByteArrays.length; i ++) {
+            byteBuffer.putInt(privateKeysAsByteArrays[i].length);
+            byteBuffer.put(privateKeysAsByteArrays[i]);
+        }
+
+        return byteBuffer.array();
+    }
+
+    @NotNull
+    public static ProofInformationSegmentAttestation deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream byteArrayInputStream;
+        ObjectInputStream objectInputStream;
+        int amountOfElements = byteBuffer.getInt();
+        Set<PrivateKey> privateKeysIBE = new HashSet<>(amountOfElements);
+        for (int i = 0; i < amountOfElements; i ++) {
+            int length = byteBuffer.getInt();
+            byte[] privateKeyAsByteArray = new byte[length];
+            byteBuffer.get(privateKeyAsByteArray);
+            byteArrayInputStream = new ByteArrayInputStream(privateKeyAsByteArray);
+            objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            PrivateKey privateKey = (PrivateKey) objectInputStream.readObject();
+            privateKeysIBE.add(privateKey);
+        }
+        return new ProofInformationSegmentAttestation(privateKeysIBE);
     }
 }

@@ -1,14 +1,17 @@
 package vrielynckpieterjan.masterproef.storagelayer;
 
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 
 /**
  * Abstract class representing an element which can be stored within the {@link StorageLayer} of the decentralized
  * access policy framework.
  */
-public abstract class StorageElement implements Serializable {
+public abstract class StorageElement implements Exportable {
 
     private final StorageElementIdentifier identifier;
 
@@ -27,5 +30,10 @@ public abstract class StorageElement implements Serializable {
      */
     public StorageElementIdentifier getStorageLayerIdentifier() {
         return identifier;
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        return identifier.serialize();
     }
 }

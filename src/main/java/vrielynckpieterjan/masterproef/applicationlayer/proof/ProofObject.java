@@ -13,10 +13,16 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.AESEnc
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
@@ -345,5 +351,63 @@ public class ProofObject extends AbstractProofObject {
                 return new ImmutableTriple<>(attestation, aesKeys.getLeft(), aesKeys.getRight());
             } catch (IllegalArgumentException ignored) {}
         }
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        int length = 4 + 2 * 4 * storageElementIdentifiers.length;
+
+        byte[][] serializedStorageElementIdentifiers = new byte[storageElementIdentifiers.length][];
+        byte[][] serializedAESKeys = new byte[aesKeys.length][];
+        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
+            byte[] serializedStorageElementIdentifier = ExportableUtils.serialize(storageElementIdentifiers[i]);
+            byte[] serializedAESKey = aesKeys[i].getBytes(StandardCharsets.UTF_8);
+
+            serializedStorageElementIdentifiers[i] = serializedStorageElementIdentifier;
+            serializedAESKeys[i] = serializedAESKey;
+
+            length += serializedStorageElementIdentifier.length + serializedAESKey.length;
+        }
+
+        byte[] serializedAesKeyNamespaceAttestationProver = aesKeyNamespaceAttestationProver.getBytes(StandardCharsets.UTF_8);
+        length += serializedAesKeyNamespaceAttestationProver.length;
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+        byteBuffer.putInt(storageElementIdentifiers.length);
+        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
+            byteBuffer.putInt(serializedStorageElementIdentifiers[i].length);
+            byteBuffer.put(serializedStorageElementIdentifiers[i]);
+        }
+        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
+            byteBuffer.putInt(serializedAESKeys[i].length);
+            byteBuffer.put(serializedAESKeys[i]);
+        }
+        byteBuffer.put(serializedAesKeyNamespaceAttestationProver);
+
+        return byteBuffer.array();
+    }
+
+    @NotNull
+    public static ProofObject deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
+        StorageElementIdentifier[] storageElementIdentifiers = new StorageElementIdentifier[byteBuffer.getInt()];
+        String[] aesKeys = new String[storageElementIdentifiers.length];
+
+        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
+            byte[] storageElementIdentifierAsByteArray = new byte[byteBuffer.getInt()];
+            byteBuffer.get(storageElementIdentifierAsByteArray);
+            storageElementIdentifiers[i] = ExportableUtils.deserialize(storageElementIdentifierAsByteArray, StorageElementIdentifier.class);
+        }
+
+        for (int i = 0; i < aesKeys.length; i ++) {
+            byte[] aesKeyAsByteArray = new byte[byteBuffer.getInt()];
+            byteBuffer.get(aesKeyAsByteArray);
+            aesKeys[i] = new String(aesKeyAsByteArray, StandardCharsets.UTF_8);
+        }
+
+        byte[] aesKeyNamespaceAttestationProverAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(aesKeyNamespaceAttestationProverAsByteArray);
+        String aesKeyNamespaceAttestationProver = new String(aesKeyNamespaceAttestationProverAsByteArray, StandardCharsets.UTF_8);
+
+        return new ProofObject(storageElementIdentifiers, aesKeys, aesKeyNamespaceAttestationProver);
     }
 }

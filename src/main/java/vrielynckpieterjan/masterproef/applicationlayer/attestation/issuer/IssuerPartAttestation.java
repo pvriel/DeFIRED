@@ -6,16 +6,21 @@ import cryptid.ibe.exception.ComponentConstructionException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationCommitment;
+import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
-import java.io.Serializable;
+import java.io.*;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -28,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Class representing the issuer's part of an {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation}.
  */
-public class IssuerPartAttestation implements Serializable {
+public class IssuerPartAttestation implements Exportable {
 
     private final PublicEntityIdentifier publicEntityIdentifierReceiver;
     private final RevocationCommitment revocationCommitment;
@@ -40,6 +45,33 @@ public class IssuerPartAttestation implements Serializable {
     private final AESCipherEncryptedSegment<ProofInformationSegmentAttestation> proofInformationSegment;
 
     private final IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment;
+
+
+    public static void main(String[] args) throws IOException {
+        var policy = new RTreePolicy(PolicyRight.READ, "A");
+        var entityPair = EntityIdentifier.generateEntityIdentifierPair("test");
+        var issuerPartAttestation = new IssuerPartAttestation(entityPair.getLeft(),
+                entityPair.getRight(), entityPair.getRight(), new RevocationCommitment(), policy);
+        var serialized = ExportableUtils.serialize(issuerPartAttestation);
+        var deserialized = ExportableUtils.deserialize(serialized, IssuerPartAttestation.class);
+        System.out.println(deserialized.equals(issuerPartAttestation));
+    }
+
+    protected IssuerPartAttestation(@NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
+                                    @NotNull RevocationCommitment revocationCommitment,
+                                    @NotNull PublicKey empiricalPublicKey,
+                                    @NotNull ECCipherEncryptedSegment<Integer> encryptedSignature,
+                                    @NotNull AESCipherEncryptedSegment<VerificationInformationSegmentAttestation> verificationInformationSegment,
+                                    @NotNull AESCipherEncryptedSegment<ProofInformationSegmentAttestation> proofInformationSegment,
+                                    @NotNull IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment) {
+        this.publicEntityIdentifierReceiver = publicEntityIdentifierReceiver;
+        this.revocationCommitment = revocationCommitment;
+        this.empiricalPublicKey = empiricalPublicKey;
+        this.encryptedSignature = encryptedSignature;
+        this.verificationInformationSegment =verificationInformationSegment;
+        this.proofInformationSegment = proofInformationSegment;
+        this.aesEncryptionInformationSegment =aesEncryptionInformationSegment;
+    }
 
     /**
      * The constructor of the {@link IssuerPartAttestation}.
@@ -285,5 +317,60 @@ public class IssuerPartAttestation implements Serializable {
         return "IssuerPartAttestation{" +
                 "encryptedSignature=" + encryptedSignature +
                 '}';
+    }
+
+    @Override
+    public byte[] serialize() throws IOException {
+        byte[] publicEntityIdentifierReceiverAsByteArray = ExportableUtils.serialize(publicEntityIdentifierReceiver);
+        byte[] revocationCommitmentAsByteArray = ExportableUtils.serialize(revocationCommitment);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(empiricalPublicKey);
+        byte[] empiricalPublicKeyAsByteArray = byteArrayOutputStream.toByteArray();
+        byte[] encryptedSignatureAsByteArray = ExportableUtils.serialize(encryptedSignature);
+        byte[] verificationInformationSegmentAsByteArray = ExportableUtils.serialize(verificationInformationSegment);
+        byte[] proofInformationSegmentAsByteArray = ExportableUtils.serialize(proofInformationSegment);
+        byte[] aesEncryptionInformationSegmentAsByteArray = ExportableUtils.serialize(aesEncryptionInformationSegment);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(6 * 4 + publicEntityIdentifierReceiverAsByteArray.length +
+                revocationCommitmentAsByteArray.length + empiricalPublicKeyAsByteArray.length + encryptedSignatureAsByteArray.length +
+                verificationInformationSegmentAsByteArray.length + proofInformationSegmentAsByteArray.length + aesEncryptionInformationSegmentAsByteArray.length);
+        for (byte[] array : new byte[][]{publicEntityIdentifierReceiverAsByteArray, revocationCommitmentAsByteArray,
+                empiricalPublicKeyAsByteArray, encryptedSignatureAsByteArray, verificationInformationSegmentAsByteArray,
+                proofInformationSegmentAsByteArray}) {
+            byteBuffer.putInt(array.length);
+            byteBuffer.put(array);
+        }
+        byteBuffer.put(aesEncryptionInformationSegmentAsByteArray);
+
+        return byteBuffer.array();
+    }
+
+    @NotNull
+    public static IssuerPartAttestation deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
+        byte[][] receivedArrays = new byte[7][];
+        for (int i = 0; i < receivedArrays.length - 1; i ++) {
+            byte[] array = new byte[byteBuffer.getInt()];
+            byteBuffer.get(array);
+            receivedArrays[i] = array;
+        }
+        receivedArrays[6] = new byte[byteBuffer.remaining()];
+        byteBuffer.get(receivedArrays[6]);
+
+        PublicEntityIdentifier publicEntityIdentifierReceiver = ExportableUtils.deserialize(receivedArrays[0], PublicEntityIdentifier.class);
+        RevocationCommitment revocationCommitment = ExportableUtils.deserialize(receivedArrays[1], RevocationCommitment.class);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(receivedArrays[2]);
+        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+        PublicKey empiricalPublicKey = (PublicKey) objectInputStream.readObject();
+        ECCipherEncryptedSegment<Integer> encryptedSignature = ExportableUtils.deserialize(receivedArrays[3], ECCipherEncryptedSegment.class);
+        AESCipherEncryptedSegment<VerificationInformationSegmentAttestation> verificationInformationSegment =
+                ExportableUtils.deserialize(receivedArrays[4], AESCipherEncryptedSegment.class);
+        AESCipherEncryptedSegment<ProofInformationSegmentAttestation> proofInformationSegment =
+                ExportableUtils.deserialize(receivedArrays[5], AESCipherEncryptedSegment.class);
+        IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment =
+                ExportableUtils.deserialize(receivedArrays[6], IBEDecryptableSegment.class);
+
+        return new IssuerPartAttestation(publicEntityIdentifierReceiver, revocationCommitment,
+                empiricalPublicKey, encryptedSignature, verificationInformationSegment, proofInformationSegment, aesEncryptionInformationSegment);
     }
 }

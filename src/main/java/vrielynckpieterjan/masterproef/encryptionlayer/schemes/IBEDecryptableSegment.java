@@ -1,5 +1,6 @@
 package vrielynckpieterjan.masterproef.encryptionlayer.schemes;
 
+import cryptid.ellipticcurve.point.affine.AffinePoint;
 import cryptid.ellipticcurve.point.affine.generator.GenerationStrategyFactory;
 import cryptid.ellipticcurve.point.affine.generator.Mod3GenerationStrategy;
 import cryptid.ibe.IbeClient;
@@ -20,9 +21,11 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
+import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -63,6 +66,15 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
     }
 
     private final CipherTextTuple encryptedSegment;
+
+    /**
+     * Constructor for the {@link IBEDecryptableSegment} class.
+     * @param   encryptedSegment
+     *          The (already) encrypted segment.
+     */
+    protected IBEDecryptableSegment(@NotNull CipherTextTuple encryptedSegment) {
+        this.encryptedSegment = encryptedSegment;
+    }
 
     /**
      * Constructor for the {@link IBEDecryptableSegment} class.
@@ -279,5 +291,45 @@ public class IBEDecryptableSegment<DecryptedObjectType extends Serializable>
     @Override
     public int hashCode() {
         return Objects.hash(encryptedSegment);
+    }
+
+    @Override
+    public byte[] serialize() {
+        AffinePoint u = encryptedSegment.getCipherU();
+
+        BigInteger x = u.getX();
+        byte[] xArray = x.toByteArray();
+        BigInteger y = u.getY();
+        byte[] yArray = y.toByteArray();
+        byte[] v = encryptedSegment.getCipherV();
+        byte[] w = encryptedSegment.getCipherW();
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(xArray.length + yArray.length + v.length + w.length + 4 * 3);
+        for (byte[] array : new byte[][]{xArray, yArray, v}) {
+            byteBuffer.putInt(array.length);
+            byteBuffer.put(array);
+        }
+        byteBuffer.put(w);
+
+        return byteBuffer.array();
+    }
+
+    @NotNull
+    public static IBEDecryptableSegment deserialize(@NotNull ByteBuffer byteBuffer) {
+        byte[] xArray = new byte[byteBuffer.getInt()];
+        byteBuffer.get(xArray);
+        byte[] yArray = new byte[byteBuffer.getInt()];
+        byteBuffer.get(yArray);
+        byte[] v = new byte[byteBuffer.getInt()];
+        byteBuffer.get(v);
+        byte[] w = new byte[byteBuffer.remaining()];
+        byteBuffer.get(w);
+
+        BigInteger x = new BigInteger(xArray);
+        BigInteger y = new BigInteger(yArray);
+        AffinePoint u = new AffinePoint(x, y);
+
+        CipherTextTuple cipherTextTuple = new CipherTextTuple(u, v, w);
+        return new IBEDecryptableSegment(cipherTextTuple);
     }
 }
