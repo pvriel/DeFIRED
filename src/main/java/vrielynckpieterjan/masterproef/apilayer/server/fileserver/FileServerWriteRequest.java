@@ -11,8 +11,8 @@ public abstract class FileServerWriteRequest extends FileServerRequest {
 
     /**
      * Constructor for the {@link FileServerWriteRequest} class.
-     * @param   resourceLocation
-     *          The location of the specific resources.
+     *
+     * @param resourceLocation The location of the specific resources.
      */
     protected FileServerWriteRequest(@NotNull String[] resourceLocation) {
         super(resourceLocation);

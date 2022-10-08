@@ -3,13 +3,14 @@ package vrielynckpieterjan.masterproef.applicationlayer.attestation.policy;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
-import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import static vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight.*;
 
@@ -18,21 +19,21 @@ import static vrielynckpieterjan.masterproef.applicationlayer.attestation.policy
  */
 public class RTreePolicy implements Exportable, Cloneable {
 
-    private PolicyRight policyRight;
     private final String[] namespaceDirectoryExpression;
+    private PolicyRight policyRight;
 
     /**
      * Constructor for the {@link RTreePolicy} class.
-     * @param   policyRight
-     *          The access right of the policy (READ / WRITE).
-     * @param   namespaceDirectories
-     *          Strings expressing the directory of the namespace.
-     *          E.g. "A", "B" ==> RTreePolicy expressing access to the namespace "A/B", according
-     *          to the policy right.
-     *          At least one String should be provided.
+     *
+     * @param policyRight          The access right of the policy (READ / WRITE).
+     * @param namespaceDirectories Strings expressing the directory of the namespace.
+     *                             E.g. "A", "B" ==> RTreePolicy expressing access to the namespace "A/B", according
+     *                             to the policy right.
+     *                             At least one String should be provided.
      */
     public RTreePolicy(@NotNull PolicyRight policyRight, @NotNull String... namespaceDirectories) {
-        if (namespaceDirectories.length == 0) throw new IllegalArgumentException("Not enough namespace directories provided.");
+        if (namespaceDirectories.length == 0)
+            throw new IllegalArgumentException("Not enough namespace directories provided.");
         for (String namespaceDirectory : namespaceDirectories) {
             if (namespaceDirectory.contains("/"))
                 throw new IllegalArgumentException(" The / character is not allowed for the namespace directories.");
@@ -44,20 +45,47 @@ public class RTreePolicy implements Exportable, Cloneable {
 
     /**
      * Constructor for the {@link RTreePolicy} class.
-     * @param   rTreePolicy
-     *          The previous {@link RTreePolicy} to extend.
-     * @param   policyRight
-     *          The {@link PolicyRight} of the new {@link RTreePolicy} instance.
-     * @param   namespaceDirectories
-     *          The namespace directories to extend the provided {@link RTreePolicy} with.
+     *
+     * @param rTreePolicy          The previous {@link RTreePolicy} to extend.
+     * @param policyRight          The {@link PolicyRight} of the new {@link RTreePolicy} instance.
+     * @param namespaceDirectories The namespace directories to extend the provided {@link RTreePolicy} with.
      */
     public RTreePolicy(@NotNull RTreePolicy rTreePolicy, @NotNull PolicyRight policyRight, @NotNull String... namespaceDirectories) {
         this(policyRight, ArrayUtils.addAll(rTreePolicy.namespaceDirectoryExpression, namespaceDirectories));
     }
 
     /**
+     * Method to convert a String, expressing an RTree policy, to an {@link RTreePolicy} instance.
+     *
+     * @param expressedRTreePolicy The expressed RTree policy.
+     * @return An {@link RTreePolicy} instance.
+     * @throws IllegalArgumentException If the provided RTree policy does not express a valid RTree policy.
+     */
+    public static @NotNull RTreePolicy convertStringToRTreePolicy(@NotNull String expressedRTreePolicy) throws IllegalArgumentException {
+        PolicyRight policyRight = null;
+        for (PolicyRight consideredPolicyRight : values()) {
+            if (expressedRTreePolicy.startsWith(consideredPolicyRight.name())) {
+                policyRight = consideredPolicyRight;
+                expressedRTreePolicy = expressedRTreePolicy.substring(policyRight.name().length() + "://".length());
+                break;
+            }
+        }
+        if (policyRight == null)
+            throw new IllegalArgumentException("Given String does not start with a valid PolicyRight expression.");
+
+        return new RTreePolicy(policyRight, expressedRTreePolicy.split("/"));
+    }
+
+    @NotNull
+    public static RTreePolicy deserialize(@NotNull ByteBuffer byteBuffer) {
+        String policyAsString = new String(byteBuffer.array(), StandardCharsets.UTF_8);
+        return convertStringToRTreePolicy(policyAsString);
+    }
+
+    /**
      * Getter for the {@link PolicyRight}.
-     * @return  The {@link PolicyRight}.
+     *
+     * @return The {@link PolicyRight}.
      */
     public PolicyRight getPolicyRight() {
         return policyRight;
@@ -65,8 +93,8 @@ public class RTreePolicy implements Exportable, Cloneable {
 
     /**
      * Setter for the {@link PolicyRight}.
-     * @param   policyRight
-     *          Setter for the {@link PolicyRight}.
+     *
+     * @param policyRight Setter for the {@link PolicyRight}.
      */
     public void setPolicyRight(@NotNull PolicyRight policyRight) {
         this.policyRight = policyRight;
@@ -74,7 +102,8 @@ public class RTreePolicy implements Exportable, Cloneable {
 
     /**
      * Method to generate and return all {@link RTreePolicy} variations of this instance.
-     * @return  The result as a {@link List}.
+     *
+     * @return The result as a {@link List}.
      */
     public List<RTreePolicy> generateRTreePolicyVariations() {
         List<RTreePolicy> returnValue = new ArrayList<>();
@@ -84,14 +113,16 @@ public class RTreePolicy implements Exportable, Cloneable {
             returnValue.add(currentlyEvaluatedPolicy);
 
             var copy = currentlyEvaluatedPolicy.clone();
-            copy.setPolicyRight(copy.getPolicyRight().equals(WRITE)? READ: WRITE);
+            copy.setPolicyRight(copy.getPolicyRight().equals(WRITE) ? READ : WRITE);
             returnValue.add(copy);
 
             try {
                 currentlyEvaluatedPolicy = new RTreePolicy(currentlyEvaluatedPolicy.policyRight,
                         Arrays.copyOfRange(currentlyEvaluatedPolicy.namespaceDirectoryExpression, 0,
                                 currentlyEvaluatedPolicy.namespaceDirectoryExpression.length - 1));
-            } catch (Exception ignored) {break;}
+            } catch (Exception ignored) {
+                break;
+            }
         }
 
         return returnValue;
@@ -104,15 +135,15 @@ public class RTreePolicy implements Exportable, Cloneable {
      * of the other {@link RTreePolicy} object, with WRITE > READ.
      * - The namespace directory of this object is either a parent namespace directory of the provided object,
      * or is the same namespace directory as the namespace directory of the provided object.
-     * @param   otherRTreePolicy
-     *          The other {@link RTreePolicy} object.
-     * @return  True if this {@link RTreePolicy} object covers the RTree policy of the provided {@link RTreePolicy} object;
-     *  false otherwise.
+     *
+     * @param otherRTreePolicy The other {@link RTreePolicy} object.
+     * @return True if this {@link RTreePolicy} object covers the RTree policy of the provided {@link RTreePolicy} object;
+     * false otherwise.
      */
     public boolean coversRTreePolicy(@NotNull RTreePolicy otherRTreePolicy) {
         if (namespaceDirectoryExpression.length > otherRTreePolicy.namespaceDirectoryExpression.length) return false;
 
-        for (int i = 0; i < namespaceDirectoryExpression.length; i ++)
+        for (int i = 0; i < namespaceDirectoryExpression.length; i++)
             if (!namespaceDirectoryExpression[i].equals(otherRTreePolicy.namespaceDirectoryExpression[i]))
                 return false;
 
@@ -133,28 +164,6 @@ public class RTreePolicy implements Exportable, Cloneable {
         return resultBuilder.toString();
     }
 
-    /**
-     * Method to convert a String, expressing an RTree policy, to an {@link RTreePolicy} instance.
-     * @param   expressedRTreePolicy
-     *          The expressed RTree policy.
-     * @return  An {@link RTreePolicy} instance.
-     * @throws  IllegalArgumentException
-     *          If the provided RTree policy does not express a valid RTree policy.
-     */
-    public static @NotNull RTreePolicy convertStringToRTreePolicy(@NotNull String expressedRTreePolicy) throws IllegalArgumentException {
-        PolicyRight policyRight = null;
-        for (PolicyRight consideredPolicyRight : values()) {
-            if (expressedRTreePolicy.startsWith(consideredPolicyRight.name())) {
-                policyRight = consideredPolicyRight;
-                expressedRTreePolicy = expressedRTreePolicy.substring(policyRight.name().length() + "://".length());
-                break;
-            }
-        }
-        if (policyRight == null) throw new IllegalArgumentException("Given String does not start with a valid PolicyRight expression.");
-
-        return new RTreePolicy(policyRight, expressedRTreePolicy.split("/"));
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -173,11 +182,5 @@ public class RTreePolicy implements Exportable, Cloneable {
     @Override
     public byte[] serialize() throws IOException {
         return toString().getBytes(StandardCharsets.UTF_8);
-    }
-
-    @NotNull
-    public static RTreePolicy deserialize(@NotNull ByteBuffer byteBuffer) {
-        String policyAsString = new String(byteBuffer.array(), StandardCharsets.UTF_8);
-        return convertStringToRTreePolicy(policyAsString);
     }
 }

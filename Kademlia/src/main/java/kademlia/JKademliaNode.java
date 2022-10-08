@@ -1,50 +1,33 @@
 package kademlia;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.NoSuchElementException;
-import java.util.Timer;
-import java.util.TimerTask;
-import kademlia.dht.GetParameter;
-import kademlia.dht.DHT;
-import kademlia.dht.KadContent;
-import kademlia.dht.KademliaDHT;
-import kademlia.dht.KademliaStorageEntry;
-import kademlia.dht.JKademliaStorageEntry;
+import kademlia.dht.*;
 import kademlia.exceptions.ContentNotFoundException;
 import kademlia.exceptions.RoutingException;
 import kademlia.message.MessageFactory;
-import kademlia.node.Node;
 import kademlia.node.KademliaId;
-import kademlia.operation.ConnectOperation;
-import kademlia.operation.ContentLookupOperation;
-import kademlia.operation.Operation;
-import kademlia.operation.KadRefreshOperation;
-import kademlia.operation.StoreOperation;
+import kademlia.node.Node;
+import kademlia.operation.*;
 import kademlia.routing.JKademliaRoutingTable;
 import kademlia.routing.KademliaRoutingTable;
 import kademlia.util.serializer.JsonDHTSerializer;
 import kademlia.util.serializer.JsonRoutingTableSerializer;
 import kademlia.util.serializer.JsonSerializer;
 
+import java.io.*;
+import java.net.InetAddress;
+import java.util.NoSuchElementException;
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * The main Kademlia Node on the network, this node manages everything for this local system.
  *
  * @author Joshua Kissoon
- * @since 20140215
- *
  * @todo When we receive a store message - if we have a newer version of the content, re-send this newer version to that node so as to update their version
  * @todo Handle IPv6 Addresses
- *
+ * @since 20140215
  */
-public class JKademliaNode implements KademliaNode
-{
+public class JKademliaNode implements KademliaNode {
 
     /* Kademlia Attributes */
     private final String ownerId;
@@ -53,21 +36,17 @@ public class JKademliaNode implements KademliaNode
     private final transient Node localNode;
     private final transient KadServer server;
     private final transient KademliaDHT dht;
-    private transient KademliaRoutingTable routingTable;
     private final int udpPort;
+    /* Factories */
+    private final transient MessageFactory messageFactory;
+    /* Statistics */
+    private final transient KadStatistician statistician;
+    private transient KademliaRoutingTable routingTable;
     private transient KadConfiguration config;
-
     /* Timer used to execute refresh operations */
     private transient Timer refreshOperationTimer;
     private transient TimerTask refreshOperationTTask;
 
-    /* Factories */
-    private final transient MessageFactory messageFactory;
-
-    /* Statistics */
-    private final transient KadStatistician statistician;
-
-    
     {
         statistician = new Statistician();
     }
@@ -84,13 +63,11 @@ public class JKademliaNode implements KademliaNode
      * @param dht          The DHT for this instance
      * @param config
      * @param routingTable
-     *
      * @throws IOException If an error occurred while reading id or local map
      *                     from disk <i>or</i> a network error occurred while
      *                     attempting to bootstrap to the network
-     * */
-    public JKademliaNode(String ownerId, Node localNode, int udpPort, KademliaDHT dht, KademliaRoutingTable routingTable, KadConfiguration config) throws IOException
-    {
+     */
+    public JKademliaNode(String ownerId, Node localNode, int udpPort, KademliaDHT dht, KademliaRoutingTable routingTable, KadConfiguration config) throws IOException {
         this.ownerId = ownerId;
         this.udpPort = udpPort;
         this.localNode = localNode;
@@ -102,40 +79,7 @@ public class JKademliaNode implements KademliaNode
         this.startRefreshOperation();
     }
 
-    @Override
-    public final void startRefreshOperation()
-    {
-        this.refreshOperationTimer = new Timer(true);
-        refreshOperationTTask = new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    /* Runs a DHT RefreshOperation  */
-                    JKademliaNode.this.refresh();
-                }
-                catch (IOException e)
-                {
-                    System.err.println("KademliaNode: Refresh Operation Failed; Message: " + e.getMessage());
-                }
-            }
-        };
-        refreshOperationTimer.schedule(refreshOperationTTask, this.config.restoreInterval(), this.config.restoreInterval());
-    }
-
-    @Override
-    public final void stopRefreshOperation()
-    {
-        /* Close off the timer tasks */
-        this.refreshOperationTTask.cancel();
-        this.refreshOperationTimer.cancel();
-        this.refreshOperationTimer.purge();
-    }
-
-    public JKademliaNode(String ownerId, Node node, int udpPort, KademliaRoutingTable routingTable, KadConfiguration config) throws IOException
-    {
+    public JKademliaNode(String ownerId, Node node, int udpPort, KademliaRoutingTable routingTable, KadConfiguration config) throws IOException {
         this(
                 ownerId,
                 node,
@@ -146,8 +90,7 @@ public class JKademliaNode implements KademliaNode
         );
     }
 
-    public JKademliaNode(String ownerId, Node node, int udpPort, KadConfiguration config) throws IOException
-    {
+    public JKademliaNode(String ownerId, Node node, int udpPort, KadConfiguration config) throws IOException {
         this(
                 ownerId,
                 node,
@@ -157,8 +100,7 @@ public class JKademliaNode implements KademliaNode
         );
     }
 
-    public JKademliaNode(String ownerId, KademliaId defaultId, int udpPort) throws IOException
-    {
+    public JKademliaNode(String ownerId, KademliaId defaultId, int udpPort) throws IOException {
         this(
                 ownerId,
                 new Node(defaultId, InetAddress.getLocalHost(), udpPort),
@@ -171,14 +113,11 @@ public class JKademliaNode implements KademliaNode
      * Load Stored state using default configuration
      *
      * @param ownerId The ID of the owner for the stored state
-     *
      * @return A Kademlia instance loaded from a stored state in a file
-     *
      * @throws FileNotFoundException
      * @throws ClassNotFoundException
      */
-    public static JKademliaNode loadFromFile(String ownerId) throws FileNotFoundException, IOException, ClassNotFoundException
-    {
+    public static JKademliaNode loadFromFile(String ownerId) throws FileNotFoundException, IOException, ClassNotFoundException {
         return JKademliaNode.loadFromFile(ownerId, new DefaultConfiguration());
     }
 
@@ -187,14 +126,11 @@ public class JKademliaNode implements KademliaNode
      *
      * @param ownerId The ID of the owner for the stored state
      * @param iconfig Configuration information to work with
-     *
      * @return A Kademlia instance loaded from a stored state in a file
-     *
      * @throws FileNotFoundException
      * @throws ClassNotFoundException
      */
-    public static JKademliaNode loadFromFile(String ownerId, KadConfiguration iconfig) throws FileNotFoundException, IOException, ClassNotFoundException
-    {
+    public static JKademliaNode loadFromFile(String ownerId, KadConfiguration iconfig) throws FileNotFoundException, IOException, ClassNotFoundException {
         DataInputStream din;
 
         /**
@@ -225,33 +161,68 @@ public class JKademliaNode implements KademliaNode
         return new JKademliaNode(ownerId, inode, ikad.getPort(), idht, irtbl, iconfig);
     }
 
+    /**
+     * Get the name of the folder for which a content should be stored
+     *
+     * @return String The name of the folder to store node states
+     */
+    private static String getStateStorageFolderName(String ownerId, KadConfiguration iconfig) {
+        /* Setup the nodes storage folder if it doesn't exist */
+        String path = iconfig.getNodeDataFolder(ownerId) + File.separator + "nodeState";
+        File nodeStateFolder = new File(path);
+        if (!nodeStateFolder.isDirectory()) {
+            nodeStateFolder.mkdir();
+        }
+        return nodeStateFolder.toString();
+    }
+
     @Override
-    public Node getNode()
-    {
+    public final void startRefreshOperation() {
+        this.refreshOperationTimer = new Timer(true);
+        refreshOperationTTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    /* Runs a DHT RefreshOperation  */
+                    JKademliaNode.this.refresh();
+                } catch (IOException e) {
+                    System.err.println("KademliaNode: Refresh Operation Failed; Message: " + e.getMessage());
+                }
+            }
+        };
+        refreshOperationTimer.schedule(refreshOperationTTask, this.config.restoreInterval(), this.config.restoreInterval());
+    }
+
+    @Override
+    public final void stopRefreshOperation() {
+        /* Close off the timer tasks */
+        this.refreshOperationTTask.cancel();
+        this.refreshOperationTimer.cancel();
+        this.refreshOperationTimer.purge();
+    }
+
+    @Override
+    public Node getNode() {
         return this.localNode;
     }
 
     @Override
-    public KadServer getServer()
-    {
+    public KadServer getServer() {
         return this.server;
     }
 
     @Override
-    public KademliaDHT getDHT()
-    {
+    public KademliaDHT getDHT() {
         return this.dht;
     }
 
     @Override
-    public KadConfiguration getCurrentConfiguration()
-    {
+    public KadConfiguration getCurrentConfiguration() {
         return this.config;
     }
 
     @Override
-    public synchronized final void bootstrap(Node n) throws IOException, RoutingException
-    {
+    public synchronized final void bootstrap(Node n) throws IOException, RoutingException {
         long startTime = System.nanoTime();
         Operation op = new ConnectOperation(this.server, this, n, this.config);
         op.execute();
@@ -260,14 +231,12 @@ public class JKademliaNode implements KademliaNode
     }
 
     @Override
-    public int put(KadContent content) throws IOException
-    {
+    public int put(KadContent content) throws IOException {
         return this.put(new JKademliaStorageEntry(content));
     }
 
     @Override
-    public int put(JKademliaStorageEntry entry) throws IOException
-    {
+    public int put(JKademliaStorageEntry entry) throws IOException {
         StoreOperation sop = new StoreOperation(this.server, this, entry, this.dht, this.config);
         sop.execute();
 
@@ -276,16 +245,13 @@ public class JKademliaNode implements KademliaNode
     }
 
     @Override
-    public void putLocally(KadContent content) throws IOException
-    {
+    public void putLocally(KadContent content) throws IOException {
         this.dht.store(new JKademliaStorageEntry(content));
     }
 
     @Override
-    public JKademliaStorageEntry get(GetParameter param) throws NoSuchElementException, IOException, ContentNotFoundException
-    {
-        if (this.dht.contains(param))
-        {
+    public JKademliaStorageEntry get(GetParameter param) throws NoSuchElementException, IOException, ContentNotFoundException {
+        if (this.dht.contains(param)) {
             /* If the content exist in our own DHT, then return it. */
             return this.dht.get(param);
         }
@@ -300,42 +266,36 @@ public class JKademliaNode implements KademliaNode
     }
 
     @Override
-    public void refresh() throws IOException
-    {
+    public void refresh() throws IOException {
         new KadRefreshOperation(this.server, this, this.dht, this.config).execute();
     }
 
     @Override
-    public String getOwnerId()
-    {
+    public String getOwnerId() {
         return this.ownerId;
     }
 
     @Override
-    public int getPort()
-    {
+    public int getPort() {
         return this.udpPort;
     }
 
     @Override
-    public void shutdown(final boolean saveState) throws IOException
-    {
+    public void shutdown(final boolean saveState) throws IOException {
         /* Shut down the server */
         this.server.shutdown();
 
         this.stopRefreshOperation();
 
         /* Save this Kademlia instance's state if required */
-        if (saveState)
-        {
+        if (saveState) {
             /* Save the system state */
             this.saveKadState();
         }
     }
 
     @Override
-    public void saveKadState() throws IOException
-    {
+    public void saveKadState() throws IOException {
         DataOutputStream dout;
 
         /**
@@ -366,32 +326,13 @@ public class JKademliaNode implements KademliaNode
 
     }
 
-    /**
-     * Get the name of the folder for which a content should be stored
-     *
-     * @return String The name of the folder to store node states
-     */
-    private static String getStateStorageFolderName(String ownerId, KadConfiguration iconfig)
-    {
-        /* Setup the nodes storage folder if it doesn't exist */
-        String path = iconfig.getNodeDataFolder(ownerId) + File.separator + "nodeState";
-        File nodeStateFolder = new File(path);
-        if (!nodeStateFolder.isDirectory())
-        {
-            nodeStateFolder.mkdir();
-        }
-        return nodeStateFolder.toString();
-    }
-
     @Override
-    public KademliaRoutingTable getRoutingTable()
-    {
+    public KademliaRoutingTable getRoutingTable() {
         return this.routingTable;
     }
 
     @Override
-    public KadStatistician getStatistician()
-    {
+    public KadStatistician getStatistician() {
         return this.statistician;
     }
 
@@ -401,8 +342,7 @@ public class JKademliaNode implements KademliaNode
      * @return The string representation of this Kad instance
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder("\n\nPrinting Kad State for instance with owner: ");
         sb.append(this.ownerId);
         sb.append("\n\n");

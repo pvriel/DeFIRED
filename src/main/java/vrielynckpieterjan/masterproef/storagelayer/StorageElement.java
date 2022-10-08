@@ -4,8 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.nio.ByteBuffer;
 
 /**
  * Abstract class representing an element which can be stored within the {@link StorageLayer} of the decentralized
@@ -17,8 +15,8 @@ public abstract class StorageElement implements Exportable {
 
     /**
      * Constructor for the {@link StorageElement} class.
-     * @param   identifier
-     *          The {@link StorageElementIdentifier} for this {@link StorageElement}.
+     *
+     * @param identifier The {@link StorageElementIdentifier} for this {@link StorageElement}.
      */
     public StorageElement(@NotNull StorageElementIdentifier identifier) {
         this.identifier = identifier;
@@ -26,7 +24,8 @@ public abstract class StorageElement implements Exportable {
 
     /**
      * Getter for the {@link StorageElementIdentifier}.
-     * @return  The {@link StorageElementIdentifier}.
+     *
+     * @return The {@link StorageElementIdentifier}.
      */
     public StorageElementIdentifier getStorageLayerIdentifier() {
         return identifier;

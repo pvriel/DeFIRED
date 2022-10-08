@@ -1,7 +1,6 @@
 package kademlia.message;
 
-public interface Message extends Streamable
-{
+public interface Message extends Streamable {
 
     /**
      * The unique code for the message type, used to differentiate all messages
@@ -9,6 +8,6 @@ public interface Message extends Streamable
      * be at most 256 different message types.
      *
      * @return byte A unique code representing the message type
-     * */
+     */
     public byte code();
 }

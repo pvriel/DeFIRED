@@ -1,9 +1,10 @@
 package kademlia.routing;
 
-import java.util.List;
 import kademlia.KadConfiguration;
-import kademlia.node.Node;
 import kademlia.node.KademliaId;
+import kademlia.node.Node;
+
+import java.util.List;
 
 /**
  * Specification for Kademlia's Routing Table
@@ -11,8 +12,7 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140501
  */
-public interface KademliaRoutingTable
-{
+public interface KademliaRoutingTable {
 
     /**
      * Initialize the RoutingTable to it's default state
@@ -44,7 +44,6 @@ public interface KademliaRoutingTable
      * Compute the bucket ID in which a given node should be placed; the bucketId is computed based on how far the node is away from the Local Node.
      *
      * @param nid The NodeId for which we want to find which bucket it belong to
-     *
      * @return Integer The bucket ID in which the given node should be placed.
      */
     public int getBucketId(KademliaId nid);
@@ -54,7 +53,6 @@ public interface KademliaRoutingTable
      *
      * @param target           The NodeId to find contacts close to
      * @param numNodesRequired The number of contacts to find
-     *
      * @return List A List of contacts closest to target
      */
     public List<Node> findClosest(KademliaId target, int numNodesRequired);

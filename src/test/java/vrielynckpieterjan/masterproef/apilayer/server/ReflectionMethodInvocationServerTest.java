@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ReflectionMethodInvocationServerTest {
 
@@ -22,9 +22,9 @@ class ReflectionMethodInvocationServerTest {
 
     class TestReflectionMethodInvocationServer extends ReflectionMethodInvocationServer {
 
-        private int indexRequest = 0;
         private final AtomicReference<String> receivedOne = new AtomicReference<>();
         private final AtomicInteger receivedTwo = new AtomicInteger();
+        private int indexRequest = 0;
 
         protected TestReflectionMethodInvocationServer() {
             super(10);
@@ -43,7 +43,7 @@ class ReflectionMethodInvocationServerTest {
                 throw new IOException("First request already handled.");
             }
 
-            indexRequest ++;
+            indexRequest++;
             return new ReflectionMethodInvocationServerRequest("testMethod", "This is a test.",
                     128) {
 
@@ -53,7 +53,8 @@ class ReflectionMethodInvocationServerTest {
                 }
 
                 @Override
-                public void close() { }
+                public void close() {
+                }
             };
         }
     }

@@ -1,11 +1,12 @@
 package kademlia.message;
 
-import java.io.IOException;
-import java.util.List;
 import kademlia.KadConfiguration;
 import kademlia.KadServer;
 import kademlia.KademliaNode;
 import kademlia.node.Node;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Receives a NodeLookupMessage and sends a NodeReplyMessage as reply with the K-Closest nodes to the ID sent.
@@ -13,15 +14,13 @@ import kademlia.node.Node;
  * @author Joshua Kissoon
  * @created 20140219
  */
-public class NodeLookupReceiver implements Receiver
-{
+public class NodeLookupReceiver implements Receiver {
 
     private final KadServer server;
     private final KademliaNode localNode;
     private final KadConfiguration config;
 
-    public NodeLookupReceiver(KadServer server, KademliaNode local, KadConfiguration config)
-    {
+    public NodeLookupReceiver(KadServer server, KademliaNode local, KadConfiguration config) {
         this.server = server;
         this.localNode = local;
         this.config = config;
@@ -32,12 +31,10 @@ public class NodeLookupReceiver implements Receiver
      * Find the set of K nodes closest to the lookup ID and return them
      *
      * @param comm
-     *
      * @throws IOException
      */
     @Override
-    public void receive(Message incoming, int comm) throws IOException
-    {
+    public void receive(Message incoming, int comm) throws IOException {
         NodeLookupMessage msg = (NodeLookupMessage) incoming;
 
         Node origin = msg.getOrigin();
@@ -51,8 +48,7 @@ public class NodeLookupReceiver implements Receiver
         /* Respond to the NodeLookupMessage */
         Message reply = new NodeReplyMessage(this.localNode.getNode(), nodes);
 
-        if (this.server.isRunning())
-        {
+        if (this.server.isRunning()) {
             /* Let the Server send the reply */
             this.server.reply(origin, reply, comm);
         }
@@ -62,11 +58,9 @@ public class NodeLookupReceiver implements Receiver
      * We don't need to do anything here
      *
      * @param comm
-     *
      * @throws IOException
      */
     @Override
-    public void timeout(int comm) throws IOException
-    {
+    public void timeout(int comm) throws IOException {
     }
 }

@@ -8,15 +8,13 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @created 20140218
  */
-public interface Receiver
-{
+public interface Receiver {
 
     /**
      * Message is received, now handle it
      *
      * @param conversationId The ID of this conversation, used for further conversations
      * @param incoming       The incoming
-     *
      * @throws IOException
      */
     public void receive(Message incoming, int conversationId) throws IOException;
@@ -26,8 +24,7 @@ public interface Receiver
      * message with communication id <code>comm</code>, the MessageServer calls this method
      *
      * @param conversationId The conversation ID of this communication
-     *
      * @throws IOException if an I/O error occurs
-     * */
+     */
     public void timeout(int conversationId) throws IOException;
 }

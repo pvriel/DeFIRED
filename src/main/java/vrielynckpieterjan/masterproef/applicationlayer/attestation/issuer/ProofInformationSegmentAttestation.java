@@ -1,20 +1,11 @@
 package vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer;
 
 import cryptid.ibe.domain.PrivateKey;
-import cryptid.ibe.domain.PublicParameters;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
-import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
-import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,23 +20,40 @@ public class ProofInformationSegmentAttestation implements Exportable {
 
     /**
      * Constructor for the {@link ProofInformationSegmentAttestation} class.
-     * @param   privateKeysIBE
-     *          The delegated {@link PrivateKey}s.
+     *
+     * @param privateKeysIBE The delegated {@link PrivateKey}s.
      */
     public ProofInformationSegmentAttestation(@NotNull Set<PrivateKey> privateKeysIBE) {
         this.privateKeysIBE = privateKeysIBE;
     }
 
+    @NotNull
+    public static ProofInformationSegmentAttestation deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream byteArrayInputStream;
+        ObjectInputStream objectInputStream;
+        int amountOfElements = byteBuffer.getInt();
+        Set<PrivateKey> privateKeysIBE = new HashSet<>(amountOfElements);
+        for (int i = 0; i < amountOfElements; i++) {
+            int length = byteBuffer.getInt();
+            byte[] privateKeyAsByteArray = new byte[length];
+            byteBuffer.get(privateKeyAsByteArray);
+            byteArrayInputStream = new ByteArrayInputStream(privateKeyAsByteArray);
+            objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            PrivateKey privateKey = (PrivateKey) objectInputStream.readObject();
+            privateKeysIBE.add(privateKey);
+        }
+        return new ProofInformationSegmentAttestation(privateKeysIBE);
+    }
+
     /**
      * Method to encrypt this {@link ProofInformationSegmentAttestation} instance using AES encryption.
-     * @param   aesKey
-     *          The AES key to encrypt this instance with.
-     * @return  The encrypted instance as a {@link AESCipherEncryptedSegment}.
-     * @throws  IllegalArgumentException
-     *          If the provided AES key can't be used to encrypt this instance with.
+     *
+     * @param aesKey The AES key to encrypt this instance with.
+     * @return The encrypted instance as a {@link AESCipherEncryptedSegment}.
+     * @throws IllegalArgumentException If the provided AES key can't be used to encrypt this instance with.
      */
     public @NotNull AESCipherEncryptedSegment<ProofInformationSegmentAttestation> encrypt(@NotNull String aesKey)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         return new AESCipherEncryptedSegment<>(this, aesKey);
     }
 
@@ -66,6 +74,7 @@ public class ProofInformationSegmentAttestation implements Exportable {
 
     /**
      * Getter for the IBE {@link PrivateKey}s of the issuer.
+     *
      * @return The {@link PrivateKey}s.
      */
     @NotNull
@@ -86,34 +95,16 @@ public class ProofInformationSegmentAttestation implements Exportable {
             objectOutputStream.writeObject(privateKey);
             privateKeysAsByteArrays[i] = byteArrayOutputStream.toByteArray();
             length += privateKeysAsByteArrays[i].length;
-            i ++;
+            i++;
         }
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(length);
         byteBuffer.putInt(privateKeysIBE.size());
-        for (i = 0; i < privateKeysAsByteArrays.length; i ++) {
+        for (i = 0; i < privateKeysAsByteArrays.length; i++) {
             byteBuffer.putInt(privateKeysAsByteArrays[i].length);
             byteBuffer.put(privateKeysAsByteArrays[i]);
         }
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static ProofInformationSegmentAttestation deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream byteArrayInputStream;
-        ObjectInputStream objectInputStream;
-        int amountOfElements = byteBuffer.getInt();
-        Set<PrivateKey> privateKeysIBE = new HashSet<>(amountOfElements);
-        for (int i = 0; i < amountOfElements; i ++) {
-            int length = byteBuffer.getInt();
-            byte[] privateKeyAsByteArray = new byte[length];
-            byteBuffer.get(privateKeyAsByteArray);
-            byteArrayInputStream = new ByteArrayInputStream(privateKeyAsByteArray);
-            objectInputStream = new ObjectInputStream(byteArrayInputStream);
-            PrivateKey privateKey = (PrivateKey) objectInputStream.readObject();
-            privateKeysIBE.add(privateKey);
-        }
-        return new ProofInformationSegmentAttestation(privateKeysIBE);
     }
 }

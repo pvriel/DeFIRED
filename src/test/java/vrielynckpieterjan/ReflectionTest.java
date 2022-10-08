@@ -24,7 +24,8 @@ public class ReflectionTest {
 
     class TestClass {
 
-        void methodOne() {}
+        void methodOne() {
+        }
 
         void methodTwo(TestClass arg) {
             System.out.println(String.format("Argument: %s", arg));

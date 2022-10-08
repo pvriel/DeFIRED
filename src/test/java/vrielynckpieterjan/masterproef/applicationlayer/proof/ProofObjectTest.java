@@ -18,9 +18,10 @@ import vrielynckpieterjan.masterproef.storagelayer.dht.DHTStorageLayer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ProofObjectTest {
 
@@ -159,15 +160,15 @@ class ProofObjectTest {
         // 9) Generate the proof object manually.
         counter = System.currentTimeMillis();
         Attestation[] attestationsForProofObject = new Attestation[]{namespaceAttestationA, shareAttestation, delegateAttestation,
-            namespaceAttestationC};
+                namespaceAttestationC};
         RTreePolicy[] attestationPolicies = new RTreePolicy[]{namespacePolicyUserA, userAToUserBPolicy, userBToUserCPolicy,
-            namespacePolicyUserC};
+                namespacePolicyUserC};
         PrivateEntityIdentifier[] privateEntityIdentifiersReceivers = new PrivateEntityIdentifier[]{
-            userA.getLeft(), userB.getLeft(), userC.getLeft(), userC.getLeft()};
+                userA.getLeft(), userB.getLeft(), userC.getLeft(), userC.getLeft()};
         StorageElementIdentifier[] storageElementIdentifiersForProofObject = new StorageElementIdentifier[4];
         String[] firstAESKeysForProofObject = new String[4];
         String[] secondAESKeysForProofObject = new String[4];
-        for (int i = 0; i < attestationsForProofObject.length; i ++) {
+        for (int i = 0; i < attestationsForProofObject.length; i++) {
             IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encryptedAESEncryptionInformationSegment =
                     attestationsForProofObject[i].getFirstLayer().getAesEncryptionInformationSegment();
             AESEncryptionInformationSegmentAttestation aesEncryptionInformationSegment =

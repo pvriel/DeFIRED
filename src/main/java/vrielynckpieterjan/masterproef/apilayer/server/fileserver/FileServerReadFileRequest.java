@@ -9,8 +9,8 @@ public class FileServerReadFileRequest extends FileServerReadRequest {
 
     /**
      * Constructor for the {@link FileServerReadFileRequest} class.
-     * @param   resourceLocation
-     *          The location of the specific file.
+     *
+     * @param resourceLocation The location of the specific file.
      */
     public FileServerReadFileRequest(@NotNull String[] resourceLocation) {
         super(resourceLocation);

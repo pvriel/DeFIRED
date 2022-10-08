@@ -11,10 +11,9 @@ public class FileServerWriteFileRequest extends FileServerWriteRequest {
 
     /**
      * Constructor for the {@link FileServerWriteFileRequest} class.
-     * @param   resourceLocation
-     *          The location of the file.
-     * @param   newContent
-     *          The new content for the file.
+     *
+     * @param resourceLocation The location of the file.
+     * @param newContent       The new content for the file.
      */
     public FileServerWriteFileRequest(@NotNull String[] resourceLocation,
                                       byte[] newContent) {
@@ -24,7 +23,8 @@ public class FileServerWriteFileRequest extends FileServerWriteRequest {
 
     /**
      * Getter for the new content of the file.
-     * @return  The new content.
+     *
+     * @return The new content.
      */
     public byte[] getNewContent() {
         return newContent;

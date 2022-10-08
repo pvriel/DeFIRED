@@ -1,16 +1,16 @@
 package kademlia.operation;
 
-import java.io.IOException;
-import java.util.List;
 import kademlia.KadConfiguration;
 import kademlia.KadServer;
 import kademlia.KademliaNode;
 import kademlia.dht.JKademliaStorageEntry;
 import kademlia.dht.KademliaDHT;
-import kademlia.dht.KademliaStorageEntry;
 import kademlia.message.Message;
 import kademlia.message.StoreContentMessage;
 import kademlia.node.Node;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Operation that stores a DHT Content onto the K closest nodes to the content Key
@@ -18,8 +18,7 @@ import kademlia.node.Node;
  * @author Joshua Kissoon
  * @since 20140224
  */
-public class StoreOperation implements Operation
-{
+public class StoreOperation implements Operation {
 
     private final KadServer server;
     private final KademliaNode localNode;
@@ -34,8 +33,7 @@ public class StoreOperation implements Operation
      * @param localDht     The local DHT
      * @param config
      */
-    public StoreOperation(KadServer server, KademliaNode localNode, JKademliaStorageEntry storageEntry, KademliaDHT localDht, KadConfiguration config)
-    {
+    public StoreOperation(KadServer server, KademliaNode localNode, JKademliaStorageEntry storageEntry, KademliaDHT localDht, KadConfiguration config) {
         this.server = server;
         this.localNode = localNode;
         this.storageEntry = storageEntry;
@@ -44,8 +42,7 @@ public class StoreOperation implements Operation
     }
 
     @Override
-    public synchronized void execute() throws IOException
-    {
+    public synchronized void execute() throws IOException {
         /* Get the nodes on which we need to store the content */
         NodeLookupOperation ndlo = new NodeLookupOperation(this.server, this.localNode, this.storageEntry.getContentMetadata().getKey(), this.config);
         ndlo.execute();
@@ -55,15 +52,11 @@ public class StoreOperation implements Operation
         Message msg = new StoreContentMessage(this.localNode.getNode(), this.storageEntry);
 
         /*Store the message on all of the K-Nodes*/
-        for (Node n : nodes)
-        {
-            if (n.equals(this.localNode.getNode()))
-            {
+        for (Node n : nodes) {
+            if (n.equals(this.localNode.getNode())) {
                 /* Store the content locally */
                 this.localDht.store(this.storageEntry);
-            }
-            else
-            {
+            } else {
                 /**
                  * @todo Create a receiver that receives a store acknowledgement message to count how many nodes a content have been stored at
                  */
@@ -74,11 +67,9 @@ public class StoreOperation implements Operation
 
     /**
      * @return The number of nodes that have stored this content
-     *
      * @todo Implement this method
      */
-    public int numNodesStoredAt()
-    {
+    public int numNodesStoredAt() {
         return 1;
     }
 }

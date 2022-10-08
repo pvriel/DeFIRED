@@ -6,7 +6,7 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.Policy
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EntityIdentifierTest {
 
@@ -16,7 +16,6 @@ class EntityIdentifierTest {
             "ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse " +
             "cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa " +
             "qui officia deserunt mollit anim id est laborum.";
-
 
 
     @Test
@@ -30,7 +29,7 @@ class EntityIdentifierTest {
     @Test
     void WIBEIdentifierTest() {
         RTreePolicy usedWIBEIdentifier = new RTreePolicy(PolicyRight.WRITE, "A", "B");
-        IBEDecryptableSegment<String>  decryptableSegment = new IBEDecryptableSegment<>(data, entityIdentifierPair.getRight(), usedWIBEIdentifier.toString());
+        IBEDecryptableSegment<String> decryptableSegment = new IBEDecryptableSegment<>(data, entityIdentifierPair.getRight(), usedWIBEIdentifier.toString());
         String decrypted = decryptableSegment.decrypt(entityIdentifierPair.getLeft(), usedWIBEIdentifier);
         assertEquals(data, decrypted);
     }

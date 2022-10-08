@@ -1,7 +1,6 @@
 package vrielynckpieterjan.masterproef.apilayer.macaroon;
 
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
@@ -16,10 +15,9 @@ public class RTreePolicyMacaroonElement extends MacaroonElement<RTreePolicy> {
 
     /**
      * Constructor for the {@link RTreePolicyMacaroonElement} class.
-     * @param   previousElement
-     *          The previous {@link MacaroonElement} of the {@link APILayerMacaroon}.
-     * @param   encapsulatedObject
-     *          The encapsulated object.
+     *
+     * @param previousElement    The previous {@link MacaroonElement} of the {@link APILayerMacaroon}.
+     * @param encapsulatedObject The encapsulated object.
      */
     public RTreePolicyMacaroonElement(@NotNull MacaroonElement previousElement, @NotNull RTreePolicy encapsulatedObject) {
         super(previousElement, encapsulatedObject);
@@ -27,6 +25,19 @@ public class RTreePolicyMacaroonElement extends MacaroonElement<RTreePolicy> {
 
     protected RTreePolicyMacaroonElement(@NotNull String signature, @NotNull RTreePolicy encapsulatedObject) {
         super(signature, encapsulatedObject, false);
+    }
+
+    @NotNull
+    public static RTreePolicyMacaroonElement deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
+        byte[] encapsulatedObjectAsByteArray = new byte[byteBuffer.getInt()];
+        byteBuffer.get(encapsulatedObjectAsByteArray);
+        RTreePolicy encapsulatedObject = ExportableUtils.deserialize(encapsulatedObjectAsByteArray, RTreePolicy.class);
+
+        byte[] signatureAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(signatureAsByteArray);
+        String signature = new String(signatureAsByteArray, StandardCharsets.UTF_8);
+
+        return new RTreePolicyMacaroonElement(signature, encapsulatedObject);
     }
 
     @Override
@@ -45,18 +56,5 @@ public class RTreePolicyMacaroonElement extends MacaroonElement<RTreePolicy> {
         byteBuffer.put(signatureAsByteArray);
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static RTreePolicyMacaroonElement deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
-        byte[] encapsulatedObjectAsByteArray = new byte[byteBuffer.getInt()];
-        byteBuffer.get(encapsulatedObjectAsByteArray);
-        RTreePolicy encapsulatedObject = ExportableUtils.deserialize(encapsulatedObjectAsByteArray, RTreePolicy.class);
-
-        byte[] signatureAsByteArray = new byte[byteBuffer.remaining()];
-        byteBuffer.get(signatureAsByteArray);
-        String signature = new String(signatureAsByteArray, StandardCharsets.UTF_8);
-
-        return new RTreePolicyMacaroonElement(signature, encapsulatedObject);
     }
 }

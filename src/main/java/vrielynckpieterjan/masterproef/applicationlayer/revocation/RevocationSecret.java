@@ -6,7 +6,6 @@ import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -22,8 +21,8 @@ public class RevocationSecret implements Exportable {
 
     /**
      * Constructor for the {@link RevocationSecret} class.
-     * @param   secret
-     *          The used secret.
+     *
+     * @param secret The used secret.
      */
     public RevocationSecret(@NotNull String secret) {
         this.secret = secret;
@@ -37,9 +36,16 @@ public class RevocationSecret implements Exportable {
         this(RandomStringUtils.randomAlphanumeric(LENGTH_GENERATED_REVOCATION_SECRETS));
     }
 
+    @NotNull
+    public static RevocationSecret deserialize(@NotNull ByteBuffer byteBuffer) {
+        String secret = new String(byteBuffer.array(), StandardCharsets.UTF_8);
+        return new RevocationSecret(secret);
+    }
+
     /**
      * Getter for the secret.
-     * @return  The secret.
+     *
+     * @return The secret.
      */
     public String getSecret() {
         return secret;
@@ -60,10 +66,9 @@ public class RevocationSecret implements Exportable {
 
     /**
      * Method to reveal a {@link RevocationSecret} in the {@link StorageLayer}.
-     * @param   storageLayer
-     *          The {@link StorageLayer} realization.
-     * @throws  IOException
-     *          If the put method of the {@link StorageLayer} method throws an {@link IOException}.
+     *
+     * @param storageLayer The {@link StorageLayer} realization.
+     * @throws IOException If the put method of the {@link StorageLayer} method throws an {@link IOException}.
      */
     public void revealInStorageLayer(@NotNull StorageLayer storageLayer) throws IOException {
         RevocationCommitment revocationCommitment = new RevocationCommitment(this);
@@ -81,11 +86,5 @@ public class RevocationSecret implements Exportable {
     @Override
     public byte[] serialize() throws IOException {
         return secret.getBytes(StandardCharsets.UTF_8);
-    }
-
-    @NotNull
-    public static RevocationSecret deserialize(@NotNull ByteBuffer byteBuffer) {
-        String secret = new String(byteBuffer.array(), StandardCharsets.UTF_8);
-        return new RevocationSecret(secret);
     }
 }

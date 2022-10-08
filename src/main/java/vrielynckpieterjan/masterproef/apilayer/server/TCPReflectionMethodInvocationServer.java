@@ -19,12 +19,10 @@ class TCPReflectionMethodInvocationServer extends ReflectionMethodInvocationServ
 
     /**
      * Constructor for the {@link TCPReflectionMethodInvocationServer} class.
-     * @param   amountOfThreads
-     *          The amount of simultaneous requests this {@link TCPReflectionMethodInvocationServer} can handle.
-     * @param   port
-     *          The port on which the {@link TCPReflectionMethodInvocationServer} should run.
-     * @throws  IOException
-     *          If an IO-related problem occurred while booting the server on the provided port.
+     *
+     * @param amountOfThreads The amount of simultaneous requests this {@link TCPReflectionMethodInvocationServer} can handle.
+     * @param port            The port on which the {@link TCPReflectionMethodInvocationServer} should run.
+     * @throws IOException If an IO-related problem occurred while booting the server on the provided port.
      */
     protected TCPReflectionMethodInvocationServer(int amountOfThreads, int port) throws IOException {
         super(amountOfThreads);
@@ -59,14 +57,16 @@ class TCPReflectionMethodInvocationServer extends ReflectionMethodInvocationServ
 
         try {
             socket.close();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
 
         throw thrownException;
     }
 
     /**
      * Getter for the {@link InetAddress} of this server.
-     * @return  The {@link InetAddress} of this server.
+     *
+     * @return The {@link InetAddress} of this server.
      */
     public InetAddress getAddress() {
         return serverSocket.getInetAddress();

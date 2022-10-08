@@ -10,8 +10,8 @@ import java.io.Serializable;
 
 /**
  * Abstract class representing an element within an {@link APILayerMacaroon}.
- * @param   <ObjectType>
- *          The encapsulated object type.
+ *
+ * @param <ObjectType> The encapsulated object type.
  */
 abstract class MacaroonElement<ObjectType extends Serializable> implements Exportable {
 
@@ -20,22 +20,20 @@ abstract class MacaroonElement<ObjectType extends Serializable> implements Expor
 
     /**
      * Constructor for the {@link MacaroonElement} class.
-     * @param   secretOrSignature
-     *          The macaroon secret or its signature.
-     * @param   encapsulatedObject
-     *          The encapsulated object in the macaroon element.
+     *
+     * @param secretOrSignature  The macaroon secret or its signature.
+     * @param encapsulatedObject The encapsulated object in the macaroon element.
      */
     protected MacaroonElement(@NotNull String secretOrSignature, @NotNull ObjectType encapsulatedObject, boolean generateSignature) {
         this.encapsulatedObject = encapsulatedObject;
-        signature = (generateSignature)? generateSignature(secretOrSignature) : secretOrSignature;
+        signature = (generateSignature) ? generateSignature(secretOrSignature) : secretOrSignature;
     }
 
     /**
      * Constructor for the {@link MacaroonElement} class.
-     * @param   previousElement
-     *          The previous {@link MacaroonElement} of the {@link APILayerMacaroon}.
-     * @param   encapsulatedObject
-     *          The encapsulated object.
+     *
+     * @param previousElement    The previous {@link MacaroonElement} of the {@link APILayerMacaroon}.
+     * @param encapsulatedObject The encapsulated object.
      */
     protected MacaroonElement(@NotNull MacaroonElement previousElement, @NotNull ObjectType encapsulatedObject) {
         this(previousElement.getSignature(), encapsulatedObject, true);
@@ -43,7 +41,8 @@ abstract class MacaroonElement<ObjectType extends Serializable> implements Expor
 
     /**
      * Getter for the encapsulated object.
-     * @return  The encapsulated object.
+     *
+     * @return The encapsulated object.
      */
     public ObjectType getEncapsulatedObject() {
         return encapsulatedObject;
@@ -51,7 +50,8 @@ abstract class MacaroonElement<ObjectType extends Serializable> implements Expor
 
     /**
      * Getter for the signature of the {@link MacaroonElement}.
-     * @return  The signature.
+     *
+     * @return The signature.
      */
     public String getSignature() {
         return signature;
@@ -59,10 +59,10 @@ abstract class MacaroonElement<ObjectType extends Serializable> implements Expor
 
     /**
      * Method to generate the signature of the {@link MacaroonElement}.
-     * @param   macaroonSecret
-     *          The macaroon secret, or the signature of the previous {@link MacaroonElement}
-     *          within the {@link APILayerMacaroon}.
-     * @return  The signature.
+     *
+     * @param macaroonSecret The macaroon secret, or the signature of the previous {@link MacaroonElement}
+     *                       within the {@link APILayerMacaroon}.
+     * @return The signature.
      */
     protected @NotNull String generateSignature(@NotNull String macaroonSecret) {
         byte[] serializedObject = SerializationUtils.serialize(encapsulatedObject);

@@ -5,30 +5,26 @@ import cryptid.ibe.domain.PublicParameters;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
-import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
-import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyPair;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Abstract class representing an entity identifier.
- * @param   <RSAKeyType>
- *          The subtype of the {@link Key} used to represent the RSA part of the identifier.
- * @param   <IBEEncryptionKeyType>
- *          The type used to represent the IBE part of the identifier.
+ *
+ * @param <RSAKeyType>           The subtype of the {@link Key} used to represent the RSA part of the identifier.
+ * @param <IBEEncryptionKeyType> The type used to represent the IBE part of the identifier.
  */
 public abstract class EntityIdentifier<RSAKeyType extends Key,
         IBEEncryptionKeyType> implements Exportable {
@@ -39,35 +35,30 @@ public abstract class EntityIdentifier<RSAKeyType extends Key,
 
     /**
      * Constructor for the {@link EntityIdentifier} class.
-     * @param   rsaIdentifier
-     *          The {@link Key} used to represent the RSA part of the identifier.
-     * @param   ibeIdentifier
-     *          The IBE part of the identifier.
-     * @param   namespaceServiceProviderEmailAddressUserConcatenation
-     *          A concatenation of the namespace and the e-mail address of the user.
-     * @param   hashConcatenation
-     *          Boolean indicating if the namespaceServiceProviderEmailAddressUserConcatenation parameter should yet be hashed.
+     *
+     * @param rsaIdentifier                                         The {@link Key} used to represent the RSA part of the identifier.
+     * @param ibeIdentifier                                         The IBE part of the identifier.
+     * @param namespaceServiceProviderEmailAddressUserConcatenation A concatenation of the namespace and the e-mail address of the user.
+     * @param hashConcatenation                                     Boolean indicating if the namespaceServiceProviderEmailAddressUserConcatenation parameter should yet be hashed.
      */
     protected EntityIdentifier(@NotNull RSAKeyType rsaIdentifier,
-                            @NotNull IBEEncryptionKeyType ibeIdentifier,
-                            @NotNull String namespaceServiceProviderEmailAddressUserConcatenation,
+                               @NotNull IBEEncryptionKeyType ibeIdentifier,
+                               @NotNull String namespaceServiceProviderEmailAddressUserConcatenation,
                                boolean hashConcatenation) {
         this.rsaIdentifier = rsaIdentifier;
         this.ibeIdentifier = ibeIdentifier;
-        this.namespaceServiceProviderEmailAddressUserConcatenation = (hashConcatenation)? Hashing.sha512().hashString(
+        this.namespaceServiceProviderEmailAddressUserConcatenation = (hashConcatenation) ? Hashing.sha512().hashString(
                 namespaceServiceProviderEmailAddressUserConcatenation, StandardCharsets.UTF_8).toString() :
-            namespaceServiceProviderEmailAddressUserConcatenation;
+                namespaceServiceProviderEmailAddressUserConcatenation;
     }
 
     /**
      * Constructor for the {@link EntityIdentifier} class.
-     * @param   rsaIdentifier
-     *          The {@link Key} used to represent the RSA part of the identifier.
-     * @param   ibeIdentifier
-     *          The IBE part of the identifier.
-     * @param   namespaceServiceProviderEmailAddressUserConcatenation
-     *          A concatenation of the namespace and the e-mail address of the user.
-     *          This value should not be hashed yet.
+     *
+     * @param rsaIdentifier                                         The {@link Key} used to represent the RSA part of the identifier.
+     * @param ibeIdentifier                                         The IBE part of the identifier.
+     * @param namespaceServiceProviderEmailAddressUserConcatenation A concatenation of the namespace and the e-mail address of the user.
+     *                                                              This value should not be hashed yet.
      */
     @Deprecated
     protected EntityIdentifier(@NotNull RSAKeyType rsaIdentifier,
@@ -77,38 +68,14 @@ public abstract class EntityIdentifier<RSAKeyType extends Key,
     }
 
     /**
-     * Getter for the {@link Key} used to represent the RSA part of the identifier.
-     * @return  The RSA {@link Key}.
-     */
-    public RSAKeyType getRSAIdentifier() {
-        return rsaIdentifier;
-    }
-
-    /**
-     * Getter for the IBE part of the identifier.
-     * @return  The IBE part of the identifier.
-     */
-    public IBEEncryptionKeyType getIBEIdentifier() {
-        return ibeIdentifier;
-    }
-
-    /**
-     * Getter for the hashed version of the concatenation of the namespace and the e-mail address of the user.
-     * @return  The hash.
-     */
-    public String getNamespaceServiceProviderEmailAddressUserConcatenation() {
-        return namespaceServiceProviderEmailAddressUserConcatenation;
-    }
-
-    /**
      * Static method to generate the combination of a {@link PublicEntityIdentifier} and its
      * {@link PrivateEntityIdentifier} counterpart.
-     * @param   namespaceEmailAddressConcatenation
-     *          The concatenation of the namespace and the e-mail address of the user, which shouldn't be hashed yet.
-     *          A hashed version (SHA-512) of this concatenation can be used as the {@link vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier}
-     *          to store the {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.NamespaceAttestation}
-     *          of the generated user with in the {@link vrielynckpieterjan.masterproef.storagelayer.StorageLayer}.
-     * @return  The combination as a {@link Pair}.
+     *
+     * @param namespaceEmailAddressConcatenation The concatenation of the namespace and the e-mail address of the user, which shouldn't be hashed yet.
+     *                                           A hashed version (SHA-512) of this concatenation can be used as the {@link vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier}
+     *                                           to store the {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.NamespaceAttestation}
+     *                                           of the generated user with in the {@link vrielynckpieterjan.masterproef.storagelayer.StorageLayer}.
+     * @return The combination as a {@link Pair}.
      */
     public static Pair<PrivateEntityIdentifier, PublicEntityIdentifier> generateEntityIdentifierPair(
             @NotNull String namespaceEmailAddressConcatenation) {
@@ -137,6 +104,33 @@ public abstract class EntityIdentifier<RSAKeyType extends Key,
                 rsaKeyPair.getPrivate(), ibePKG.getLeft(),
                 namespaceEmailAddressConcatenation);
         return new ImmutablePair<>(privateEntityIdentifier, publicEntityIdentifier);
+    }
+
+    /**
+     * Getter for the {@link Key} used to represent the RSA part of the identifier.
+     *
+     * @return The RSA {@link Key}.
+     */
+    public RSAKeyType getRSAIdentifier() {
+        return rsaIdentifier;
+    }
+
+    /**
+     * Getter for the IBE part of the identifier.
+     *
+     * @return The IBE part of the identifier.
+     */
+    public IBEEncryptionKeyType getIBEIdentifier() {
+        return ibeIdentifier;
+    }
+
+    /**
+     * Getter for the hashed version of the concatenation of the namespace and the e-mail address of the user.
+     *
+     * @return The hash.
+     */
+    public String getNamespaceServiceProviderEmailAddressUserConcatenation() {
+        return namespaceServiceProviderEmailAddressUserConcatenation;
     }
 
     @Override

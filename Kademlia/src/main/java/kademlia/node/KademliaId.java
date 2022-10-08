@@ -5,6 +5,8 @@
  */
 package kademlia.node;
 
+import kademlia.message.Streamable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,10 +15,8 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
-import kademlia.message.Streamable;
 
-public class KademliaId implements Streamable, Serializable
-{
+public class KademliaId implements Streamable, Serializable {
 
     public final transient static int ID_LENGTH = 160;
     private byte[] keyBytes;
@@ -26,11 +26,9 @@ public class KademliaId implements Streamable, Serializable
      *
      * @param data The user generated key string
      */
-    public KademliaId(String data)
-    {
+    public KademliaId(String data) {
         keyBytes = data.getBytes();
-        if (keyBytes.length != ID_LENGTH / 8)
-        {
+        if (keyBytes.length != ID_LENGTH / 8) {
             throw new IllegalArgumentException("Specified Data need to be " + (ID_LENGTH / 8) + " characters long.");
         }
     }
@@ -38,8 +36,7 @@ public class KademliaId implements Streamable, Serializable
     /**
      * Generate a random key
      */
-    public KademliaId()
-    {
+    public KademliaId() {
         keyBytes = new byte[ID_LENGTH / 8];
         new Random().nextBytes(keyBytes);
     }
@@ -49,10 +46,8 @@ public class KademliaId implements Streamable, Serializable
      *
      * @param bytes
      */
-    public KademliaId(byte[] bytes)
-    {
-        if (bytes.length != ID_LENGTH / 8)
-        {
+    public KademliaId(byte[] bytes) {
+        if (bytes.length != ID_LENGTH / 8) {
             throw new IllegalArgumentException("Specified Data need to be " + (ID_LENGTH / 8) + " characters long. Data Given: '" + new String(bytes) + "'");
         }
         this.keyBytes = bytes;
@@ -62,24 +57,20 @@ public class KademliaId implements Streamable, Serializable
      * Load the NodeId from a DataInput stream
      *
      * @param in The stream from which to load the NodeId
-     *
      * @throws IOException
      */
-    public KademliaId(DataInputStream in) throws IOException
-    {
+    public KademliaId(DataInputStream in) throws IOException {
         this.fromStream(in);
     }
 
-    public byte[] getBytes()
-    {
+    public byte[] getBytes() {
         return this.keyBytes;
     }
 
     /**
      * @return The BigInteger representation of the key
      */
-    public BigInteger getInt()
-    {
+    public BigInteger getInt() {
         return new BigInteger(1, this.getBytes());
     }
 
@@ -87,14 +78,11 @@ public class KademliaId implements Streamable, Serializable
      * Compares a NodeId to this NodeId
      *
      * @param o The NodeId to compare to this NodeId
-     *
      * @return boolean Whether the 2 NodeIds are equal
      */
     @Override
-    public boolean equals(Object o)
-    {
-        if (o instanceof KademliaId)
-        {
+    public boolean equals(Object o) {
+        if (o instanceof KademliaId) {
             KademliaId nid = (KademliaId) o;
             return this.hashCode() == nid.hashCode();
         }
@@ -102,8 +90,7 @@ public class KademliaId implements Streamable, Serializable
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int hash = 7;
         hash = 83 * hash + Arrays.hashCode(this.keyBytes);
         return hash;
@@ -113,16 +100,13 @@ public class KademliaId implements Streamable, Serializable
      * Checks the distance between this and another NodeId
      *
      * @param nid
-     *
      * @return The distance of this NodeId from the given NodeId
      */
-    public KademliaId xor(KademliaId nid)
-    {
+    public KademliaId xor(KademliaId nid) {
         byte[] result = new byte[ID_LENGTH / 8];
         byte[] nidBytes = nid.getBytes();
 
-        for (int i = 0; i < ID_LENGTH / 8; i++)
-        {
+        for (int i = 0; i < ID_LENGTH / 8; i++) {
             result[i] = (byte) (this.keyBytes[i] ^ nidBytes[i]);
         }
 
@@ -135,11 +119,9 @@ public class KademliaId implements Streamable, Serializable
      * Generates a NodeId that is some distance away from this NodeId
      *
      * @param distance in number of bits
-     *
      * @return NodeId The newly generated NodeId
      */
-    public KademliaId generateNodeIdByDistance(int distance)
-    {
+    public KademliaId generateNodeIdByDistance(int distance) {
         byte[] result = new byte[ID_LENGTH / 8];
 
         /* Since distance = ID_LENGTH - prefixLength, we need to fill that amount with 0's */
@@ -147,8 +129,7 @@ public class KademliaId implements Streamable, Serializable
         int numBitZeroes = 8 - (distance % 8);
 
         /* Filling byte zeroes */
-        for (int i = 0; i < numByteZeroes; i++)
-        {
+        for (int i = 0; i < numByteZeroes; i++) {
             result[i] = 0;
         }
 
@@ -156,8 +137,7 @@ public class KademliaId implements Streamable, Serializable
         BitSet bits = new BitSet(8);
         bits.set(0, 8);
 
-        for (int i = 0; i < numBitZeroes; i++)
-        {
+        for (int i = 0; i < numBitZeroes; i++) {
             /* Shift 1 zero into the start of the value */
             bits.clear(i);
         }
@@ -165,8 +145,7 @@ public class KademliaId implements Streamable, Serializable
         result[numByteZeroes] = (byte) bits.toByteArray()[0];
 
         /* Set the remaining bytes to Maximum value */
-        for (int i = numByteZeroes + 1; i < result.length; i++)
-        {
+        for (int i = numByteZeroes + 1; i < result.length; i++) {
             result[i] = Byte.MAX_VALUE;
         }
 
@@ -178,29 +157,20 @@ public class KademliaId implements Streamable, Serializable
      *
      * @return Integer The number of leading 0's
      */
-    public int getFirstSetBitIndex()
-    {
+    public int getFirstSetBitIndex() {
         int prefixLength = 0;
 
-        for (byte b : this.keyBytes)
-        {
-            if (b == 0)
-            {
+        for (byte b : this.keyBytes) {
+            if (b == 0) {
                 prefixLength += 8;
-            }
-            else
-            {
+            } else {
                 /* If the byte is not 0, we need to count how many MSBs are 0 */
                 int count = 0;
-                for (int i = 7; i >= 0; i--)
-                {
+                for (int i = 7; i >= 0; i--) {
                     boolean a = (b & (1 << i)) == 0;
-                    if (a)
-                    {
+                    if (a) {
                         count++;
-                    }
-                    else
-                    {
+                    } else {
                         break;   // Reset the count if we encounter a non-zero number
                     }
                 }
@@ -219,11 +189,9 @@ public class KademliaId implements Streamable, Serializable
      * Gets the distance from this NodeId to another NodeId
      *
      * @param to
-     *
      * @return Integer The distance
      */
-    public int getDistance(KademliaId to)
-    {
+    public int getDistance(KademliaId to) {
         /**
          * Compute the xor of this and to
          * Get the index i of the first set bit of the xor returned NodeId
@@ -233,30 +201,26 @@ public class KademliaId implements Streamable, Serializable
     }
 
     @Override
-    public void toStream(DataOutputStream out) throws IOException
-    {
+    public void toStream(DataOutputStream out) throws IOException {
         /* Add the NodeId to the stream */
         out.write(this.getBytes());
     }
 
     @Override
-    public final void fromStream(DataInputStream in) throws IOException
-    {
+    public final void fromStream(DataInputStream in) throws IOException {
         byte[] input = new byte[ID_LENGTH / 8];
         in.readFully(input);
         this.keyBytes = input;
     }
 
-    public String hexRepresentation()
-    {
+    public String hexRepresentation() {
         /* Returns the hex format of this NodeId */
         BigInteger bi = new BigInteger(1, this.keyBytes);
         return String.format("%0" + (this.keyBytes.length << 1) + "X", bi);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return this.hexRepresentation();
     }
 

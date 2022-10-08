@@ -10,102 +10,87 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140224
  */
-public class DHTContentImpl implements KadContent
-{
+public class DHTContentImpl implements KadContent {
 
     public static final transient String TYPE = "DHTContentImpl";
-
+    private final long createTs;
     private KademliaId key;
     private String data;
     private String ownerId;
-    private final long createTs;
     private long updateTs;
 
-    
+
     {
         this.createTs = this.updateTs = System.currentTimeMillis() / 1000L;
     }
 
-    public DHTContentImpl()
-    {
+    public DHTContentImpl() {
 
     }
 
-    public DHTContentImpl(String ownerId, String data)
-    {
+    public DHTContentImpl(String ownerId, String data) {
         this.ownerId = ownerId;
         this.data = data;
         this.key = new KademliaId();
     }
 
-    public DHTContentImpl(KademliaId key, String ownerId)
-    {
+    public DHTContentImpl(KademliaId key, String ownerId) {
         this.key = key;
         this.ownerId = ownerId;
     }
 
-    public void setData(String newData)
-    {
+    public void setData(String newData) {
         this.data = newData;
         this.setUpdated();
     }
 
     @Override
-    public KademliaId getKey()
-    {
+    public KademliaId getKey() {
         return this.key;
     }
 
     @Override
-    public String getType()
-    {
+    public String getType() {
         return TYPE;
     }
 
     @Override
-    public String getOwnerId()
-    {
+    public String getOwnerId() {
         return this.ownerId;
     }
 
     /**
      * Set the content as updated
      */
-    public void setUpdated()
-    {
+    public void setUpdated() {
         this.updateTs = System.currentTimeMillis() / 1000L;
     }
 
     @Override
-    public long getCreatedTimestamp()
-    {
+    public long getCreatedTimestamp() {
         return this.createTs;
     }
 
     @Override
-    public long getLastUpdatedTimestamp()
-    {
+    public long getLastUpdatedTimestamp() {
         return this.updateTs;
     }
 
     @Override
-    public byte[] toSerializedForm()
-    {
+    public byte[] toSerializedForm() {
         Gson gson = new Gson();
         return gson.toJson(this).getBytes();
     }
 
     @Override
-    public DHTContentImpl fromSerializedForm(byte[] data)
-    {
+    public DHTContentImpl fromSerializedForm(byte[] data) {
         Gson gson = new Gson();
         DHTContentImpl val = gson.fromJson(new String(data), DHTContentImpl.class);
         return val;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "DHTContentImpl[{data=" + this.data + "{ {key:" + this.key + "}]";
     }
 }

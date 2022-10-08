@@ -6,16 +6,13 @@ package kademlia.exceptions;
  * @author Joshua Kissoon
  * @created 20140219
  */
-public class UnknownMessageException extends RuntimeException
-{
+public class UnknownMessageException extends RuntimeException {
 
-    public UnknownMessageException()
-    {
+    public UnknownMessageException() {
         super();
     }
 
-    public UnknownMessageException(String message)
-    {
+    public UnknownMessageException(String message) {
         super(message);
     }
 }

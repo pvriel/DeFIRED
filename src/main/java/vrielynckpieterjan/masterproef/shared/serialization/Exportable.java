@@ -11,7 +11,8 @@ public interface Exportable extends Serializable {
 
     /**
      * Method to serialize the {@link Exportable} instance.
-     * @return  The {@link Exportable} instance as a byte array.
+     *
+     * @return The {@link Exportable} instance as a byte array.
      */
     byte[] serialize() throws IOException;
 }

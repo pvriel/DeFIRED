@@ -20,33 +20,30 @@ public interface StorageLayer {
 
     /**
      * Method to add a new {@link StorageElement} to the storage layer.
-     * @param   newElement
-     *          The new element.
-     * @throws  IOException
-     *          If an IO-related problem occurred.
+     *
+     * @param newElement The new element.
+     * @throws IOException If an IO-related problem occurred.
      */
     void put(@NotNull StorageElement newElement) throws IOException;
 
     /**
      * Method to receive the {@link StorageElement}s, published using the given {@link StorageElementIdentifier}, as a set.
-     * @param   identifier
-     *          The identifier.
-     * @throws  IOException
-     *          If the {@link StorageLayer} could not be consulted, due to an IO-related problem.
-     * @return  The {@link StorageElement}s.
+     *
+     * @param identifier The identifier.
+     * @return The {@link StorageElement}s.
+     * @throws IOException If the {@link StorageLayer} could not be consulted, due to an IO-related problem.
      */
     Set<StorageElement> retrieve(@NotNull StorageElementIdentifier identifier) throws IOException;
 
     /**
      * Cf. retrieve(StorageElementIdentifier) method, with the only exception that
      * this method already filters the {@link StorageElement}s based on the given {@link Class} parameter.
-     * @param   clazz
-     *          The class of the subtype of the {@link StorageElement} class for which results should be returned.
-     * @param   <T>
-     *          The generic parameter.
+     *
+     * @param clazz The class of the subtype of the {@link StorageElement} class for which results should be returned.
+     * @param <T>   The generic parameter.
      */
     default <T extends StorageElement> Set<T> retrieve(@NotNull StorageElementIdentifier identifier,
-                                               @NotNull Class<T> clazz) throws IOException {
+                                                       @NotNull Class<T> clazz) throws IOException {
         Set<StorageElement> retrievedStorageElements = retrieve(identifier);
 
         Set<T> returnValue = new HashSet<>();
@@ -58,14 +55,14 @@ public interface StorageLayer {
 
     /**
      * Method to iterate over the personal queue of the user associated with the provided {@link PublicEntityIdentifier}.
-     * @param   publicEntityIdentifier
-     *          The provided {@link PublicEntityIdentifier}.
-     * @return  A {@link PersonalQueueIterator} to iterate over the personal queue.
+     *
+     * @param publicEntityIdentifier The provided {@link PublicEntityIdentifier}.
+     * @return A {@link PersonalQueueIterator} to iterate over the personal queue.
      */
     default @NotNull PersonalQueueIterator getPersonalQueueUser(@NotNull PublicEntityIdentifier publicEntityIdentifier) {
         return new PersonalQueueIterator() {
-           AtomicReference<StorageElementIdentifier> currentStorageElementIdentifier =
-                   new AtomicReference<>(new StorageElementIdentifier(publicEntityIdentifier.getNamespaceServiceProviderEmailAddressUserConcatenation()));
+            AtomicReference<StorageElementIdentifier> currentStorageElementIdentifier =
+                    new AtomicReference<>(new StorageElementIdentifier(publicEntityIdentifier.getNamespaceServiceProviderEmailAddressUserConcatenation()));
 
             @Override
             public synchronized @NotNull Attestation next() throws IOException, IllegalArgumentException {
@@ -76,12 +73,15 @@ public interface StorageLayer {
                 retrievedAttestations.parallelStream().forEach(attestation -> {
                     try {
                         if (foundAttestation.get() != null ||
-                            !attestation.areSecondAndThirdLayerValid(publicEntityIdentifier) ||
-                            attestation.isRevoked(StorageLayer.this)) return;
+                                !attestation.areSecondAndThirdLayerValid(publicEntityIdentifier) ||
+                                attestation.isRevoked(StorageLayer.this)) return;
                         foundAttestation.set(attestation);
-                    } catch (Exception ignored) { return;}
+                    } catch (Exception ignored) {
+                        return;
+                    }
                 });
-                if (foundAttestation.get() == null) throw new IllegalArgumentException("Next attestation in personal queue not found.");
+                if (foundAttestation.get() == null)
+                    throw new IllegalArgumentException("Next attestation in personal queue not found.");
 
                 var decryptedThirdLayer = foundAttestation.get().getThirdLayer().decrypt(publicEntityIdentifier);
                 currentStorageElementIdentifier.set(decryptedThirdLayer.getRight());
@@ -96,5 +96,6 @@ public interface StorageLayer {
     /**
      * Method to shut down the {@link StorageLayer} (if possible).
      */
-    default void shutdown() throws IOException {}
+    default void shutdown() throws IOException {
+    }
 }

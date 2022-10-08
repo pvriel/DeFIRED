@@ -1,13 +1,11 @@
 package vrielynckpieterjan.masterproef.apilayer.macaroon;
 
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
 import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -22,12 +20,10 @@ public class APILayerMacaroon implements Exportable {
 
     /**
      * Constructor for the {@link APILayerMacaroon} class.
-     * @param   macaroonSecret
-     *          The macaroon secret.
-     * @param   macaroonPublicIdentifier
-     *          The public identifier of the macaroon.
-     * @param   rTreePolicy
-     *          The encapsulated {@link RTreePolicy}.
+     *
+     * @param macaroonSecret           The macaroon secret.
+     * @param macaroonPublicIdentifier The public identifier of the macaroon.
+     * @param rTreePolicy              The encapsulated {@link RTreePolicy}.
      */
     public APILayerMacaroon(@NotNull String macaroonSecret,
                             @NotNull String macaroonPublicIdentifier,
@@ -47,9 +43,27 @@ public class APILayerMacaroon implements Exportable {
         this.signature = signature;
     }
 
+    @NotNull
+    public static APILayerMacaroon deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
+        byte[] firstElementAsByteArray = new byte[byteBuffer.getInt()];
+        byteBuffer.get(firstElementAsByteArray);
+        PublicIdentifierMacaroonElement publicIdentifier = ExportableUtils.deserialize(firstElementAsByteArray, PublicIdentifierMacaroonElement.class);
+
+        byte[] secondElementAsByteArray = new byte[byteBuffer.getInt()];
+        byteBuffer.get(secondElementAsByteArray);
+        RTreePolicyMacaroonElement rTreePolicyMacaroonElement = ExportableUtils.deserialize(secondElementAsByteArray, RTreePolicyMacaroonElement.class);
+
+        byte[] signatureAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(signatureAsByteArray);
+        String signature = new String(signatureAsByteArray, StandardCharsets.UTF_8);
+
+        return new APILayerMacaroon(publicIdentifier, rTreePolicyMacaroonElement, signature);
+    }
+
     /**
      * Getter for the public identifier of the macaroon.
-     * @return  The public identifier.
+     *
+     * @return The public identifier.
      */
     public String extractPublicIdentifier() {
         return publicIdentifier.getEncapsulatedObject();
@@ -57,7 +71,7 @@ public class APILayerMacaroon implements Exportable {
 
     /***
      * Getter for the {@link RTreePolicy} of the {@link APILayerMacaroon}.
-     * @return  The {@link RTreePolicy}.
+     * @return The {@link RTreePolicy}.
      */
     public RTreePolicy extractRTreePolicy() {
         return rTreePolicyMacaroonElement.getEncapsulatedObject();
@@ -65,9 +79,9 @@ public class APILayerMacaroon implements Exportable {
 
     /**
      * Method to check if an {@link APILayerMacaroon} is valid, given the macaroon secret.
-     * @param   macaroonSecret
-     *          The macaroon secret.
-     * @return  True if the macaroon is valid; false otherwise.
+     *
+     * @param macaroonSecret The macaroon secret.
+     * @return True if the macaroon is valid; false otherwise.
      */
     public boolean isValid(@NotNull String macaroonSecret) {
         var generatedSignature = publicIdentifier.generateSignature(macaroonSecret);
@@ -82,7 +96,7 @@ public class APILayerMacaroon implements Exportable {
         return "APILayerMacaroon{" +
                 "publicIdentifier=" + publicIdentifier +
                 ", rTreePolicyMacaroonElement=" + rTreePolicyMacaroonElement +
-                ", signature=" +  signature + '}';
+                ", signature=" + signature + '}';
     }
 
     @Override
@@ -100,23 +114,6 @@ public class APILayerMacaroon implements Exportable {
         byteBuffer.put(signatureAsByteArray);
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static APILayerMacaroon deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
-        byte[] firstElementAsByteArray = new byte[byteBuffer.getInt()];
-        byteBuffer.get(firstElementAsByteArray);
-        PublicIdentifierMacaroonElement publicIdentifier = ExportableUtils.deserialize(firstElementAsByteArray, PublicIdentifierMacaroonElement.class);
-
-        byte[] secondElementAsByteArray = new byte[byteBuffer.getInt()];
-        byteBuffer.get(secondElementAsByteArray);
-        RTreePolicyMacaroonElement rTreePolicyMacaroonElement = ExportableUtils.deserialize(secondElementAsByteArray, RTreePolicyMacaroonElement.class);
-
-        byte[] signatureAsByteArray = new byte[byteBuffer.remaining()];
-        byteBuffer.get(signatureAsByteArray);
-        String signature = new String(signatureAsByteArray, StandardCharsets.UTF_8);
-
-        return new APILayerMacaroon(publicIdentifier, rTreePolicyMacaroonElement, signature);
     }
 
     @Override

@@ -58,7 +58,7 @@ public class Demo {
         List<Pair<String, Pair<PrivateEntityIdentifier, PublicEntityIdentifier>>> allEntities = new ArrayList<>();
         allEntities.addAll(clouds);
         allEntities.addAll(users);
-        for (var entity: allEntities) {
+        for (var entity : allEntities) {
             System.out.printf("%s%s%s%n%sPublic EC key:%s\t%s%n%sPrivate EC key:%s\t%s%n%sIBE parameters:%s\t%s%n%sStorage layer identifier first attestation in personal queue:%s\t%s%n%n",
                     BLUE, entity.getLeft(), RESET,
                     GREEN, RESET, entity.getRight().getLeft().getRSAIdentifier(),
@@ -74,7 +74,7 @@ public class Demo {
 
         // Registering the users to the respective cloud storage service providers.
         NamespaceAttestation namespaceAttestationUserC = null;
-        for (var i = 0; i < 3; i ++) {
+        for (var i = 0; i < 3; i++) {
             var user = users.get(i);
             var cloud = clouds.get(i);
             var issuerPartNamespaceAttestation = new IssuerPartNamespaceAttestation(
@@ -101,7 +101,7 @@ public class Demo {
         List<String> entityNames = new ArrayList<>(Arrays.asList("userA", "userB", "userA", "userC", "userB", "userC"));
         List<Attestation> generatedAttestationsForDemo = new ArrayList<>();
         List<RevocationSecret> revocationSecrets = new ArrayList<>();
-        for (var issuerReceiverCombination: issuersReceiversAttestationsDemo) {
+        for (var issuerReceiverCombination : issuersReceiversAttestationsDemo) {
             var issuer = issuerReceiverCombination.getLeft();
             var receiver = issuerReceiverCombination.getRight();
             var issuerPartAttestation = new IssuerPartAttestation(issuer.getLeft(), issuer.getRight(),
@@ -123,7 +123,7 @@ public class Demo {
         entityNames.add("userA");
         entityNames.add("userB");
         entityNames.add("userC");
-        for (var i = 0; i < 3; i ++) {
+        for (var i = 0; i < 3; i++) {
             var personalQueue = storageLayer.getPersonalQueueUser(users.get(i).getRight().getRight());
             System.out.printf("%n%sPersonal queue of %s:%s%n", BLUE, entityNames.remove(0), RESET);
             while (true) {

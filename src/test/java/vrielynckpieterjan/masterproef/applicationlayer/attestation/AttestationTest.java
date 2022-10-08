@@ -16,7 +16,7 @@ import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 
 import java.net.InetSocketAddress;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AttestationTest {
 
@@ -28,10 +28,9 @@ class AttestationTest {
     IssuerPartAttestation issuerPartAttestation = new IssuerPartNamespaceAttestation(
             issuerIdentifiers.getLeft(), issuerIdentifiers.getRight(), receiverIdentifiers.getRight(),
             revocationCommitment, rTreePolicy, inetSocketAddress);
-
-    StorageElementIdentifier storageElementIdentifier = new StorageElementIdentifier("test");
     Attestation attestation = new Attestation(storageElementIdentifier, issuerPartAttestation, revocationCommitment,
             storageElementIdentifier, receiverIdentifiers.getLeft());
+    StorageElementIdentifier storageElementIdentifier = new StorageElementIdentifier("test");
 
     @Test
     void isValid() {

@@ -8,7 +8,6 @@ import cryptid.ibe.domain.SecurityLevel;
 import cryptid.ibe.exception.SetupException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
@@ -51,7 +50,7 @@ class IBEDecryptableSegmentTest {
         int amountOfRounds = 100;
         double result = 0.0;
 
-        for (int i = 0; i < amountOfRounds; i ++) {
+        for (int i = 0; i < amountOfRounds; i++) {
             long startTime = System.currentTimeMillis();
             ibe.extract(identity);
             long endTime = System.currentTimeMillis();

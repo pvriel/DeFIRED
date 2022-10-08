@@ -6,15 +6,7 @@ package kademlia.dht;
  * @author Joshua Kissoon
  * @since 20140523
  */
-public interface KademliaStorageEntry
-{
-
-    /**
-     * Add the content to the storage entry
-     *
-     * @param data The content data in byte[] format
-     */
-    public void setContent(final byte[] data);
+public interface KademliaStorageEntry {
 
     /**
      * Get the content from this storage entry
@@ -22,6 +14,13 @@ public interface KademliaStorageEntry
      * @return The content in byte format
      */
     public byte[] getContent();
+
+    /**
+     * Add the content to the storage entry
+     *
+     * @param data The content data in byte[] format
+     */
+    public void setContent(final byte[] data);
 
     /**
      * Get the metadata for this storage entry
