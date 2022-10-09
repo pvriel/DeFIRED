@@ -28,9 +28,9 @@ class AttestationTest {
     IssuerPartAttestation issuerPartAttestation = new IssuerPartNamespaceAttestation(
             issuerIdentifiers.getLeft(), issuerIdentifiers.getRight(), receiverIdentifiers.getRight(),
             revocationCommitment, rTreePolicy, inetSocketAddress);
+    StorageElementIdentifier storageElementIdentifier = new StorageElementIdentifier("test");
     Attestation attestation = new Attestation(storageElementIdentifier, issuerPartAttestation, revocationCommitment,
             storageElementIdentifier, receiverIdentifiers.getLeft());
-    StorageElementIdentifier storageElementIdentifier = new StorageElementIdentifier("test");
 
     @Test
     void isValid() {
