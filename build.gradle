@@ -35,7 +35,7 @@ test {
 }
 
 javadoc {
-    configure( options ) {
+    configure(options) {
         tags(
                 'todo:X"',
                 'apiNote:a:"API Note:"',

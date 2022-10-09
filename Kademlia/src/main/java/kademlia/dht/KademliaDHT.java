@@ -1,13 +1,14 @@
 package kademlia.dht;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
 import kademlia.KadConfiguration;
 import kademlia.exceptions.ContentNotFoundException;
 import kademlia.node.KademliaId;
 import kademlia.util.serializer.KadSerializer;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * The main Distributed Hash Table interface that manages the entire DHT
@@ -15,8 +16,7 @@ import kademlia.util.serializer.KadSerializer;
  * @author Joshua Kissoon
  * @since 20140523
  */
-public interface KademliaDHT
-{
+public interface KademliaDHT {
 
     /**
      * Initialize this DHT to it's default state
@@ -41,9 +41,7 @@ public interface KademliaDHT
      * Handle storing content locally
      *
      * @param content The DHT content to store
-     *
      * @return boolean true if we stored the content, false if the content already exists and is up to date
-     *
      * @throws IOException
      */
     public boolean store(JKademliaStorageEntry content) throws IOException;
@@ -55,9 +53,7 @@ public interface KademliaDHT
      *
      * @param key      The Key of the content to retrieve
      * @param hashCode The hash code of the content to retrieve
-     *
      * @return A KadContent object
-     *
      * @throws FileNotFoundException
      * @throws ClassNotFoundException
      */
@@ -67,7 +63,6 @@ public interface KademliaDHT
      * Check if any content for the given criteria exists in this DHT
      *
      * @param param The content search criteria
-     *
      * @return boolean Whether any content exist that satisfy the criteria
      */
     public boolean contains(GetParameter param);
@@ -76,9 +71,7 @@ public interface KademliaDHT
      * Retrieve and create a KadContent object given the StorageEntry object
      *
      * @param entry The StorageEntry used to retrieve this content
-     *
      * @return KadContent The content object
-     *
      * @throws IOException
      */
     public JKademliaStorageEntry get(KademliaStorageEntryMetadata entry) throws IOException, NoSuchElementException;
@@ -87,9 +80,7 @@ public interface KademliaDHT
      * Get the StorageEntry for the content if any exist.
      *
      * @param param The parameters used to filter the content needed
-     *
      * @return KadContent A KadContent found on the DHT satisfying the given criteria
-     *
      * @throws IOException
      */
     public JKademliaStorageEntry get(GetParameter param) throws NoSuchElementException, IOException;
@@ -98,8 +89,6 @@ public interface KademliaDHT
      * Delete a content from local storage
      *
      * @param content The Content to Remove
-     *
-     *
      * @throws ContentNotFoundException
      */
     public void remove(KadContent content) throws ContentNotFoundException;

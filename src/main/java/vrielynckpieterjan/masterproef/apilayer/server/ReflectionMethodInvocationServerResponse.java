@@ -13,8 +13,8 @@ class ReflectionMethodInvocationServerResponse implements Serializable {
 
     /**
      * Constructor for the {@link ReflectionMethodInvocationServerResponse} class.
-     * @param   response
-     *          The response as a {@link Serializable}.
+     *
+     * @param response The response as a {@link Serializable}.
      */
     ReflectionMethodInvocationServerResponse(@NotNull Serializable response) {
         this.response = response;
@@ -22,7 +22,8 @@ class ReflectionMethodInvocationServerResponse implements Serializable {
 
     /**
      * Getter for the response as a {@link Serializable}.
-     * @return  The {@link Serializable}.
+     *
+     * @return The {@link Serializable}.
      */
     public Serializable getResponse() {
         return response;

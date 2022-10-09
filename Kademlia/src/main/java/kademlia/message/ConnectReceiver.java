@@ -1,8 +1,9 @@
 package kademlia.message;
 
-import java.io.IOException;
 import kademlia.KadServer;
 import kademlia.KademliaNode;
+
+import java.io.IOException;
 
 /**
  * Receives a ConnectMessage and sends an AcknowledgeMessage as reply.
@@ -10,14 +11,12 @@ import kademlia.KademliaNode;
  * @author Joshua Kissoon
  * @created 20140219
  */
-public class ConnectReceiver implements Receiver
-{
+public class ConnectReceiver implements Receiver {
 
     private final KadServer server;
     private final KademliaNode localNode;
 
-    public ConnectReceiver(KadServer server, KademliaNode local)
-    {
+    public ConnectReceiver(KadServer server, KademliaNode local) {
         this.server = server;
         this.localNode = local;
     }
@@ -26,12 +25,10 @@ public class ConnectReceiver implements Receiver
      * Handle receiving a ConnectMessage
      *
      * @param comm
-     *
      * @throws IOException
      */
     @Override
-    public void receive(Message incoming, int comm) throws IOException
-    {
+    public void receive(Message incoming, int comm) throws IOException {
         ConnectMessage mess = (ConnectMessage) incoming;
 
         /* Update the local space by inserting the origin node. */
@@ -48,11 +45,9 @@ public class ConnectReceiver implements Receiver
      * We don't need to do anything here
      *
      * @param comm
-     *
      * @throws IOException
      */
     @Override
-    public void timeout(int comm) throws IOException
-    {
+    public void timeout(int comm) throws IOException {
     }
 }

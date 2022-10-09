@@ -7,10 +7,8 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreeP
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
-import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -27,14 +25,27 @@ public class AESEncryptionInformationSegmentAttestation implements Exportable {
 
     /**
      * Constructor for the {@link AESEncryptionInformationSegmentAttestation} class.
-     * @param   aesKeys
-     *          The AES keys which should be stored in the AES key information segment.
+     *
+     * @param aesKeys The AES keys which should be stored in the AES key information segment.
      */
     public AESEncryptionInformationSegmentAttestation(@NotNull RTreePolicy rTreePolicy,
                                                       @NotNull Pair<String, String> aesKeys,
                                                       @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         aesKeyInformation = aesKeys;
+    }
+
+    @NotNull
+    public static AESEncryptionInformationSegmentAttestation deserialize(@NotNull ByteBuffer byteBuffer) {
+        byte[] keyAsByteArray = new byte[byteBuffer.getInt()];
+        byteBuffer.get(keyAsByteArray);
+        String key = new String(keyAsByteArray, StandardCharsets.UTF_8);
+
+        byte[] valueAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(valueAsByteArray);
+        String value = new String(valueAsByteArray, StandardCharsets.UTF_8);
+
+        return new AESEncryptionInformationSegmentAttestation(new ImmutablePair<>(key, value));
     }
 
     @Override
@@ -54,7 +65,8 @@ public class AESEncryptionInformationSegmentAttestation implements Exportable {
 
     /**
      * Getter for the AES key information segment.
-     * @return  The AES key information segment.
+     *
+     * @return The AES key information segment.
      */
     public Pair<String, String> getAesKeyInformation() {
         return aesKeyInformation;
@@ -62,13 +74,11 @@ public class AESEncryptionInformationSegmentAttestation implements Exportable {
 
     /**
      * Method to encrypt this {@link AESEncryptionInformationSegmentAttestation} instance.
-     * @param   publicEntityIdentifierReceiver
-     *          The {@link PublicEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
-     * @param   ibeIdentifier
-     *          The IBE identifier to encrypt this {@link AESEncryptionInformationSegmentAttestation} with.
-     * @return  The encrypted version of this instance as an {@link IBEDecryptableSegment}.
-     * @throws  IllegalArgumentException
-     *          If this instance could not be encrypted using the provided arguments.
+     *
+     * @param publicEntityIdentifierReceiver The {@link PublicEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
+     * @param ibeIdentifier                  The IBE identifier to encrypt this {@link AESEncryptionInformationSegmentAttestation} with.
+     * @return The encrypted version of this instance as an {@link IBEDecryptableSegment}.
+     * @throws IllegalArgumentException If this instance could not be encrypted using the provided arguments.
      */
     public @NotNull IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> encrypt(
             @NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
@@ -87,18 +97,5 @@ public class AESEncryptionInformationSegmentAttestation implements Exportable {
         byteBuffer.put(valueAsByteArray);
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static AESEncryptionInformationSegmentAttestation deserialize(@NotNull ByteBuffer byteBuffer) {
-        byte[] keyAsByteArray = new byte[byteBuffer.getInt()];
-        byteBuffer.get(keyAsByteArray);
-        String key = new String(keyAsByteArray, StandardCharsets.UTF_8);
-
-        byte[] valueAsByteArray = new byte[byteBuffer.remaining()];
-        byteBuffer.get(valueAsByteArray);
-        String value = new String(valueAsByteArray, StandardCharsets.UTF_8);
-
-        return new AESEncryptionInformationSegmentAttestation(new ImmutablePair<>(key, value));
     }
 }

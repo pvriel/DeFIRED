@@ -6,11 +6,9 @@ import kademlia.node.KademliaId;
  * Any piece of content that needs to be stored on the DHT
  *
  * @author Joshua Kissoon
- *
  * @since 20140224
  */
-public interface KadContent
-{
+public interface KadContent {
 
     /**
      * @return NodeId The DHT key for this content
@@ -46,7 +44,7 @@ public interface KadContent
     /**
      * Each content needs to be in byte format for transporting and storage,
      * this method takes care of that.
-     *
+     * <p>
      * Each object is responsible for transforming itself to byte format since the
      * structure of methods may differ.
      *
@@ -58,7 +56,6 @@ public interface KadContent
      * Given the Content in byte format, read it
      *
      * @param data The object in byte format
-     *
      * @return A new object from the given
      */
     public KadContent fromSerializedForm(byte[] data);

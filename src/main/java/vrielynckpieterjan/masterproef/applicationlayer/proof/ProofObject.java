@@ -13,14 +13,11 @@ import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.AESEnc
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
-import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
 import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElementIdentifier;
 import vrielynckpieterjan.masterproef.storagelayer.StorageLayer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -41,23 +38,21 @@ public class ProofObject extends AbstractProofObject {
 
     /**
      * Constructor for the {@link ProofObject} class.
-     * @param   storageElementIdentifiers
-     *          The {@link StorageElementIdentifier}s for the {@link Attestation}s for the proof.
-     * @param   aesKeys
-     *          The AES keys for the {@link Attestation}s for the proof.
-     * @param   aesKeyNamespaceAttestationProver
-     *          The AES key for the {@link NamespaceAttestation} of the prover, for the proof.
-     * @throws  IllegalArgumentException
-     *          If one of the two provided arrays has length zero, the lengths don't match
-     *          or one of the two arrays contains a null value.
+     *
+     * @param storageElementIdentifiers        The {@link StorageElementIdentifier}s for the {@link Attestation}s for the proof.
+     * @param aesKeys                          The AES keys for the {@link Attestation}s for the proof.
+     * @param aesKeyNamespaceAttestationProver The AES key for the {@link NamespaceAttestation} of the prover, for the proof.
+     * @throws IllegalArgumentException If one of the two provided arrays has length zero, the lengths don't match
+     *                                  or one of the two arrays contains a null value.
      */
     public ProofObject(StorageElementIdentifier[] storageElementIdentifiers,
                        String[] aesKeys, @NotNull String aesKeyNamespaceAttestationProver) throws IllegalArgumentException {
-        if (storageElementIdentifiers.length == 0) throw new IllegalArgumentException("Not enough StorageElementIdentifiers provided.");
+        if (storageElementIdentifiers.length == 0)
+            throw new IllegalArgumentException("Not enough StorageElementIdentifiers provided.");
         if (storageElementIdentifiers.length != aesKeys.length) throw new IllegalArgumentException(String.format("" +
-                "An equal amount of StorageElementIdentifiers (total: %s) and AES keys (total: %s) should be provided.",
+                        "An equal amount of StorageElementIdentifiers (total: %s) and AES keys (total: %s) should be provided.",
                 storageElementIdentifiers.length, aesKeys.length));
-        for (int i = 0; i< storageElementIdentifiers.length; i ++) {
+        for (int i = 0; i < storageElementIdentifiers.length; i++) {
             if (storageElementIdentifiers[i] == null) throw new IllegalArgumentException(String.format(
                     "The storageElementIdentifiers argument contains a null value at index %s.", i));
             if (aesKeys[i] == null) throw new IllegalArgumentException(String.format(
@@ -70,14 +65,180 @@ public class ProofObject extends AbstractProofObject {
     }
 
     /**
+     * Method to check if the prover hosts an {@link Attestation} with the provided {@link StorageElementIdentifier}
+     * in his personal queue.
+     *
+     * @param curAttestation                 The final {@link Attestation} of the proof.
+     * @param storageElementIdentifierToFind The {@link StorageElementIdentifier} of the {@link Attestation} to find in the personal queue of the prover.
+     * @param storageLayer                   The {@link StorageLayer}.
+     * @throws IllegalArgumentException If the {@link Attestation} could not be found.
+     * @throws IOException              If an IO-related problem occurred while consulting the {@link StorageLayer}.
+     */
+    private static void verifyPersonalQueue(@NotNull Attestation curAttestation,
+                                            @NotNull StorageElementIdentifier storageElementIdentifierToFind,
+                                            @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
+        var publicEntityIdentifierProver = curAttestation.getFirstLayer().getPublicEntityIdentifierReceiver();
+        var personalQueueProver = storageLayer.getPersonalQueueUser(publicEntityIdentifierProver);
+
+        while (!curAttestation.getStorageLayerIdentifier().equals(storageElementIdentifierToFind)) {
+            curAttestation = personalQueueProver.next();
+        }
+    }
+
+    /**
+     * Method to merge two {@link RTreePolicy}s for the verification process.
+     *
+     * @param currentlyHoldingPolicy The currently evaluated {@link RTreePolicy}, e.g. READ://A/B.
+     * @param retrievedPolicy        The new {@link RTreePolicy}, e.g. WRITE://A/B/C.
+     * @return The retrievedPolicy argument, of which the {@link PolicyRight} is adjusted so that it's
+     * equal to the most strict {@link PolicyRight} arguments. To continue the example given in this
+     * documentation, the return value would be READ://A/B/C.
+     * @throws IllegalArgumentException If the two {@link RTreePolicy}s can't be merge in any way.
+     */
+    private static @NotNull RTreePolicy mergePoliciesForVerificationProcess(
+            RTreePolicy currentlyHoldingPolicy,
+            @NotNull RTreePolicy retrievedPolicy) throws IllegalArgumentException {
+        if (currentlyHoldingPolicy == null || currentlyHoldingPolicy.coversRTreePolicy(retrievedPolicy))
+            return retrievedPolicy;
+        /*
+        It's possible that the currentlyHoldingPolicy argument allows READ access, while the
+        retrievedPolicy allows WRITE access.
+        Make a copy of the retrievedPolicy RTreePolicy, convert it to READ access and try again.
+         */
+        if (currentlyHoldingPolicy.getPolicyRight().equals(PolicyRight.READ) && retrievedPolicy.getPolicyRight().equals(PolicyRight.WRITE)) {
+            var clonedRetrievedPolicy = retrievedPolicy.clone();
+            clonedRetrievedPolicy.setPolicyRight(PolicyRight.READ);
+            if (currentlyHoldingPolicy.coversRTreePolicy(clonedRetrievedPolicy)) return clonedRetrievedPolicy;
+        }
+        throw new IllegalArgumentException(String.format("The currently holding RTreePolicy (%s)" +
+                " can't cover the retrieved RTreePolicy (%s) in any way.", currentlyHoldingPolicy, retrievedPolicy));
+    }
+
+    /**
+     * Method to generate a {@link ProofObject} object for a given {@link Attestation}.
+     *
+     * @param attestation                      The final {@link Attestation} of the proof.
+     * @param firstAESKey                      The first AES key of the provided {@link Attestation}.
+     * @param secondAESKey                     The second AES key of the provided {@link Attestation}.
+     * @param aesKeyNamespaceAttestationProver The first AES key for the namespace attestation of the prover.
+     * @param storageLayer                     The {@link StorageLayer}.
+     * @return The {@link ProofObject}.
+     * @throws IllegalArgumentException If the provided {@link Attestation} is not part of a proof.
+     * @throws IOException              If an IO-related problem occurred while consulting the {@link StorageLayer}.
+     */
+    public static @NotNull ProofObject generateProofObject
+    (@NotNull Attestation attestation,
+     @NotNull String firstAESKey,
+     @NotNull String secondAESKey,
+     @NotNull String aesKeyNamespaceAttestationProver,
+     @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
+        logger.info(String.format("Trying to generate a proof object for attestation (%s) with AES keys (%s, %s)...",
+                attestation, firstAESKey, secondAESKey));
+        if (attestation instanceof NamespaceAttestation) {
+            return new ProofObject(new StorageElementIdentifier[]{attestation.getStorageLayerIdentifier()},
+                    new String[]{firstAESKey}, aesKeyNamespaceAttestationProver);
+        }
+        // 1. Retrieve the necessary information from the attestation.
+        var verificationInformationSegment = attestation.getFirstLayer()
+                .getVerificationInformationSegment().decrypt(firstAESKey);
+        var proverInformationSegment = attestation.getFirstLayer()
+                .getProofInformationSegment().decrypt(secondAESKey);
+        var policy = verificationInformationSegment.getRTreePolicy();
+        var publicEntityIdentifier = verificationInformationSegment.getPublicEntityIdentifierIssuer();
+        var extractedPrivateKeys = proverInformationSegment.getPrivateKeysIBE();
+
+        // 2. Find the previous attestation of the proof.
+        var informationPreviousAttestationProof = findPreviousAttestationForProof(
+                publicEntityIdentifier, extractedPrivateKeys, storageLayer);
+        var previousAttestation = informationPreviousAttestationProof.getLeft();
+        var firstAESKeyPreviousAttestation = informationPreviousAttestationProof.getMiddle();
+        var secondAESKeyPreviousAttestation = informationPreviousAttestationProof.getRight();
+
+        // 3. Recursively generate the proof object.
+        try {
+            var proofObjectPreviousAttestationsProof = generateProofObject(previousAttestation,
+                    firstAESKeyPreviousAttestation, secondAESKeyPreviousAttestation, aesKeyNamespaceAttestationProver, storageLayer);
+            return new ProofObject(ArrayUtils.add(proofObjectPreviousAttestationsProof.storageElementIdentifiers, attestation.getStorageLayerIdentifier()),
+                    ArrayUtils.add(proofObjectPreviousAttestationsProof.aesKeys, firstAESKey),
+                    aesKeyNamespaceAttestationProver);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(String.format("Could not generate a proof object; no previous" +
+                    " Attestation found for Attestation object (%s).", attestation));
+        }
+    }
+
+    /**
+     * Method to find the information about the previous {@link Attestation} of the proof.
+     *
+     * @param publicEntityIdentifier The {@link PublicEntityIdentifier} of the receiver of the previous {@link Attestation} of the proof.
+     * @param delegatedPrivateKeys   The delegated {@link PrivateKey}s.
+     * @param storageLayer           The {@link StorageLayer}.
+     * @return A {@link Triple}, containing the found {@link Attestation} together with its two AES keys.
+     * @throws IllegalArgumentException If the previous {@link Attestation} of the proof could not be found.
+     * @throws IOException              If an IO-related exception occurred while consulting the {@link StorageLayer}.
+     */
+    private static @NotNull Triple<Attestation, String, String> findPreviousAttestationForProof(
+            @NotNull PublicEntityIdentifier publicEntityIdentifier,
+            @NotNull Set<PrivateKey> delegatedPrivateKeys,
+            @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
+        // 1. Find the personal queue of the user.
+        var personalQueue = storageLayer.getPersonalQueueUser(publicEntityIdentifier);
+
+        // 2. Iterate over the personal queue, until the previous attestation for the proof is found.
+        while (true) {
+            var attestation = personalQueue.next();
+            var encryptedAESEncryptionInformationSegment = attestation.getFirstLayer().getAesEncryptionInformationSegment();
+
+            try {
+                AtomicReference<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment = new AtomicReference<>();
+                delegatedPrivateKeys.parallelStream().forEach(delegatedPrivateKey -> {
+                    if (aesEncryptionInformationSegment.get() != null) return;
+                    try {
+                        aesEncryptionInformationSegment.set(encryptedAESEncryptionInformationSegment.decrypt(
+                                publicEntityIdentifier.getIBEIdentifier(), delegatedPrivateKey));
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                });
+                if (aesEncryptionInformationSegment.get() == null) continue;
+                // Found! Return the necessary information.
+                var aesKeys = aesEncryptionInformationSegment.get().getAesKeyInformation();
+                return new ImmutableTriple<>(attestation, aesKeys.getLeft(), aesKeys.getRight());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+    }
+
+    @NotNull
+    public static ProofObject deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
+        StorageElementIdentifier[] storageElementIdentifiers = new StorageElementIdentifier[byteBuffer.getInt()];
+        String[] aesKeys = new String[storageElementIdentifiers.length];
+
+        for (int i = 0; i < storageElementIdentifiers.length; i++) {
+            byte[] storageElementIdentifierAsByteArray = new byte[byteBuffer.getInt()];
+            byteBuffer.get(storageElementIdentifierAsByteArray);
+            storageElementIdentifiers[i] = ExportableUtils.deserialize(storageElementIdentifierAsByteArray, StorageElementIdentifier.class);
+        }
+
+        for (int i = 0; i < aesKeys.length; i++) {
+            byte[] aesKeyAsByteArray = new byte[byteBuffer.getInt()];
+            byteBuffer.get(aesKeyAsByteArray);
+            aesKeys[i] = new String(aesKeyAsByteArray, StandardCharsets.UTF_8);
+        }
+
+        byte[] aesKeyNamespaceAttestationProverAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(aesKeyNamespaceAttestationProverAsByteArray);
+        String aesKeyNamespaceAttestationProver = new String(aesKeyNamespaceAttestationProverAsByteArray, StandardCharsets.UTF_8);
+
+        return new ProofObject(storageElementIdentifiers, aesKeys, aesKeyNamespaceAttestationProver);
+    }
+
+    /**
      * Method to verify the {@link ProofObject} and return the proven {@link RTreePolicy}.
-     * @param   storageLayer
-     *          The {@link StorageLayer} to consult during the verification process.
-     * @return  The proven {@link RTreePolicy}.
-     * @throws  IOException
-     *          If the {@link StorageLayer} could not be consulted, due to an IO-related problem.
-     * @throws  IllegalArgumentException
-     *          If the {@link ProofObject} could not be verified.
+     *
+     * @param storageLayer The {@link StorageLayer} to consult during the verification process.
+     * @return The proven {@link RTreePolicy}.
+     * @throws IOException              If the {@link StorageLayer} could not be consulted, due to an IO-related problem.
+     * @throws IllegalArgumentException If the {@link ProofObject} could not be verified.
      */
     public @NotNull RTreePolicy verify(@NotNull StorageLayer storageLayer) throws IOException, IllegalArgumentException {
         // 1. Verify the chain of attestations.
@@ -121,70 +282,17 @@ public class ProofObject extends AbstractProofObject {
         if (thrownException.get() != null) throw new IllegalArgumentException(thrownException.get());
 
         RTreePolicy currentPolicy = retrievedAttestationElements.get(0).getRight();
-        for (var i = 1; i < storageElementIdentifiers.length; i ++)
+        for (var i = 1; i < storageElementIdentifiers.length; i++)
             currentPolicy = mergePoliciesForVerificationProcess(currentPolicy,
                     retrievedAttestationElements.get(i).getRight());
 
         try {
             proverThread.join();
-        } catch (InterruptedException ignored) { }
-        if (thrownProverThreadException.get() != null) throw new IllegalArgumentException(thrownProverThreadException.get());
+        } catch (InterruptedException ignored) {
+        }
+        if (thrownProverThreadException.get() != null)
+            throw new IllegalArgumentException(thrownProverThreadException.get());
         return currentPolicy;
-    }
-
-    /**
-     * Method to check if the prover hosts an {@link Attestation} with the provided {@link StorageElementIdentifier}
-     * in his personal queue.
-     * @param   curAttestation
-     *          The final {@link Attestation} of the proof.
-     * @param   storageElementIdentifierToFind
-     *          The {@link StorageElementIdentifier} of the {@link Attestation} to find in the personal queue of the prover.
-     * @param   storageLayer
-     *          The {@link StorageLayer}.
-     * @throws  IllegalArgumentException
-     *          If the {@link Attestation} could not be found.
-     * @throws  IOException
-     *          If an IO-related problem occurred while consulting the {@link StorageLayer}.
-     */
-    private static void verifyPersonalQueue(@NotNull Attestation curAttestation,
-                                            @NotNull StorageElementIdentifier storageElementIdentifierToFind,
-                                            @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
-        var publicEntityIdentifierProver = curAttestation.getFirstLayer().getPublicEntityIdentifierReceiver();
-        var personalQueueProver = storageLayer.getPersonalQueueUser(publicEntityIdentifierProver);
-
-        while (!curAttestation.getStorageLayerIdentifier().equals(storageElementIdentifierToFind)) {
-            curAttestation = personalQueueProver.next();
-        }
-    }
-
-    /**
-     * Method to merge two {@link RTreePolicy}s for the verification process.
-     * @param   currentlyHoldingPolicy
-     *          The currently evaluated {@link RTreePolicy}, e.g. READ://A/B.
-     * @param   retrievedPolicy
-     *          The new {@link RTreePolicy}, e.g. WRITE://A/B/C.
-     * @return  The retrievedPolicy argument, of which the {@link PolicyRight} is adjusted so that it's
-     *          equal to the most strict {@link PolicyRight} arguments. To continue the example given in this
-     *          documentation, the return value would be READ://A/B/C.
-     * @throws  IllegalArgumentException
-     *          If the two {@link RTreePolicy}s can't be merge in any way.
-     */
-    private static @NotNull RTreePolicy mergePoliciesForVerificationProcess(
-            RTreePolicy currentlyHoldingPolicy,
-            @NotNull RTreePolicy retrievedPolicy) throws IllegalArgumentException {
-        if (currentlyHoldingPolicy == null || currentlyHoldingPolicy.coversRTreePolicy(retrievedPolicy)) return retrievedPolicy;
-        /*
-        It's possible that the currentlyHoldingPolicy argument allows READ access, while the
-        retrievedPolicy allows WRITE access.
-        Make a copy of the retrievedPolicy RTreePolicy, convert it to READ access and try again.
-         */
-        if (currentlyHoldingPolicy.getPolicyRight().equals(PolicyRight.READ) && retrievedPolicy.getPolicyRight().equals(PolicyRight.WRITE)) {
-            var clonedRetrievedPolicy = retrievedPolicy.clone();
-            clonedRetrievedPolicy.setPolicyRight(PolicyRight.READ);
-            if (currentlyHoldingPolicy.coversRTreePolicy(clonedRetrievedPolicy)) return clonedRetrievedPolicy;
-        }
-        throw new IllegalArgumentException(String.format("The currently holding RTreePolicy (%s)" +
-                " can't cover the retrieved RTreePolicy (%s) in any way.", currentlyHoldingPolicy, retrievedPolicy));
     }
 
     /**
@@ -192,20 +300,16 @@ public class ProofObject extends AbstractProofObject {
      * {@link StorageElementIdentifier}, from which the unencrypted {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.VerificationInformationSegmentAttestation}
      * can be extracted using the provided AES key.
      * The latter part is done to extract the {@link RTreePolicy} from the {@link Attestation} instance.
-     * @param   storageElementIdentifier
-     *          The {@link StorageElementIdentifier} to find the {@link Attestation} with.
-     * @param   firstAESKeyAttestation
-     *          The AES key to decrypt the encrypted version of the {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.VerificationInformationSegmentAttestation} of
-     *          the {@link Attestation} with.
-     * @param   storageLayer
-     *          The {@link StorageLayer} to consult.
-     * @return  The found {@link Attestation} and its extracted
-     * @throws  IOException
-     *          If the {@link StorageLayer} could not be consulted, due to an IO-related problem.
-     * @throws  IllegalArgumentException
-     *          If the provided AES key is invalid.
+     *
+     * @param storageElementIdentifier The {@link StorageElementIdentifier} to find the {@link Attestation} with.
+     * @param firstAESKeyAttestation   The AES key to decrypt the encrypted version of the {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.VerificationInformationSegmentAttestation} of
+     *                                 the {@link Attestation} with.
+     * @param storageLayer             The {@link StorageLayer} to consult.
+     * @return The found {@link Attestation} and its extracted
+     * @throws IOException              If the {@link StorageLayer} could not be consulted, due to an IO-related problem.
+     * @throws IllegalArgumentException If the provided AES key is invalid.
      */
-    private @NotNull Pair<Attestation, RTreePolicy> searchAndExtractRTreePolicyFromAttestation (
+    private @NotNull Pair<Attestation, RTreePolicy> searchAndExtractRTreePolicyFromAttestation(
             @NotNull StorageElementIdentifier storageElementIdentifier,
             @NotNull String firstAESKeyAttestation,
             @NotNull StorageLayer storageLayer) throws IOException, IllegalArgumentException {
@@ -219,7 +323,8 @@ public class ProofObject extends AbstractProofObject {
             if (retrievedAttestation.isRevoked(storageLayer)) continue;
             try {
                 return new ImmutablePair<>(retrievedAttestation, retrievedAttestation.validateAndReturnPolicy(firstAESKeyAttestation));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+            }
         }
 
         throw new IllegalArgumentException(String.format("No Attestations found for the StorageElementIdentifier (%s)" +
@@ -251,115 +356,13 @@ public class ProofObject extends AbstractProofObject {
         return result;
     }
 
-    /**
-     * Method to generate a {@link ProofObject} object for a given {@link Attestation}.
-     * @param   attestation
-     *          The final {@link Attestation} of the proof.
-     * @param   firstAESKey
-     *          The first AES key of the provided {@link Attestation}.
-     * @param   secondAESKey
-     *          The second AES key of the provided {@link Attestation}.
-     * @param   aesKeyNamespaceAttestationProver
-     *          The first AES key for the namespace attestation of the prover.
-     * @param   storageLayer
-     *          The {@link StorageLayer}.
-     * @return  The {@link ProofObject}.
-     * @throws  IllegalArgumentException
-     *          If the provided {@link Attestation} is not part of a proof.
-     * @throws  IOException
-     *          If an IO-related problem occurred while consulting the {@link StorageLayer}.
-     */
-    public static @NotNull ProofObject generateProofObject
-            (@NotNull Attestation attestation,
-             @NotNull String firstAESKey,
-             @NotNull String secondAESKey,
-             @NotNull String aesKeyNamespaceAttestationProver,
-             @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
-        logger.info(String.format("Trying to generate a proof object for attestation (%s) with AES keys (%s, %s)...",
-                attestation, firstAESKey, secondAESKey));
-        if (attestation instanceof NamespaceAttestation) {
-            return new ProofObject(new StorageElementIdentifier[]{attestation.getStorageLayerIdentifier()},
-                    new String[]{firstAESKey}, aesKeyNamespaceAttestationProver);
-        }
-        // 1. Retrieve the necessary information from the attestation.
-        var verificationInformationSegment = attestation.getFirstLayer()
-                .getVerificationInformationSegment().decrypt(firstAESKey);
-        var proverInformationSegment = attestation.getFirstLayer()
-                .getProofInformationSegment().decrypt(secondAESKey);
-        var policy = verificationInformationSegment.getRTreePolicy();
-        var publicEntityIdentifier = verificationInformationSegment.getPublicEntityIdentifierIssuer();
-        var extractedPrivateKeys = proverInformationSegment.getPrivateKeysIBE();
-
-        // 2. Find the previous attestation of the proof.
-        var informationPreviousAttestationProof = findPreviousAttestationForProof(
-                publicEntityIdentifier, extractedPrivateKeys, storageLayer);
-        var previousAttestation = informationPreviousAttestationProof.getLeft();
-        var firstAESKeyPreviousAttestation = informationPreviousAttestationProof.getMiddle();
-        var secondAESKeyPreviousAttestation = informationPreviousAttestationProof.getRight();
-
-        // 3. Recursively generate the proof object.
-        try {
-            var proofObjectPreviousAttestationsProof = generateProofObject(previousAttestation,
-                    firstAESKeyPreviousAttestation, secondAESKeyPreviousAttestation, aesKeyNamespaceAttestationProver, storageLayer);
-            return new ProofObject(ArrayUtils.add(proofObjectPreviousAttestationsProof.storageElementIdentifiers, attestation.getStorageLayerIdentifier()),
-                    ArrayUtils.add(proofObjectPreviousAttestationsProof.aesKeys, firstAESKey),
-                    aesKeyNamespaceAttestationProver);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(String.format("Could not generate a proof object; no previous" +
-                    " Attestation found for Attestation object (%s).", attestation));
-        }
-    }
-
-    /**
-     * Method to find the information about the previous {@link Attestation} of the proof.
-     * @param   publicEntityIdentifier
-     *          The {@link PublicEntityIdentifier} of the receiver of the previous {@link Attestation} of the proof.
-     * @param   delegatedPrivateKeys
-     *          The delegated {@link PrivateKey}s.
-     * @param   storageLayer
-     *          The {@link StorageLayer}.
-     * @return  A {@link Triple}, containing the found {@link Attestation} together with its two AES keys.
-     * @throws  IllegalArgumentException
-     *          If the previous {@link Attestation} of the proof could not be found.
-     * @throws  IOException
-     *          If an IO-related exception occurred while consulting the {@link StorageLayer}.
-     */
-    private static @NotNull Triple<Attestation, String, String> findPreviousAttestationForProof(
-            @NotNull PublicEntityIdentifier publicEntityIdentifier,
-            @NotNull Set<PrivateKey> delegatedPrivateKeys,
-            @NotNull StorageLayer storageLayer) throws IllegalArgumentException, IOException {
-        // 1. Find the personal queue of the user.
-        var personalQueue = storageLayer.getPersonalQueueUser(publicEntityIdentifier);
-
-        // 2. Iterate over the personal queue, until the previous attestation for the proof is found.
-        while (true) {
-            var attestation = personalQueue.next();
-            var encryptedAESEncryptionInformationSegment = attestation.getFirstLayer().getAesEncryptionInformationSegment();
-
-            try {
-                AtomicReference<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment = new AtomicReference<>();
-                delegatedPrivateKeys.parallelStream().forEach(delegatedPrivateKey -> {
-                    if (aesEncryptionInformationSegment.get() != null) return;
-                    try {
-                        aesEncryptionInformationSegment.set(encryptedAESEncryptionInformationSegment.decrypt(
-                                publicEntityIdentifier.getIBEIdentifier(), delegatedPrivateKey));
-                    } catch (IllegalArgumentException ignored) {}
-                });
-                if (aesEncryptionInformationSegment.get() == null) continue;
-                // Found! Return the necessary information.
-                var aesKeys = aesEncryptionInformationSegment.get().getAesKeyInformation();
-                return new ImmutableTriple<>(attestation, aesKeys.getLeft(), aesKeys.getRight());
-            } catch (IllegalArgumentException ignored) {}
-        }
-    }
-
     @Override
     public byte[] serialize() throws IOException {
         int length = 4 + 2 * 4 * storageElementIdentifiers.length;
 
         byte[][] serializedStorageElementIdentifiers = new byte[storageElementIdentifiers.length][];
         byte[][] serializedAESKeys = new byte[aesKeys.length][];
-        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
+        for (int i = 0; i < storageElementIdentifiers.length; i++) {
             byte[] serializedStorageElementIdentifier = ExportableUtils.serialize(storageElementIdentifiers[i]);
             byte[] serializedAESKey = aesKeys[i].getBytes(StandardCharsets.UTF_8);
 
@@ -374,40 +377,16 @@ public class ProofObject extends AbstractProofObject {
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(length);
         byteBuffer.putInt(storageElementIdentifiers.length);
-        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
+        for (int i = 0; i < storageElementIdentifiers.length; i++) {
             byteBuffer.putInt(serializedStorageElementIdentifiers[i].length);
             byteBuffer.put(serializedStorageElementIdentifiers[i]);
         }
-        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
+        for (int i = 0; i < storageElementIdentifiers.length; i++) {
             byteBuffer.putInt(serializedAESKeys[i].length);
             byteBuffer.put(serializedAESKeys[i]);
         }
         byteBuffer.put(serializedAesKeyNamespaceAttestationProver);
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static ProofObject deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
-        StorageElementIdentifier[] storageElementIdentifiers = new StorageElementIdentifier[byteBuffer.getInt()];
-        String[] aesKeys = new String[storageElementIdentifiers.length];
-
-        for (int i = 0; i < storageElementIdentifiers.length; i ++) {
-            byte[] storageElementIdentifierAsByteArray = new byte[byteBuffer.getInt()];
-            byteBuffer.get(storageElementIdentifierAsByteArray);
-            storageElementIdentifiers[i] = ExportableUtils.deserialize(storageElementIdentifierAsByteArray, StorageElementIdentifier.class);
-        }
-
-        for (int i = 0; i < aesKeys.length; i ++) {
-            byte[] aesKeyAsByteArray = new byte[byteBuffer.getInt()];
-            byteBuffer.get(aesKeyAsByteArray);
-            aesKeys[i] = new String(aesKeyAsByteArray, StandardCharsets.UTF_8);
-        }
-
-        byte[] aesKeyNamespaceAttestationProverAsByteArray = new byte[byteBuffer.remaining()];
-        byteBuffer.get(aesKeyNamespaceAttestationProverAsByteArray);
-        String aesKeyNamespaceAttestationProver = new String(aesKeyNamespaceAttestationProverAsByteArray, StandardCharsets.UTF_8);
-
-        return new ProofObject(storageElementIdentifiers, aesKeys, aesKeyNamespaceAttestationProver);
     }
 }

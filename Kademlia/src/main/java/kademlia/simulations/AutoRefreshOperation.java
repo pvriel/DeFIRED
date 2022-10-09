@@ -1,11 +1,12 @@
 package kademlia.simulations;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import kademlia.DefaultConfiguration;
 import kademlia.JKademliaNode;
 import kademlia.KadConfiguration;
 import kademlia.node.KademliaId;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Testing the Kademlia Auto Content and Node table refresh operations
@@ -13,14 +14,11 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140309
  */
-public class AutoRefreshOperation implements Simulation
-{
+public class AutoRefreshOperation implements Simulation {
 
     @Override
-    public void runSimulation()
-    {
-        try
-        {
+    public void runSimulation() {
+        try {
             /* Setting up 2 Kad networks */
             final JKademliaNode kad1 = new JKademliaNode("JoshuaK", new KademliaId("ASF456789djem45674DH"), 12049);
             final JKademliaNode kad2 = new JKademliaNode("Crystal", new KademliaId("AJDHR678947584567464"), 4585);
@@ -58,11 +56,9 @@ public class AutoRefreshOperation implements Simulation
             KadConfiguration config = new DefaultConfiguration();
             Timer timer = new Timer(true);
             timer.schedule(
-                    new TimerTask()
-                    {
+                    new TimerTask() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             System.out.println(kad1);
                             System.out.println(kad2);
                             System.out.println(kad3);
@@ -73,10 +69,7 @@ public class AutoRefreshOperation implements Simulation
                     // Delay                        // Interval
                     config.restoreInterval(), config.restoreInterval()
             );
-        }
-
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

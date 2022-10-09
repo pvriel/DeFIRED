@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AESCipherEncryptedSegmentTest {
 

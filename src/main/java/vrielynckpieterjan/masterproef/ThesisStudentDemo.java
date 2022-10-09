@@ -23,7 +23,7 @@ public class ThesisStudentDemo {
 
         System.out.println("Invitations...");
         fileWriter = new FileWriter("invitation_objects.txt");
-        for (int i = 8; i <= 100; i ++) {
+        for (int i = 8; i <= 100; i++) {
             RTreePolicy rTreePolicy = new RTreePolicy(PolicyRight.READ, "A".repeat(i - 7));
             var entityPair = EntityIdentifier.generateEntityIdentifierPair("");
             IssuerPartAttestation issuerPartAttestation = new IssuerPartAttestation(entityPair.getKey(), entityPair.getValue(),
@@ -35,7 +35,7 @@ public class ThesisStudentDemo {
 
         System.out.println("Attestations...");
         fileWriter = new FileWriter("attestation_objects.txt");
-        for (int i = 8; i <= 100; i ++) {
+        for (int i = 8; i <= 100; i++) {
             RTreePolicy rTreePolicy = new RTreePolicy(PolicyRight.READ, "A".repeat(i - 7));
             var entityPair = EntityIdentifier.generateEntityIdentifierPair("");
             IssuerPartAttestation issuerPartAttestation = new IssuerPartAttestation(entityPair.getKey(), entityPair.getValue(),
@@ -49,10 +49,10 @@ public class ThesisStudentDemo {
 
         System.out.println("Proof objects...");
         fileWriter = new FileWriter("proof_objects.txt");
-        for (int i = 1; i <= 1000; i ++) {
+        for (int i = 1; i <= 1000; i++) {
             String[] aesKeys = new String[i];
             StorageElementIdentifier[] storageElementIdentifiers = new StorageElementIdentifier[i];
-            for (int j = 0; j < i; j ++) {
+            for (int j = 0; j < i; j++) {
                 aesKeys[j] = AESCipherEncryptedSegment.generateAESKey();
                 storageElementIdentifiers[j] = new StorageElementIdentifier();
             }
@@ -65,7 +65,7 @@ public class ThesisStudentDemo {
         System.out.println("Macaroon objects...");
         APILayerMacaroonManager apiLayerMacaroonManager = new APILayerMacaroonManager();
         fileWriter = new FileWriter("macaroon_objects.txt");
-        for (int i = 8; i <= 1000; i ++) {
+        for (int i = 8; i <= 1000; i++) {
             RTreePolicy rTreePolicy = new RTreePolicy(PolicyRight.READ, "A".repeat(i - 7));
             APILayerMacaroon macaroon = apiLayerMacaroonManager.registerPolicy(rTreePolicy);
             byte[] serialized = ExportableUtils.serialize(macaroon);

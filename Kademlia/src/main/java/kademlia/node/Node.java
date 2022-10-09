@@ -1,30 +1,29 @@
 package kademlia.node;
 
+import kademlia.message.Streamable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import kademlia.message.Streamable;
 
 /**
  * A Node in the Kademlia network - Contains basic node network information.
  *
  * @author Joshua Kissoon
- * @since 20140202
  * @version 0.1
+ * @since 20140202
  */
-public class Node implements Streamable, Serializable
-{
+public class Node implements Streamable, Serializable {
 
+    private final String strRep;
     private KademliaId nodeId;
     private InetAddress inetAddress;
     private int port;
-    private final String strRep;
 
-    public Node(KademliaId nid, InetAddress ip, int port)
-    {
+    public Node(KademliaId nid, InetAddress ip, int port) {
         this.nodeId = nid;
         this.inetAddress = ip;
         this.port = port;
@@ -35,11 +34,9 @@ public class Node implements Streamable, Serializable
      * Load the Node's data from a DataInput stream
      *
      * @param in
-     *
      * @throws IOException
      */
-    public Node(DataInputStream in) throws IOException
-    {
+    public Node(DataInputStream in) throws IOException {
         this.fromStream(in);
         this.strRep = this.nodeId.toString();
     }
@@ -49,16 +46,14 @@ public class Node implements Streamable, Serializable
      *
      * @param addr The new InetAddress of this node
      */
-    public void setInetAddress(InetAddress addr)
-    {
+    public void setInetAddress(InetAddress addr) {
         this.inetAddress = addr;
     }
 
     /**
      * @return The NodeId object of this node
      */
-    public KademliaId getNodeId()
-    {
+    public KademliaId getNodeId() {
         return this.nodeId;
     }
 
@@ -67,21 +62,18 @@ public class Node implements Streamable, Serializable
      *
      * @return
      */
-    public InetSocketAddress getSocketAddress()
-    {
+    public InetSocketAddress getSocketAddress() {
         return new InetSocketAddress(this.inetAddress, this.port);
     }
 
     @Override
-    public void toStream(DataOutputStream out) throws IOException
-    {
+    public void toStream(DataOutputStream out) throws IOException {
         /* Add the NodeId to the stream */
         this.nodeId.toStream(out);
 
         /* Add the Node's IP address to the stream */
         byte[] a = inetAddress.getAddress();
-        if (a.length != 4)
-        {
+        if (a.length != 4) {
             throw new RuntimeException("Expected InetAddress of 4 bytes, got " + a.length);
         }
         out.write(a);
@@ -91,8 +83,7 @@ public class Node implements Streamable, Serializable
     }
 
     @Override
-    public final void fromStream(DataInputStream in) throws IOException
-    {
+    public final void fromStream(DataInputStream in) throws IOException {
         /* Load the NodeId */
         this.nodeId = new KademliaId(in);
 
@@ -106,13 +97,10 @@ public class Node implements Streamable, Serializable
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (o instanceof Node)
-        {
+    public boolean equals(Object o) {
+        if (o instanceof Node) {
             Node n = (Node) o;
-            if (n == this)
-            {
+            if (n == this) {
                 return true;
             }
             return this.getNodeId().equals(n.getNodeId());
@@ -121,14 +109,12 @@ public class Node implements Streamable, Serializable
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return this.getNodeId().hashCode();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return this.getNodeId().toString();
     }
 }

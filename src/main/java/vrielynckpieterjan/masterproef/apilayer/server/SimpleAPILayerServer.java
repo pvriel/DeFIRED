@@ -1,10 +1,10 @@
 package vrielynckpieterjan.masterproef.apilayer.server;
 
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerInterface;
-import vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerRequest;
 import vrielynckpieterjan.masterproef.apilayer.macaroon.APILayerMacaroon;
 import vrielynckpieterjan.masterproef.apilayer.macaroon.APILayerMacaroonManager;
+import vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerInterface;
+import vrielynckpieterjan.masterproef.apilayer.server.fileserver.FileServerRequest;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
@@ -41,28 +41,21 @@ public class SimpleAPILayerServer extends TCPReflectionMethodInvocationServer {
 
     /**
      * Constructor for the {@link SimpleAPILayerServer} class.
-     * @param   amountOfThreads
-     *          The amount of simultaneous requests the {@link SimpleAPILayerServer} can support.
-     * @param   port
-     *          The port on which the {@link SimpleAPILayerServer} should run.
-     * @param   storageLayer
-     *          The {@link StorageLayer}.
-     * @param   registeredUsers
-     *          A {@link Map}, linking the {@link PublicEntityIdentifier}s of the registered users of the cloud
-     *          storage service provider to their {@link PrivateEntityIdentifier} counterparts.
-     * @param   revocationSecretsAcceptedPolicies
-     *          A {@link Map}, linking the {@link PublicEntityIdentifier}s of the registered users of the cloud
-     *          storage service provider to another {@link Map}. The latter one maps the {@link RTreePolicy}s
-     *          of the accepted {@link IssuerPartAttestation}s for that user to the included {@link RevocationSecret}
-     *          (as a {@link RevocationCommitment}) of the same user.
-     * @param   currentStorageElementIdentifiers
-     *          A {@link Map}, mapping the {@link PublicEntityIdentifier}s of the registered users of the cloud
-     *          storage service provider to the {@link StorageElementIdentifier} for the next element in the personal
-     *          queue of that user.
-     * @param   fileServer
-     *          The {@link FileServerInterface} realization for this {@link SimpleAPILayerServer}.
-     * @throws  IOException
-     *          If an IO-related exception occurred while booting the server.
+     *
+     * @param amountOfThreads                   The amount of simultaneous requests the {@link SimpleAPILayerServer} can support.
+     * @param port                              The port on which the {@link SimpleAPILayerServer} should run.
+     * @param storageLayer                      The {@link StorageLayer}.
+     * @param registeredUsers                   A {@link Map}, linking the {@link PublicEntityIdentifier}s of the registered users of the cloud
+     *                                          storage service provider to their {@link PrivateEntityIdentifier} counterparts.
+     * @param revocationSecretsAcceptedPolicies A {@link Map}, linking the {@link PublicEntityIdentifier}s of the registered users of the cloud
+     *                                          storage service provider to another {@link Map}. The latter one maps the {@link RTreePolicy}s
+     *                                          of the accepted {@link IssuerPartAttestation}s for that user to the included {@link RevocationSecret}
+     *                                          (as a {@link RevocationCommitment}) of the same user.
+     * @param currentStorageElementIdentifiers  A {@link Map}, mapping the {@link PublicEntityIdentifier}s of the registered users of the cloud
+     *                                          storage service provider to the {@link StorageElementIdentifier} for the next element in the personal
+     *                                          queue of that user.
+     * @param fileServer                        The {@link FileServerInterface} realization for this {@link SimpleAPILayerServer}.
+     * @throws IOException If an IO-related exception occurred while booting the server.
      */
     public SimpleAPILayerServer(int amountOfThreads, int port, @NotNull StorageLayer storageLayer,
                                 @NotNull Map<PublicEntityIdentifier, PrivateEntityIdentifier> registeredUsers,
@@ -83,13 +76,12 @@ public class SimpleAPILayerServer extends TCPReflectionMethodInvocationServer {
      * if the authenticity of the first layer could not be verified, or if the {@link PublicEntityIdentifier}
      * mentioned in the plaintext header of the provided {@link IssuerPartAttestation} can not be linked
      * to a registered user of the cloud storage service provider.
-     * @param   issuerPartAttestation
-     *          The received {@link IssuerPartAttestation} instance.
-     * @param   firstAESKey
-     *          The first ephemeral AES key of the {@link IssuerPartAttestation} instance to verify its
-     *          authenticity with.
-     * @return  A new {@link ReflectionMethodInvocationServerResponse} with the String "OK" if the operation
-     *          succeeded, or with an Exception if the operation failed due to a previously mentioned problem.
+     *
+     * @param issuerPartAttestation The received {@link IssuerPartAttestation} instance.
+     * @param firstAESKey           The first ephemeral AES key of the {@link IssuerPartAttestation} instance to verify its
+     *                              authenticity with.
+     * @return A new {@link ReflectionMethodInvocationServerResponse} with the String "OK" if the operation
+     * succeeded, or with an Exception if the operation failed due to a previously mentioned problem.
      */
     public @NotNull ReflectionMethodInvocationServerResponse receiveIssuerPartAttestation(
             @NotNull IssuerPartAttestation issuerPartAttestation,
@@ -139,14 +131,14 @@ public class SimpleAPILayerServer extends TCPReflectionMethodInvocationServer {
 
     /**
      * Method to receive a valid {@link ProofObject} and convert it to a valid {@link APILayerMacaroon}.
-     * @param   proofObject
-     *          The {@link ProofObject}.
-     * @return  A {@link ReflectionMethodInvocationServerResponse} containing the generated {@link APILayerMacaroon}
-     *          if the provided {@link ProofObject} is valid, or a {@link ReflectionMethodInvocationServerResponse}
-     *          containing an Exception if the provided {@link ProofObject} is invalid.
+     *
+     * @param proofObject The {@link ProofObject}.
+     * @return A {@link ReflectionMethodInvocationServerResponse} containing the generated {@link APILayerMacaroon}
+     * if the provided {@link ProofObject} is valid, or a {@link ReflectionMethodInvocationServerResponse}
+     * containing an Exception if the provided {@link ProofObject} is invalid.
      */
     public @NotNull ReflectionMethodInvocationServerResponse receiveProofObject
-            (@NotNull ProofObject proofObject) {
+    (@NotNull ProofObject proofObject) {
         try {
             // 1) Verify the proof object.
             var policy = proofObject.verify(storageLayer);
@@ -160,17 +152,16 @@ public class SimpleAPILayerServer extends TCPReflectionMethodInvocationServer {
 
     /**
      * Method to invoke a {@link FileServerInterface} method of the {@link vrielynckpieterjan.masterproef.apilayer.APILayer}.
-     * @param   macaroon
-     *          A {@link APILayerMacaroon}, which proves that the user is allowed to invoke the specified {@link FileServerInterface}
-     *          operation specified by the provided {@link FileServerRequest} instance.
-     * @param   fileServerRequest
-     *          The {@link FileServerRequest} instance, specifying the method the user wants to invoke.
-     * @return  A {@link ReflectionMethodInvocationServerResponse} instance which either contains the result of the operation,
-     *          or which contains an Exception if the operation could not be executed due to an invalid {@link APILayerMacaroon}.
+     *
+     * @param macaroon          A {@link APILayerMacaroon}, which proves that the user is allowed to invoke the specified {@link FileServerInterface}
+     *                          operation specified by the provided {@link FileServerRequest} instance.
+     * @param fileServerRequest The {@link FileServerRequest} instance, specifying the method the user wants to invoke.
+     * @return A {@link ReflectionMethodInvocationServerResponse} instance which either contains the result of the operation,
+     * or which contains an Exception if the operation could not be executed due to an invalid {@link APILayerMacaroon}.
      */
     public @NotNull ReflectionMethodInvocationServerResponse handleFileServerRequest
-            (@NotNull APILayerMacaroon macaroon,
-             @NotNull FileServerRequest fileServerRequest) {
+    (@NotNull APILayerMacaroon macaroon,
+     @NotNull FileServerRequest fileServerRequest) {
         RTreePolicy policy;
         try {
             policy = apiLayerMacaroonManager.returnVerifiedPolicy(macaroon);

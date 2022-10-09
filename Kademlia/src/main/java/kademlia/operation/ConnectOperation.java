@@ -5,9 +5,6 @@
  */
 package kademlia.operation;
 
-import kademlia.message.Receiver;
-import java.io.IOException;
-import kademlia.JKademliaNode;
 import kademlia.KadConfiguration;
 import kademlia.KadServer;
 import kademlia.KademliaNode;
@@ -15,10 +12,12 @@ import kademlia.exceptions.RoutingException;
 import kademlia.message.AcknowledgeMessage;
 import kademlia.message.ConnectMessage;
 import kademlia.message.Message;
+import kademlia.message.Receiver;
 import kademlia.node.Node;
 
-public class ConnectOperation implements Operation, Receiver
-{
+import java.io.IOException;
+
+public class ConnectOperation implements Operation, Receiver {
 
     public static final int MAX_CONNECT_ATTEMPTS = 5;       // Try 5 times to connect to a node
 
@@ -36,8 +35,7 @@ public class ConnectOperation implements Operation, Receiver
      * @param bootstrap Node to use to bootstrap the local node onto the network
      * @param config
      */
-    public ConnectOperation(KadServer server, KademliaNode local, Node bootstrap, KadConfiguration config)
-    {
+    public ConnectOperation(KadServer server, KademliaNode local, Node bootstrap, KadConfiguration config) {
         this.server = server;
         this.localNode = local;
         this.bootstrapNode = bootstrap;
@@ -45,10 +43,8 @@ public class ConnectOperation implements Operation, Receiver
     }
 
     @Override
-    public synchronized void execute() throws IOException
-    {
-        try
-        {
+    public synchronized void execute() throws IOException {
+        try {
             /* Contact the bootstrap node */
             this.error = true;
             this.attempts = 0;
@@ -60,20 +56,15 @@ public class ConnectOperation implements Operation, Receiver
             /* If we haven't finished as yet, wait for a maximum of config.operationTimeout() time */
             int totalTimeWaited = 0;
             int timeInterval = 50;     // We re-check every 300 milliseconds
-            while (totalTimeWaited < this.config.operationTimeout())
-            {
-                if (error)
-                {
+            while (totalTimeWaited < this.config.operationTimeout()) {
+                if (error) {
                     wait(timeInterval);
                     totalTimeWaited += timeInterval;
-                }
-                else
-                {
+                } else {
                     break;
                 }
             }
-            if (error)
-            {
+            if (error) {
                 /* If we still haven't received any responses by then, do a routing timeout */
                 throw new RoutingException("ConnectOperation: Bootstrap node did not respond: " + bootstrapNode);
             }
@@ -88,9 +79,7 @@ public class ConnectOperation implements Operation, Receiver
              * Now we try to populate all of our buckets.
              */
             new BucketRefreshOperation(this.server, this.localNode, this.config).execute();
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             System.err.println("Connect operation was interrupted. ");
         }
     }
@@ -101,8 +90,7 @@ public class ConnectOperation implements Operation, Receiver
      * @param comm
      */
     @Override
-    public synchronized void receive(Message incoming, int comm)
-    {
+    public synchronized void receive(Message incoming, int comm) {
         /* The incoming message will be an acknowledgement message */
         AcknowledgeMessage msg = (AcknowledgeMessage) incoming;
 
@@ -121,18 +109,13 @@ public class ConnectOperation implements Operation, Receiver
      * times.
      *
      * @param comm
-     *
      * @throws IOException
      */
     @Override
-    public synchronized void timeout(int comm) throws IOException
-    {
-        if (++this.attempts < MAX_CONNECT_ATTEMPTS)
-        {
+    public synchronized void timeout(int comm) throws IOException {
+        if (++this.attempts < MAX_CONNECT_ATTEMPTS) {
             this.server.sendMessage(this.bootstrapNode, new ConnectMessage(this.localNode.getNode()), this);
-        }
-        else
-        {
+        } else {
             /* We just exit, so notify all other threads that are possibly waiting */
             notify();
         }

@@ -8,18 +8,15 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @created 20140202
  */
-public class SimpleReceiver implements Receiver
-{
+public class SimpleReceiver implements Receiver {
 
     @Override
-    public void receive(Message incoming, int conversationId)
-    {
+    public void receive(Message incoming, int conversationId) {
         //System.out.println("Received message: " + incoming);
     }
 
     @Override
-    public void timeout(int conversationId) throws IOException
-    {
+    public void timeout(int conversationId) throws IOException {
         //System.out.println("SimpleReceiver message timeout.");
     }
 }

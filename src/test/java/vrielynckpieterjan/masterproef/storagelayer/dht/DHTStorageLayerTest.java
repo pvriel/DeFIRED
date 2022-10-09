@@ -8,11 +8,10 @@ import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationSecr
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DHTStorageLayerTest {
 
@@ -24,7 +23,8 @@ class DHTStorageLayerTest {
     private final DHTStorageLayer dhtStorageLayerOne = new DHTStorageLayer(userOne.getRight(), 5878);
     private final DHTStorageLayer getDhtStorageLayerTwo = new DHTStorageLayer(userTwo.getRight(), 5879, dhtStorageLayerOne);
 
-    DHTStorageLayerTest() throws IOException { }
+    DHTStorageLayerTest() throws IOException {
+    }
 
     @Test
     void retrieve() throws IOException, InterruptedException {

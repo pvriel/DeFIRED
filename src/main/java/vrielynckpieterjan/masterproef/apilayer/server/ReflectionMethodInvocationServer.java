@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -20,8 +19,8 @@ abstract class ReflectionMethodInvocationServer extends Thread {
 
     /**
      * Constructor for the {@link ReflectionMethodInvocationServer} class.
-     * @param   amountOfThreads
-     *          The amount of simultaneous requests this {@link ReflectionMethodInvocationServer} instance can handle.
+     *
+     * @param amountOfThreads The amount of simultaneous requests this {@link ReflectionMethodInvocationServer} instance can handle.
      */
     protected ReflectionMethodInvocationServer(int amountOfThreads) {
         executorService = Executors.newFixedThreadPool(amountOfThreads);
@@ -30,9 +29,9 @@ abstract class ReflectionMethodInvocationServer extends Thread {
 
     /**
      * Method to receive the next {@link ReflectionMethodInvocationServerRequest} instance to handle for this server.
-     * @return  The {@link ReflectionMethodInvocationServerRequest}.
-     * @throws  IOException
-     *          If an IO-related problem occurred.
+     *
+     * @return The {@link ReflectionMethodInvocationServerRequest}.
+     * @throws IOException If an IO-related problem occurred.
      */
     abstract @NotNull ReflectionMethodInvocationServerRequest receiveRequest() throws IOException;
 
@@ -56,8 +55,8 @@ abstract class ReflectionMethodInvocationServer extends Thread {
 
     /**
      * Method to handle a received {@link ReflectionMethodInvocationServerRequest} instance.
-     * @param   request
-     *          The received request.
+     *
+     * @param request The received request.
      */
     private void handleNextRequest(@NotNull ReflectionMethodInvocationServerRequest request) {
         try {
@@ -77,6 +76,7 @@ abstract class ReflectionMethodInvocationServer extends Thread {
 
         try {
             request.close();
-        } catch (IOException ignored) { } // May already been closed; just ignore it.
+        } catch (IOException ignored) {
+        } // May already been closed; just ignore it.
     }
 }

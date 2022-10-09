@@ -11,8 +11,8 @@ public abstract class FileServerReadRequest extends FileServerRequest {
 
     /**
      * Constructor for the {@link FileServerReadRequest} class.
-     * @param   resourceLocation
-     *          The location of the resources.
+     *
+     * @param resourceLocation The location of the resources.
      */
     public FileServerReadRequest(@NotNull String[] resourceLocation) {
         super(resourceLocation);

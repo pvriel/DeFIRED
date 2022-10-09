@@ -1,11 +1,12 @@
 package kademlia.simulations;
 
-import java.io.IOException;
-import kademlia.dht.GetParameter;
 import kademlia.JKademliaNode;
+import kademlia.dht.GetParameter;
 import kademlia.dht.KademliaStorageEntry;
 import kademlia.exceptions.ContentNotFoundException;
 import kademlia.node.KademliaId;
+
+import java.io.IOException;
 
 /**
  * Testing sending and receiving content between 2 Nodes on a network
@@ -13,13 +14,10 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140224
  */
-public class RefreshOperationTest
-{
+public class RefreshOperationTest {
 
-    public static void main(String[] args)
-    {
-        try
-        {
+    public static void main(String[] args) {
+        try {
             /* Setting up 2 Kad networks */
             JKademliaNode kad1 = new JKademliaNode("JoshuaK", new KademliaId("ASF45678947584567467"), 7574);
             JKademliaNode kad2 = new JKademliaNode("Crystal", new KademliaId("ASERTKJDHGVHERJHGFLK"), 7572);
@@ -36,9 +34,7 @@ public class RefreshOperationTest
             KademliaStorageEntry conte = kad2.get(gp);
 
             kad2.refresh();
-        }
-        catch (IOException | ContentNotFoundException e)
-        {
+        } catch (IOException | ContentNotFoundException e) {
             e.printStackTrace();
         }
     }

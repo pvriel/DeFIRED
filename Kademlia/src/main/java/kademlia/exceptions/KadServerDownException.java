@@ -6,16 +6,13 @@ package kademlia.exceptions;
  * @author Joshua Kissoon
  * @created 20140428
  */
-public class KadServerDownException extends RoutingException
-{
+public class KadServerDownException extends RoutingException {
 
-    public KadServerDownException()
-    {
+    public KadServerDownException() {
         super();
     }
 
-    public KadServerDownException(String message)
-    {
+    public KadServerDownException(String message) {
         super(message);
     }
 }

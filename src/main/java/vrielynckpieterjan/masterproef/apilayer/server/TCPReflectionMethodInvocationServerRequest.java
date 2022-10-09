@@ -17,10 +17,9 @@ class TCPReflectionMethodInvocationServerRequest extends ReflectionMethodInvocat
 
     /**
      * Constructor for the {@link TCPReflectionMethodInvocationServerRequest} class.
-     * @param   originalRequest
-     *          The originally received {@link ReflectionMethodInvocationServerRequest} instance to extend upon.
-     * @param   socket
-     *          The {@link Socket}.
+     *
+     * @param originalRequest The originally received {@link ReflectionMethodInvocationServerRequest} instance to extend upon.
+     * @param socket          The {@link Socket}.
      */
     protected TCPReflectionMethodInvocationServerRequest(@NotNull ReflectionMethodInvocationServerRequest originalRequest,
                                                          @NotNull Socket socket) {

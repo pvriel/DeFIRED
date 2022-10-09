@@ -7,7 +7,7 @@ import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdent
 
 import java.security.KeyPair;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ECCipherEncryptedSegmentTest {
 

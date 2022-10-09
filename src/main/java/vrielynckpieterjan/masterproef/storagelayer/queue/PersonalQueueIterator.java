@@ -15,11 +15,10 @@ public interface PersonalQueueIterator {
     /**
      * Getter for the next {@link Attestation} or {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.NamespaceAttestation}
      * in the personal queue of the user.
-     * @return  The next {@link Attestation}.
-     * @throws  IOException
-     *          If an IO-related exception occurred in the {@link StorageLayer}.
-     * @throws  IllegalArgumentException
-     *          If no next {@link Attestation}s were found.
+     *
+     * @return The next {@link Attestation}.
+     * @throws IOException              If an IO-related exception occurred in the {@link StorageLayer}.
+     * @throws IllegalArgumentException If no next {@link Attestation}s were found.
      */
     @NotNull Attestation next() throws IOException, IllegalArgumentException;
 }

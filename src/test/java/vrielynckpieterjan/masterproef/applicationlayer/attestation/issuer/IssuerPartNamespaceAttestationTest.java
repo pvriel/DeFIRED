@@ -13,7 +13,7 @@ import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdent
 
 import java.net.InetSocketAddress;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class IssuerPartNamespaceAttestationTest {
 

@@ -9,20 +9,16 @@ import java.security.NoSuchAlgorithmException;
  * @author Joshua Kissoon
  * @since 20140405
  */
-public class HashCalculator
-{
+public class HashCalculator {
 
     /**
      * Computes the SHA-1 Hash.
      *
      * @param toHash The string to hash
-     *
      * @return byte[20] The hashed string
-     *
      * @throws NoSuchAlgorithmException
      */
-    public static byte[] sha1Hash(String toHash) throws NoSuchAlgorithmException
-    {
+    public static byte[] sha1Hash(String toHash) throws NoSuchAlgorithmException {
         /* Create a MessageDigest */
         MessageDigest md = MessageDigest.getInstance("SHA-1");
 
@@ -38,13 +34,10 @@ public class HashCalculator
      *
      * @param toHash The string to hash
      * @param salt   A salt used to blind the hash
-     *
      * @return byte[20] The hashed string
-     *
      * @throws NoSuchAlgorithmException
      */
-    public static byte[] sha1Hash(String toHash, String salt) throws NoSuchAlgorithmException
-    {
+    public static byte[] sha1Hash(String toHash, String salt) throws NoSuchAlgorithmException {
         /* Create a MessageDigest */
         MessageDigest md = MessageDigest.getInstance("SHA-1");
 
@@ -59,13 +52,10 @@ public class HashCalculator
      * Computes the MD5 Hash.
      *
      * @param toHash The string to hash
-     *
      * @return byte[16] The hashed string
-     *
      * @throws NoSuchAlgorithmException
      */
-    public static byte[] md5Hash(String toHash) throws NoSuchAlgorithmException
-    {
+    public static byte[] md5Hash(String toHash) throws NoSuchAlgorithmException {
         /* Create a MessageDigest */
         MessageDigest md = MessageDigest.getInstance("MD5");
 
@@ -81,13 +71,10 @@ public class HashCalculator
      *
      * @param toHash The string to hash
      * @param salt   A salt used to blind the hash
-     *
      * @return byte[16] The hashed string
-     *
      * @throws NoSuchAlgorithmException
      */
-    public static byte[] md5Hash(String toHash, String salt) throws NoSuchAlgorithmException
-    {
+    public static byte[] md5Hash(String toHash, String salt) throws NoSuchAlgorithmException {
         /* Create a MessageDigest */
         MessageDigest md = MessageDigest.getInstance("MD5");
 

@@ -12,13 +12,10 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140309
  */
-public class SaveStateTest2
-{
+public class SaveStateTest2 {
 
-    public SaveStateTest2()
-    {
-        try
-        {
+    public SaveStateTest2() {
+        try {
             /* Setting up 2 Kad networks */
             JKademliaNode kad1 = new JKademliaNode("JoshuaK", new KademliaId("ASF45678947584567463"), 12049);
             JKademliaNode kad2 = new JKademliaNode("Crystal", new KademliaId("ASF45678947584567464"), 4585);
@@ -30,8 +27,7 @@ public class SaveStateTest2
             System.out.println(kad2);
 
             DHTContentImpl c;
-            synchronized (this)
-            {
+            synchronized (this) {
                 System.out.println("\n\n\n\nSTORING CONTENT 1\n\n\n\n");
                 c = new DHTContentImpl(kad2.getOwnerId(), "Some Data");
                 System.out.println(c);
@@ -55,16 +51,12 @@ public class SaveStateTest2
             KademliaStorageEntry content = kad2.get(gp);
             DHTContentImpl cc = new DHTContentImpl().fromSerializedForm(content.getContent());
             System.out.println("Content received: " + cc);
-        }
-
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         new SaveStateTest2();
     }
 }

@@ -28,12 +28,10 @@ public class DHTStorageLayer implements StorageLayer {
 
     /**
      * Constructor for the {@link DHTStorageLayer} class.
-     * @param   publicEntityIdentifier
-     *          The {@link PublicEntityIdentifier} to identify this {@link JKademliaNode} with.
-     * @param   port
-     *          The port on which the local part of the DHT should run.
-     * @throws  IOException
-     *          If the boot process for the DHT failed.
+     *
+     * @param publicEntityIdentifier The {@link PublicEntityIdentifier} to identify this {@link JKademliaNode} with.
+     * @param port                   The port on which the local part of the DHT should run.
+     * @throws IOException If the boot process for the DHT failed.
      */
     public DHTStorageLayer(@NotNull PublicEntityIdentifier publicEntityIdentifier, int port) throws IOException {
         node = new JKademliaNode("",
@@ -44,23 +42,31 @@ public class DHTStorageLayer implements StorageLayer {
 
     /**
      * Constructor for the {@link DHTStorageLayer} class.
-     * @param   publicEntityIdentifier
-     *          The {@link PublicEntityIdentifier} to identify this {@link JKademliaNode} with.
-     * @param   port
-     *          The port on which the local part of the DHT should run.
-     * @param   otherStorageLayers
-     *          The other {@link DHTStorageLayer} instances to bootstrap with.
-     * @throws  IOException
-     *          If the boot process for the DHT failed.
+     *
+     * @param publicEntityIdentifier The {@link PublicEntityIdentifier} to identify this {@link JKademliaNode} with.
+     * @param port                   The port on which the local part of the DHT should run.
+     * @param otherStorageLayers     The other {@link DHTStorageLayer} instances to bootstrap with.
+     * @throws IOException If the boot process for the DHT failed.
      */
     public DHTStorageLayer(@NotNull PublicEntityIdentifier publicEntityIdentifier, int port, DHTStorageLayer... otherStorageLayers)
             throws IOException {
         this(publicEntityIdentifier, port);
         for (var storageLayer : otherStorageLayers) {
-            assert(storageLayer != null);
+            assert (storageLayer != null);
             node.bootstrap(storageLayer.node.getNode());
             logger.info(String.format("DHTStorageLayer (%s) bootstrapped using DHTStorageLayer (%s).", this, storageLayer));
         }
+    }
+
+    /**
+     * Method to adjust the length of a provided String to 20 bytes.
+     *
+     * @param originalString The provided String, which may be shorter or longer than 20 bytes.
+     * @return A repeated version of the provided String, from which the first 20 bytes are taken as a substring.
+     */
+    private static String adjustLengthStringForDHTIdentifiers(@NotNull String originalString) {
+        var copy = originalString.repeat((int) Math.ceil(20.0 / (double) originalString.length()));
+        return copy.substring(0, 20);
     }
 
     @Override
@@ -87,15 +93,10 @@ public class DHTStorageLayer implements StorageLayer {
         }
     }
 
-    /**
-     * Method to adjust the length of a provided String to 20 bytes.
-     * @param   originalString
-     *          The provided String, which may be shorter or longer than 20 bytes.
-     * @return  A repeated version of the provided String, from which the first 20 bytes are taken as a substring.
-     */
-    private static String adjustLengthStringForDHTIdentifiers(@NotNull String originalString) {
-        var copy = originalString.repeat((int) Math.ceil(20.0 / (double) originalString.length()));
-        return copy.substring(0, 20);
+    @Override
+    public void shutdown() throws IOException {
+        logger.warning(String.format("Shutting down DHTStorageLayer (%s)...", this));
+        node.shutdown(false);
     }
 
     /**
@@ -145,11 +146,5 @@ public class DHTStorageLayer implements StorageLayer {
         public KadContent fromSerializedForm(byte[] data) {
             return SerializationUtils.deserialize(data);
         }
-    }
-
-    @Override
-    public void shutdown() throws IOException {
-        logger.warning(String.format("Shutting down DHTStorageLayer (%s)...", this));
-        node.shutdown(false);
     }
 }

@@ -6,16 +6,13 @@ package kademlia.exceptions;
  * @author Joshua Kissoon
  * @created 20140322
  */
-public class ContentExistException extends Exception
-{
+public class ContentExistException extends Exception {
 
-    public ContentExistException()
-    {
+    public ContentExistException() {
         super();
     }
 
-    public ContentExistException(String message)
-    {
+    public ContentExistException(String message) {
         super(message);
     }
 }

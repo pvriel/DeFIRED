@@ -1,7 +1,8 @@
 package kademlia.dht;
 
-import java.util.Objects;
 import kademlia.node.KademliaId;
+
+import java.util.Objects;
 
 /**
  * Keeps track of data for a Content stored in the DHT
@@ -10,8 +11,7 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140226
  */
-public class StorageEntryMetadata implements KademliaStorageEntryMetadata
-{
+public class StorageEntryMetadata implements KademliaStorageEntryMetadata {
 
     private final KademliaId key;
     private final String ownerId;
@@ -22,8 +22,7 @@ public class StorageEntryMetadata implements KademliaStorageEntryMetadata
     /* This value is the last time this content was last updated from the network */
     private long lastRepublished;
 
-    public StorageEntryMetadata(KadContent content)
-    {
+    public StorageEntryMetadata(KadContent content) {
         this.key = content.getKey();
         this.ownerId = content.getOwnerId();
         this.type = content.getType();
@@ -34,32 +33,27 @@ public class StorageEntryMetadata implements KademliaStorageEntryMetadata
     }
 
     @Override
-    public KademliaId getKey()
-    {
+    public KademliaId getKey() {
         return this.key;
     }
 
     @Override
-    public String getOwnerId()
-    {
+    public String getOwnerId() {
         return this.ownerId;
     }
 
     @Override
-    public String getType()
-    {
+    public String getType() {
         return this.type;
     }
 
     @Override
-    public int getContentHash()
-    {
+    public int getContentHash() {
         return this.contentHash;
     }
 
     @Override
-    public long getLastUpdatedTimestamp()
-    {
+    public long getLastUpdatedTimestamp() {
         return this.updatedTs;
     }
 
@@ -68,27 +62,22 @@ public class StorageEntryMetadata implements KademliaStorageEntryMetadata
      * Here we take this GetParameter object and check if this StorageEntry satisfies the given parameters
      *
      * @param params
-     *
      * @return boolean Whether this content satisfies the parameters
      */
     @Override
-    public boolean satisfiesParameters(GetParameter params)
-    {
+    public boolean satisfiesParameters(GetParameter params) {
         /* Check that owner id matches */
-        if ((params.getOwnerId() != null) && (!params.getOwnerId().equals(this.ownerId)))
-        {
+        if ((params.getOwnerId() != null) && (!params.getOwnerId().equals(this.ownerId))) {
             return false;
         }
 
         /* Check that type matches */
-        if ((params.getType() != null) && (!params.getType().equals(this.type)))
-        {
+        if ((params.getType() != null) && (!params.getType().equals(this.type))) {
             return false;
         }
 
         /* Check that key matches */
-        if ((params.getKey() != null) && (!params.getKey().equals(this.key)))
-        {
+        if ((params.getKey() != null) && (!params.getKey().equals(this.key))) {
             return false;
         }
 
@@ -96,8 +85,7 @@ public class StorageEntryMetadata implements KademliaStorageEntryMetadata
     }
 
     @Override
-    public long lastRepublished()
-    {
+    public long lastRepublished() {
         return this.lastRepublished;
     }
 
@@ -105,16 +93,13 @@ public class StorageEntryMetadata implements KademliaStorageEntryMetadata
      * Whenever we republish a content or get this content from the network, we update the last republished time
      */
     @Override
-    public void updateLastRepublished()
-    {
+    public void updateLastRepublished() {
         this.lastRepublished = System.currentTimeMillis() / 1000L;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (o instanceof KademliaStorageEntryMetadata)
-        {
+    public boolean equals(Object o) {
+        if (o instanceof KademliaStorageEntryMetadata) {
             return this.hashCode() == o.hashCode();
         }
 
@@ -122,8 +107,7 @@ public class StorageEntryMetadata implements KademliaStorageEntryMetadata
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int hash = 3;
         hash = 23 * hash + Objects.hashCode(this.key);
         hash = 23 * hash + Objects.hashCode(this.ownerId);
@@ -132,8 +116,7 @@ public class StorageEntryMetadata implements KademliaStorageEntryMetadata
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder("[StorageEntry: ");
 
         sb.append("{Key: ");

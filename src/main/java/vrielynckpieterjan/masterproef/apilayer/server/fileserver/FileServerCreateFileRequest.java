@@ -9,8 +9,8 @@ public class FileServerCreateFileRequest extends FileServerWriteRequest {
 
     /**
      * Constructor for the {@link FileServerCreateFileRequest} with.
-     * @param   resourceLocation
-     *          The location of the specified file.
+     *
+     * @param resourceLocation The location of the specified file.
      */
     public FileServerCreateFileRequest(@NotNull String[] resourceLocation) {
         super(resourceLocation);

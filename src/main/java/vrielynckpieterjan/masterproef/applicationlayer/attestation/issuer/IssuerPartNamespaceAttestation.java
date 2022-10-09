@@ -22,13 +22,13 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
     /**
      * The constructor of the {@link IssuerPartNamespaceAttestation}.
      *
-     * @param privateEntityIdentifierIssuer                The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
-     * @param publicEntityIdentifierIssuer                 The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
-     * @param publicEntityIdentifierReceiver               The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
-     * @param revocationCommitment                         The {@link RevocationCommitment} of the issuer for the attestation.
-     * @param rTreePolicy                                  The {@link RTreePolicy} for this attestation.
-     * @param empiricalECKeyPair                           The empirical EC {@link KeyPair} for this attestation.
-     * @param referenceAPILayer                             The reference to the API layer for this attestation.
+     * @param privateEntityIdentifierIssuer  The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierIssuer   The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierReceiver The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
+     * @param revocationCommitment           The {@link RevocationCommitment} of the issuer for the attestation.
+     * @param rTreePolicy                    The {@link RTreePolicy} for this attestation.
+     * @param empiricalECKeyPair             The empirical EC {@link KeyPair} for this attestation.
+     * @param referenceAPILayer              The reference to the API layer for this attestation.
      * @throws IllegalArgumentException If an invalid key was provided for the encryption schemes used during the construction process.
      */
     public IssuerPartNamespaceAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,
@@ -47,12 +47,12 @@ public class IssuerPartNamespaceAttestation extends IssuerPartAttestation {
     /**
      * The constructor of the {@link IssuerPartNamespaceAttestation}.
      *
-     * @param privateEntityIdentifierIssuer                The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
-     * @param publicEntityIdentifierIssuer                 The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
-     * @param publicEntityIdentifierReceiver               The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
-     * @param revocationCommitment                         The {@link RevocationCommitment} of the issuer for the attestation.
-     * @param rTreePolicy                                  The {@link RTreePolicy} for this attestation.
-     * @param referenceAPILayer                             The reference to the API layer for this attestation.
+     * @param privateEntityIdentifierIssuer  The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierIssuer   The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierReceiver The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
+     * @param revocationCommitment           The {@link RevocationCommitment} of the issuer for the attestation.
+     * @param rTreePolicy                    The {@link RTreePolicy} for this attestation.
+     * @param referenceAPILayer              The reference to the API layer for this attestation.
      * @throws IllegalArgumentException If an invalid key was provided for the encryption schemes used during the construction process.
      */
     public IssuerPartNamespaceAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,

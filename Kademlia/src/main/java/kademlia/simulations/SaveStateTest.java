@@ -9,13 +9,10 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140309
  */
-public class SaveStateTest
-{
+public class SaveStateTest {
 
-    public SaveStateTest()
-    {
-        try
-        {
+    public SaveStateTest() {
+        try {
             /* Setting up 2 Kad networks */
             JKademliaNode kad1 = new JKademliaNode("JoshuaK", new KademliaId("ASF45678947584567463"), 12049);
             JKademliaNode kad2 = new JKademliaNode("Crystal", new KademliaId("ASF45678947584567464"), 4585);
@@ -48,16 +45,14 @@ public class SaveStateTest
             System.out.println(kad4);
             System.out.println(kad5);
 
-            synchronized (this)
-            {
+            synchronized (this) {
                 System.out.println("\n\n\n\nSTORING CONTENT 1\n\n\n\n");
                 DHTContentImpl c = new DHTContentImpl(kad2.getOwnerId(), "Some Data");
                 System.out.println(c);
                 kad2.put(c);
             }
 
-            synchronized (this)
-            {
+            synchronized (this) {
                 System.out.println("\n\n\n\nSTORING CONTENT 2\n\n\n\n");
                 DHTContentImpl c2 = new DHTContentImpl(kad2.getOwnerId(), "Some other Data");
                 System.out.println(c2);
@@ -78,19 +73,14 @@ public class SaveStateTest
             System.out.println("\n\n\nReloading Kad instance from file");
             JKademliaNode kadR2 = JKademliaNode.loadFromFile("JoshuaK");
             System.out.println(kadR2);
-        }
-        catch (IllegalStateException e)
-        {
-            
-        }
-        catch (Exception e)
-        {
+        } catch (IllegalStateException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         new SaveStateTest();
     }
 }

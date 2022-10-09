@@ -1,10 +1,11 @@
 package kademlia.operation;
 
-import java.io.IOException;
 import kademlia.KadConfiguration;
 import kademlia.KadServer;
 import kademlia.KademliaNode;
 import kademlia.dht.KademliaDHT;
+
+import java.io.IOException;
 
 /**
  * An operation that handles refreshing the entire Kademlia Systems including buckets and content
@@ -12,16 +13,14 @@ import kademlia.dht.KademliaDHT;
  * @author Joshua Kissoon
  * @since 20140306
  */
-public class KadRefreshOperation implements Operation
-{
+public class KadRefreshOperation implements Operation {
 
     private final KadServer server;
     private final KademliaNode localNode;
     private final KademliaDHT dht;
     private final KadConfiguration config;
 
-    public KadRefreshOperation(KadServer server, KademliaNode localNode, KademliaDHT dht, KadConfiguration config)
-    {
+    public KadRefreshOperation(KadServer server, KademliaNode localNode, KademliaDHT dht, KadConfiguration config) {
         this.server = server;
         this.localNode = localNode;
         this.dht = dht;
@@ -29,8 +28,7 @@ public class KadRefreshOperation implements Operation
     }
 
     @Override
-    public void execute() throws IOException
-    {
+    public void execute() throws IOException {
         /* Run our BucketRefreshOperation to refresh buckets */
         new BucketRefreshOperation(this.server, this.localNode, this.config).execute();
 

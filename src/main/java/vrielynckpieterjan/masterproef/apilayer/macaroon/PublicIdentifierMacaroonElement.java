@@ -1,7 +1,6 @@
 package vrielynckpieterjan.masterproef.apilayer.macaroon;
 
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,10 +13,9 @@ public class PublicIdentifierMacaroonElement extends MacaroonElement<String> {
 
     /**
      * Constructor for the {@link PublicIdentifierMacaroonElement} class.
-     * @param   macaroonSecret
-     *          The macaroon secret.
-     * @param   encapsulatedObject
-     *          The encapsulated object.
+     *
+     * @param macaroonSecret     The macaroon secret.
+     * @param encapsulatedObject The encapsulated object.
      */
     public PublicIdentifierMacaroonElement(@NotNull String macaroonSecret, @NotNull String encapsulatedObject) {
         this(macaroonSecret, encapsulatedObject, true);
@@ -25,6 +23,19 @@ public class PublicIdentifierMacaroonElement extends MacaroonElement<String> {
 
     protected PublicIdentifierMacaroonElement(@NotNull String secretOrSignature, @NotNull String encapsulatedObject, boolean generateSignature) {
         super(secretOrSignature, encapsulatedObject, generateSignature);
+    }
+
+    @NotNull
+    public static PublicIdentifierMacaroonElement deserialize(@NotNull ByteBuffer byteBuffer) {
+        byte[] encapsulatedObjectAsByteArray = new byte[byteBuffer.getInt()];
+        byteBuffer.get(encapsulatedObjectAsByteArray);
+        String encapsulatedObject = new String(encapsulatedObjectAsByteArray, StandardCharsets.UTF_8);
+
+        byte[] signatureAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(signatureAsByteArray);
+        String signature = new String(signatureAsByteArray, StandardCharsets.UTF_8);
+
+        return new PublicIdentifierMacaroonElement(signature, encapsulatedObject, false);
     }
 
     @Override
@@ -43,18 +54,5 @@ public class PublicIdentifierMacaroonElement extends MacaroonElement<String> {
         byteBuffer.put(signatureAsByteArray);
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static PublicIdentifierMacaroonElement deserialize(@NotNull ByteBuffer byteBuffer) {
-        byte[] encapsulatedObjectAsByteArray = new byte[byteBuffer.getInt()];
-        byteBuffer.get(encapsulatedObjectAsByteArray);
-        String encapsulatedObject = new String(encapsulatedObjectAsByteArray, StandardCharsets.UTF_8);
-
-        byte[] signatureAsByteArray = new byte[byteBuffer.remaining()];
-        byteBuffer.get(signatureAsByteArray);
-        String signature = new String(signatureAsByteArray, StandardCharsets.UTF_8);
-
-        return new PublicIdentifierMacaroonElement(signature, encapsulatedObject, false);
     }
 }

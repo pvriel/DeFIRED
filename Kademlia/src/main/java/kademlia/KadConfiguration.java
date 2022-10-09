@@ -6,8 +6,7 @@ package kademlia;
  * @author Joshua Kissoon
  * @since 20140329
  */
-public interface KadConfiguration
-{
+public interface KadConfiguration {
 
     /**
      * @return Interval in milliseconds between execution of RestoreOperations.
@@ -51,7 +50,6 @@ public interface KadConfiguration
      * Creates the folder in which this node data is to be stored.
      *
      * @param ownerId
-     *
      * @return The folder path
      */
     public String getNodeDataFolder(String ownerId);

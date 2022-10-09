@@ -9,8 +9,8 @@ public class FileServerDeleteFileRequest extends FileServerWriteRequest {
 
     /**
      * Constructor for the {@link FileServerDeleteFileRequest} class.
-     * @param   resourceLocation
-     *          The location of the specific file.
+     *
+     * @param resourceLocation The location of the specific file.
      */
     public FileServerDeleteFileRequest(@NotNull String[] resourceLocation) {
         super(resourceLocation);

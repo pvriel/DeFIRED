@@ -19,9 +19,9 @@ public class APILayerMacaroonManager {
 
     /**
      * Method to register an {@link RTreePolicy} with the {@link APILayerMacaroonManager}.
-     * @param   rTreePolicy
-     *          The {@link RTreePolicy} to register.
-     * @return  The resulting {@link APILayerMacaroon}.
+     *
+     * @param rTreePolicy The {@link RTreePolicy} to register.
+     * @return The resulting {@link APILayerMacaroon}.
      */
     public synchronized APILayerMacaroon registerPolicy(@NotNull RTreePolicy rTreePolicy) {
         String macaroonPublicIdentifier = null;
@@ -41,11 +41,10 @@ public class APILayerMacaroonManager {
 
     /**
      * Method to verify an {@link APILayerMacaroon} and return its {@link RTreePolicy}.
-     * @param   macaroon
-     *          The {@link APILayerMacaroon}.
-     * @return  The verified {@link RTreePolicy} of the {@link APILayerMacaroon}.
-     * @throws  IllegalArgumentException
-     *          If the {@link APILayerMacaroon} is not valid.
+     *
+     * @param macaroon The {@link APILayerMacaroon}.
+     * @return The verified {@link RTreePolicy} of the {@link APILayerMacaroon}.
+     * @throws IllegalArgumentException If the {@link APILayerMacaroon} is not valid.
      */
     public synchronized @NotNull RTreePolicy returnVerifiedPolicy(@NotNull APILayerMacaroon macaroon) throws IllegalArgumentException {
         var publicMacaroonIdentifier = macaroon.extractPublicIdentifier();

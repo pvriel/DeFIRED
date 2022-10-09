@@ -18,9 +18,8 @@ import vrielynckpieterjan.masterproef.storagelayer.map.MultiMappedStorageLayer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DisproofObjectTest {
 

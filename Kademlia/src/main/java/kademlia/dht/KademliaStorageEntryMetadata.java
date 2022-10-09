@@ -9,8 +9,7 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140226
  */
-public interface KademliaStorageEntryMetadata
-{
+public interface KademliaStorageEntryMetadata {
 
     /**
      * @return The Kademlia ID of this content
@@ -42,7 +41,6 @@ public interface KademliaStorageEntryMetadata
      * Here we take this GetParameter object and check if this StorageEntry satisfies the given parameters
      *
      * @param params
-     *
      * @return boolean Whether this content satisfies the parameters
      */
     public boolean satisfiesParameters(GetParameter params);

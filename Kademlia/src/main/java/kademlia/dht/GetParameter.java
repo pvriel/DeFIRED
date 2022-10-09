@@ -4,16 +4,15 @@ import kademlia.node.KademliaId;
 
 /**
  * A GET request can get content based on Key, Owner, Type, etc
- *
+ * <p>
  * This is a class containing the parameters to be passed in a GET request
- *
+ * <p>
  * We use a class since the number of filtering parameters can change later
  *
  * @author Joshua Kissoon
  * @since 20140224
  */
-public class GetParameter
-{
+public class GetParameter {
 
     private KademliaId key;
     private String ownerId = null;
@@ -25,8 +24,7 @@ public class GetParameter
      * @param key
      * @param type
      */
-    public GetParameter(KademliaId key, String type)
-    {
+    public GetParameter(KademliaId key, String type) {
         this.key = key;
         this.type = type;
     }
@@ -38,8 +36,7 @@ public class GetParameter
      * @param type
      * @param owner
      */
-    public GetParameter(KademliaId key, String type, String owner)
-    {
+    public GetParameter(KademliaId key, String type, String owner) {
         this(key, type);
         this.ownerId = owner;
     }
@@ -49,17 +46,14 @@ public class GetParameter
      *
      * @param c
      */
-    public GetParameter(KadContent c)
-    {
+    public GetParameter(KadContent c) {
         this.key = c.getKey();
 
-        if (c.getType() != null)
-        {
+        if (c.getType() != null) {
             this.type = c.getType();
         }
 
-        if (c.getOwnerId() != null)
-        {
+        if (c.getOwnerId() != null) {
             this.ownerId = c.getOwnerId();
         }
     }
@@ -69,49 +63,40 @@ public class GetParameter
      *
      * @param md
      */
-    public GetParameter(KademliaStorageEntryMetadata md)
-    {
+    public GetParameter(KademliaStorageEntryMetadata md) {
         this.key = md.getKey();
 
-        if (md.getType() != null)
-        {
+        if (md.getType() != null) {
             this.type = md.getType();
         }
 
-        if (md.getOwnerId() != null)
-        {
+        if (md.getOwnerId() != null) {
             this.ownerId = md.getOwnerId();
         }
     }
 
-    public KademliaId getKey()
-    {
+    public KademliaId getKey() {
         return this.key;
     }
 
-    public void setOwnerId(String ownerId)
-    {
-        this.ownerId = ownerId;
-    }
-
-    public String getOwnerId()
-    {
+    public String getOwnerId() {
         return this.ownerId;
     }
 
-    public void setType(String type)
-    {
-        this.type = type;
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
     }
 
-    public String getType()
-    {
+    public String getType() {
         return this.type;
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "GetParameter - [Key: " + key + "][Owner: " + this.ownerId + "][Type: " + this.type + "]";
     }
 }

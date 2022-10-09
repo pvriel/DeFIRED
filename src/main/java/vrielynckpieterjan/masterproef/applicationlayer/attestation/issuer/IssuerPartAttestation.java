@@ -1,25 +1,21 @@
 package vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer;
 
 import cryptid.ibe.PrivateKeyGenerator;
-import cryptid.ibe.domain.PublicParameters;
 import cryptid.ibe.exception.ComponentConstructionException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
 import vrielynckpieterjan.masterproef.applicationlayer.revocation.RevocationCommitment;
-import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.AESCipherEncryptedSegment;
-import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.ECCipherEncryptedSegment;
+import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
 import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
 import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -38,13 +34,10 @@ public class IssuerPartAttestation implements Exportable {
     private final PublicEntityIdentifier publicEntityIdentifierReceiver;
     private final RevocationCommitment revocationCommitment;
     private final PublicKey empiricalPublicKey;
-    private ECCipherEncryptedSegment<Integer> encryptedSignature;
-
     private final AESCipherEncryptedSegment<VerificationInformationSegmentAttestation> verificationInformationSegment;
-
     private final AESCipherEncryptedSegment<ProofInformationSegmentAttestation> proofInformationSegment;
-
     private final IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment;
+    private ECCipherEncryptedSegment<Integer> encryptedSignature;
 
     protected IssuerPartAttestation(@NotNull PublicEntityIdentifier publicEntityIdentifierReceiver,
                                     @NotNull RevocationCommitment revocationCommitment,
@@ -57,27 +50,21 @@ public class IssuerPartAttestation implements Exportable {
         this.revocationCommitment = revocationCommitment;
         this.empiricalPublicKey = empiricalPublicKey;
         this.encryptedSignature = encryptedSignature;
-        this.verificationInformationSegment =verificationInformationSegment;
+        this.verificationInformationSegment = verificationInformationSegment;
         this.proofInformationSegment = proofInformationSegment;
-        this.aesEncryptionInformationSegment =aesEncryptionInformationSegment;
+        this.aesEncryptionInformationSegment = aesEncryptionInformationSegment;
     }
 
     /**
      * The constructor of the {@link IssuerPartAttestation}.
-     * @param   privateEntityIdentifierIssuer
-     *          The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
-     * @param   publicEntityIdentifierIssuer
-     *          The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
-     * @param   publicEntityIdentifierReceiver
-     *          The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
-     * @param   revocationCommitment
-     *          The {@link RevocationCommitment} of the issuer for the attestation.
-     * @param   rTreePolicy
-     *          The {@link RTreePolicy} for this attestation.
-     * @param   empiricalECKeyPair
-     *          The empirical EC {@link KeyPair} for this attestation.
-     * @throws  IllegalArgumentException
-     *          If an invalid key was provided for the encryption schemes used during the construction process.
+     *
+     * @param privateEntityIdentifierIssuer  The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierIssuer   The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierReceiver The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
+     * @param revocationCommitment           The {@link RevocationCommitment} of the issuer for the attestation.
+     * @param rTreePolicy                    The {@link RTreePolicy} for this attestation.
+     * @param empiricalECKeyPair             The empirical EC {@link KeyPair} for this attestation.
+     * @throws IllegalArgumentException If an invalid key was provided for the encryption schemes used during the construction process.
      */
     public IssuerPartAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,
                                  @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
@@ -85,7 +72,7 @@ public class IssuerPartAttestation implements Exportable {
                                  @NotNull RevocationCommitment revocationCommitment,
                                  @NotNull RTreePolicy rTreePolicy,
                                  @NotNull KeyPair empiricalECKeyPair)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         // First, generate the necessary encryption keys.
         Pair<String, String> aesKeys = new ImmutablePair<>(AESCipherEncryptedSegment.generateAESKey(), AESCipherEncryptedSegment.generateAESKey());
 
@@ -149,18 +136,13 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * The constructor of the {@link IssuerPartAttestation}.
-     * @param   privateEntityIdentifierIssuer
-     *          The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
-     * @param   publicEntityIdentifierIssuer
-     *          The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
-     * @param   publicEntityIdentifierReceiver
-     *          The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
-     * @param   revocationCommitment
-     *          The {@link RevocationCommitment} of the issuer for the attestation.
-     * @param   rTreePolicy
-     *          The {@link RTreePolicy} for this attestation.
-     * @throws  IllegalArgumentException
-     *          If an invalid key was provided for the encryption schemes used during the construction process.
+     *
+     * @param privateEntityIdentifierIssuer  The {@link PrivateEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierIssuer   The {@link PublicEntityIdentifier} of the issuer of this {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierReceiver The {@link PublicEntityIdentifier} of the receiver of this {@link IssuerPartAttestation}.
+     * @param revocationCommitment           The {@link RevocationCommitment} of the issuer for the attestation.
+     * @param rTreePolicy                    The {@link RTreePolicy} for this attestation.
+     * @throws IllegalArgumentException If an invalid key was provided for the encryption schemes used during the construction process.
      */
     public IssuerPartAttestation(@NotNull PrivateEntityIdentifier privateEntityIdentifierIssuer,
                                  @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
@@ -173,9 +155,38 @@ public class IssuerPartAttestation implements Exportable {
                 ECCipherEncryptedSegment.generateKeyPair());
     }
 
+    @NotNull
+    public static IssuerPartAttestation deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
+        byte[][] receivedArrays = new byte[7][];
+        for (int i = 0; i < receivedArrays.length - 1; i++) {
+            byte[] array = new byte[byteBuffer.getInt()];
+            byteBuffer.get(array);
+            receivedArrays[i] = array;
+        }
+        receivedArrays[6] = new byte[byteBuffer.remaining()];
+        byteBuffer.get(receivedArrays[6]);
+
+        PublicEntityIdentifier publicEntityIdentifierReceiver = ExportableUtils.deserialize(receivedArrays[0], PublicEntityIdentifier.class);
+        RevocationCommitment revocationCommitment = ExportableUtils.deserialize(receivedArrays[1], RevocationCommitment.class);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(receivedArrays[2]);
+        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+        PublicKey empiricalPublicKey = (PublicKey) objectInputStream.readObject();
+        ECCipherEncryptedSegment<Integer> encryptedSignature = ExportableUtils.deserialize(receivedArrays[3], ECCipherEncryptedSegment.class);
+        AESCipherEncryptedSegment<VerificationInformationSegmentAttestation> verificationInformationSegment =
+                ExportableUtils.deserialize(receivedArrays[4], AESCipherEncryptedSegment.class);
+        AESCipherEncryptedSegment<ProofInformationSegmentAttestation> proofInformationSegment =
+                ExportableUtils.deserialize(receivedArrays[5], AESCipherEncryptedSegment.class);
+        IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment =
+                ExportableUtils.deserialize(receivedArrays[6], IBEDecryptableSegment.class);
+
+        return new IssuerPartAttestation(publicEntityIdentifierReceiver, revocationCommitment,
+                empiricalPublicKey, encryptedSignature, verificationInformationSegment, proofInformationSegment, aesEncryptionInformationSegment);
+    }
+
     /**
      * Getter for the encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
-     * @return  The encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
+     *
+     * @return The encrypted version of the {@link AESEncryptionInformationSegmentAttestation}.
      */
     public IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> getAesEncryptionInformationSegment() {
         return aesEncryptionInformationSegment;
@@ -183,8 +194,8 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * Method to update the signature of the {@link IssuerPartAttestation}.
-     * @param   empiricalPublicECKey
-     *          The empirical EC {@link PublicKey} to encrypt the signature with.
+     *
+     * @param empiricalPublicECKey The empirical EC {@link PublicKey} to encrypt the signature with.
      */
     protected void updateSignature(@NotNull PublicKey empiricalPublicECKey) {
         Integer fullHash = hashCode();
@@ -193,16 +204,14 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * Method to check if the {@link IssuerPartAttestation} has a valid signature.
-     * @param   empiricalPrivateECKey
-     *          The empirical private EC key of the attestation.
-     * @param   empiricalPublicECKey
-     *          The empirical public EC key of the attestation.
-     * @return  True if the {@link IssuerPartAttestation} has a valid signature; false otherwise.
-     * @throws  IllegalArgumentException
-     *          If the provided {@link java.security.Key} arguments can't be used to verify the signature.
+     *
+     * @param empiricalPrivateECKey The empirical private EC key of the attestation.
+     * @param empiricalPublicECKey  The empirical public EC key of the attestation.
+     * @return True if the {@link IssuerPartAttestation} has a valid signature; false otherwise.
+     * @throws IllegalArgumentException If the provided {@link java.security.Key} arguments can't be used to verify the signature.
      */
     public boolean hasValidSignature(@NotNull PrivateKey empiricalPrivateECKey, @NotNull PublicKey empiricalPublicECKey)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         // 1) Check if the two provided Keys actually form a pair.
         if (!ECCipherEncryptedSegment.keysPartOfKeypair(empiricalPrivateECKey, empiricalPublicECKey)) return false;
 
@@ -214,15 +223,12 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * Method to check if the {@link IssuerPartAttestation} has a valid signature.
-     * @param   privateEntityIdentifierReceiver
-     *          The {@link PrivateEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
-     * @param   publicEntityIdentifierIssuer
-     *          The {@link PublicEntityIdentifier} of the issuer used to encrypt the AES encryption information segment with.
-     * @param   policy
-     *          The {@link RTreePolicy} for the {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation}.
-     * @return  True if the {@link IssuerPartAttestation} has a valid signature; false otherwise.
-     * @throws  IllegalArgumentException
-     *          If the provided arguments can't be used to verify the signature.
+     *
+     * @param privateEntityIdentifierReceiver The {@link PrivateEntityIdentifier} of the user receiving the {@link IssuerPartAttestation}.
+     * @param publicEntityIdentifierIssuer    The {@link PublicEntityIdentifier} of the issuer used to encrypt the AES encryption information segment with.
+     * @param policy                          The {@link RTreePolicy} for the {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation}.
+     * @return True if the {@link IssuerPartAttestation} has a valid signature; false otherwise.
+     * @throws IllegalArgumentException If the provided arguments can't be used to verify the signature.
      */
     public boolean hasValidSignature(@NotNull PrivateEntityIdentifier privateEntityIdentifierReceiver,
                                      @NotNull PublicEntityIdentifier publicEntityIdentifierIssuer,
@@ -249,7 +255,8 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * Getter for the encrypted verification information segment.
-     * @return  The encrypted verification information segment.
+     *
+     * @return The encrypted verification information segment.
      */
     public AESCipherEncryptedSegment<VerificationInformationSegmentAttestation> getVerificationInformationSegment() {
         return verificationInformationSegment;
@@ -257,7 +264,8 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * Getter for the empirical EC {@link PublicKey}.
-     * @return  The {@link PublicKey}.
+     *
+     * @return The {@link PublicKey}.
      */
     public PublicKey getEmpiricalPublicKey() {
         return empiricalPublicKey;
@@ -265,7 +273,8 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * Getter for the {@link PublicEntityIdentifier} of the receiver of the {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation}.
-     * @return  The {@link PublicEntityIdentifier}.
+     *
+     * @return The {@link PublicEntityIdentifier}.
      */
     public PublicEntityIdentifier getPublicEntityIdentifierReceiver() {
         return publicEntityIdentifierReceiver;
@@ -273,7 +282,8 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * Getter for the {@link RevocationCommitment} of the issuer of the {@link vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation}.
-     * @return  The {@link RevocationCommitment}.
+     *
+     * @return The {@link RevocationCommitment}.
      */
     public RevocationCommitment getRevocationCommitment() {
         return revocationCommitment;
@@ -281,7 +291,8 @@ public class IssuerPartAttestation implements Exportable {
 
     /**
      * Getter for the encrypted version of the {@link ProofInformationSegmentAttestation}.
-     * @return  The encrypted object.
+     *
+     * @return The encrypted object.
      */
     public AESCipherEncryptedSegment<ProofInformationSegmentAttestation> getProofInformationSegment() {
         return proofInformationSegment;
@@ -333,33 +344,5 @@ public class IssuerPartAttestation implements Exportable {
         byteBuffer.put(aesEncryptionInformationSegmentAsByteArray);
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static IssuerPartAttestation deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
-        byte[][] receivedArrays = new byte[7][];
-        for (int i = 0; i < receivedArrays.length - 1; i ++) {
-            byte[] array = new byte[byteBuffer.getInt()];
-            byteBuffer.get(array);
-            receivedArrays[i] = array;
-        }
-        receivedArrays[6] = new byte[byteBuffer.remaining()];
-        byteBuffer.get(receivedArrays[6]);
-
-        PublicEntityIdentifier publicEntityIdentifierReceiver = ExportableUtils.deserialize(receivedArrays[0], PublicEntityIdentifier.class);
-        RevocationCommitment revocationCommitment = ExportableUtils.deserialize(receivedArrays[1], RevocationCommitment.class);
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(receivedArrays[2]);
-        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-        PublicKey empiricalPublicKey = (PublicKey) objectInputStream.readObject();
-        ECCipherEncryptedSegment<Integer> encryptedSignature = ExportableUtils.deserialize(receivedArrays[3], ECCipherEncryptedSegment.class);
-        AESCipherEncryptedSegment<VerificationInformationSegmentAttestation> verificationInformationSegment =
-                ExportableUtils.deserialize(receivedArrays[4], AESCipherEncryptedSegment.class);
-        AESCipherEncryptedSegment<ProofInformationSegmentAttestation> proofInformationSegment =
-                ExportableUtils.deserialize(receivedArrays[5], AESCipherEncryptedSegment.class);
-        IBEDecryptableSegment<AESEncryptionInformationSegmentAttestation> aesEncryptionInformationSegment =
-                ExportableUtils.deserialize(receivedArrays[6], IBEDecryptableSegment.class);
-
-        return new IssuerPartAttestation(publicEntityIdentifierReceiver, revocationCommitment,
-                empiricalPublicKey, encryptedSignature, verificationInformationSegment, proofInformationSegment, aesEncryptionInformationSegment);
     }
 }

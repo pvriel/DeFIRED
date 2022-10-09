@@ -6,44 +6,37 @@ package kademlia.dht;
  * @author Joshua Kissoon
  * @since 20140402
  */
-public class JKademliaStorageEntry implements KademliaStorageEntry
-{
+public class JKademliaStorageEntry implements KademliaStorageEntry {
 
-    private byte[] content;
     private final StorageEntryMetadata metadata;
+    private byte[] content;
 
-    public JKademliaStorageEntry(final KadContent content)
-    {
+    public JKademliaStorageEntry(final KadContent content) {
         this(content, new StorageEntryMetadata(content));
     }
 
-    public JKademliaStorageEntry(final KadContent content, final StorageEntryMetadata metadata)
-    {
+    public JKademliaStorageEntry(final KadContent content, final StorageEntryMetadata metadata) {
         this.setContent(content.toSerializedForm());
         this.metadata = metadata;
     }
 
     @Override
-    public final void setContent(final byte[] data)
-    {
-        this.content = data;
-    }
-
-    @Override
-    public final byte[] getContent()
-    {
+    public final byte[] getContent() {
         return this.content;
     }
 
     @Override
-    public final KademliaStorageEntryMetadata getContentMetadata()
-    {
+    public final void setContent(final byte[] data) {
+        this.content = data;
+    }
+
+    @Override
+    public final KademliaStorageEntryMetadata getContentMetadata() {
         return this.metadata;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder("[StorageEntry: ");
 
         sb.append("[Content: ");

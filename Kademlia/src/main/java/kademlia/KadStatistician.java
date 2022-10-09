@@ -2,14 +2,13 @@ package kademlia;
 
 /**
  * Specification for class that keeps statistics for a Kademlia instance.
- *
+ * <p>
  * These statistics are temporary and will be lost when Kad is shut down.
  *
  * @author Joshua Kissoon
  * @since 20140507
  */
-public interface KadStatistician
-{
+public interface KadStatistician {
 
     /**
      * Used to indicate some data is sent
@@ -36,16 +35,16 @@ public interface KadStatistician
     public long getTotalDataReceived();
 
     /**
+     * @return How long the system took to bootstrap in milliseconds
+     */
+    public long getBootstrapTime();
+
+    /**
      * Sets the bootstrap time for this Kademlia Node
      *
      * @param time The bootstrap time in nanoseconds
      */
     public void setBootstrapTime(long time);
-
-    /**
-     * @return How long the system took to bootstrap in milliseconds
-     */
-    public long getBootstrapTime();
 
     /**
      * Add the timing for a new content lookup operation that took place

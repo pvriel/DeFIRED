@@ -6,9 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.Attestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.AESEncryptionInformationSegmentAttestation;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.issuer.IssuerPartAttestation;
-import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight;
 import vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.RTreePolicy;
-import vrielynckpieterjan.masterproef.encryptionlayer.entities.EntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PrivateEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.entities.PublicEntityIdentifier;
 import vrielynckpieterjan.masterproef.encryptionlayer.schemes.IBEDecryptableSegment;
@@ -38,12 +36,10 @@ public class DisproofObject extends AbstractProofObject {
 
     /**
      * Constructor for the {@link DisproofObject} class.
-     * @param   publicEntityIdentifierOfProver
-     *          The {@link PublicEntityIdentifier} of the prover.
-     * @param   privateEntityIdentifierProver
-     *          The {@link PrivateEntityIdentifier} of the prover.
-     * @param   policyToDisprove
-     *          The {@link RTreePolicy} that the prover wants to disprove.
+     *
+     * @param publicEntityIdentifierOfProver The {@link PublicEntityIdentifier} of the prover.
+     * @param privateEntityIdentifierProver  The {@link PrivateEntityIdentifier} of the prover.
+     * @param policyToDisprove               The {@link RTreePolicy} that the prover wants to disprove.
      */
     public DisproofObject(@NotNull PublicEntityIdentifier publicEntityIdentifierOfProver,
                           @NotNull PrivateEntityIdentifier privateEntityIdentifierProver,
@@ -57,10 +53,9 @@ public class DisproofObject extends AbstractProofObject {
 
     /**
      * Constructor for the {@link DisproofObject} class.
-     * @param   includedPrivateKeys
-     *          The included private keys.
-     * @param   publicEntityIdentifierOfProver
-     *          The public entity identifier of the prover.
+     *
+     * @param includedPrivateKeys            The included private keys.
+     * @param publicEntityIdentifierOfProver The public entity identifier of the prover.
      */
     protected DisproofObject(@NotNull Map<RTreePolicy, PrivateKey> includedPrivateKeys,
                              @NotNull PublicEntityIdentifier publicEntityIdentifierOfProver) {
@@ -68,12 +63,39 @@ public class DisproofObject extends AbstractProofObject {
         this.publicEntityIdentifierOfProver = publicEntityIdentifierOfProver;
     }
 
+    @NotNull
+    public static DisproofObject deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream byteArrayInputStream;
+        ObjectInputStream objectInputStream;
+
+        Map<RTreePolicy, PrivateKey> includedPrivateKeys = new HashMap<>();
+        int amountOfIterations = byteBuffer.getInt();
+        for (int i = 0; i < amountOfIterations; i++) {
+            byte[] rTreePolicyAsByteArray = new byte[byteBuffer.getInt()];
+            byteBuffer.get(rTreePolicyAsByteArray);
+            RTreePolicy rTreePolicy = ExportableUtils.deserialize(rTreePolicyAsByteArray, RTreePolicy.class);
+
+            byte[] privateKeyAsByteArray = new byte[byteBuffer.getInt()];
+            byteBuffer.get(privateKeyAsByteArray);
+            byteArrayInputStream = new ByteArrayInputStream(privateKeyAsByteArray);
+            objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            PrivateKey privateKey = (PrivateKey) objectInputStream.readObject();
+
+            includedPrivateKeys.put(rTreePolicy, privateKey);
+        }
+
+        byte[] publicEntityIdentifierOfProverAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(publicEntityIdentifierOfProverAsByteArray);
+        PublicEntityIdentifier publicEntityIdentifierOfProver = ExportableUtils.deserialize(publicEntityIdentifierOfProverAsByteArray, PublicEntityIdentifier.class);
+
+        return new DisproofObject(includedPrivateKeys, publicEntityIdentifierOfProver);
+    }
+
     /**
      * Method to check the validity of the {@link DisproofObject}.
-     * @param   storageLayer
-     *          A {@link StorageLayer} realization.
-     * @throws  IllegalStateException
-     *          If this {@link DisproofObject} is not valid.
+     *
+     * @param storageLayer A {@link StorageLayer} realization.
+     * @throws IllegalStateException If this {@link DisproofObject} is not valid.
      */
     public void verify(@NotNull StorageLayer storageLayer) throws IllegalStateException {
         verifyIncludedPrivateKeys();
@@ -118,13 +140,15 @@ public class DisproofObject extends AbstractProofObject {
                                     "Attestation (%s) decrypted with (%s, %s).", foundAttestation, includedPolicyAndPrivateKey.getKey(),
                                     includedPolicyAndPrivateKey.getValue()));
                             break;
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
                     }
 
                 } while (thrownException == null);
-            } catch (Exception ignored) {} // If end of personal queue is reached.
+            } catch (Exception ignored) {
+            } // If end of personal queue is reached.
 
-            if (thrownException != null) throw  thrownException;
+            if (thrownException != null) throw thrownException;
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -163,14 +187,14 @@ public class DisproofObject extends AbstractProofObject {
             objectOutputStream.writeObject(entry.getValue());
             serializedPrivateKeys[i] = byteArrayOutputStream.toByteArray();
             length += serializedRTreePolicies[i].length + serializedPrivateKeys[i].length;
-            i ++;
+            i++;
         }
         byte[] serializedPublicEntityIdentifierOfProver = ExportableUtils.serialize(publicEntityIdentifierOfProver);
         length += serializedPublicEntityIdentifierOfProver.length;
 
         ByteBuffer byteBuffer = ByteBuffer.allocate(length);
         byteBuffer.putInt(includedPrivateKeys.size());
-        for (i = 0; i < serializedRTreePolicies.length; i ++) {
+        for (i = 0; i < serializedRTreePolicies.length; i++) {
             byteBuffer.putInt(serializedRTreePolicies[i].length);
             byteBuffer.put(serializedRTreePolicies[i]);
             byteBuffer.putInt(serializedPrivateKeys[i].length);
@@ -179,33 +203,5 @@ public class DisproofObject extends AbstractProofObject {
         byteBuffer.put(serializedPublicEntityIdentifierOfProver);
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static DisproofObject deserialize(@NotNull ByteBuffer byteBuffer) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream byteArrayInputStream;
-        ObjectInputStream objectInputStream;
-
-        Map<RTreePolicy, PrivateKey> includedPrivateKeys = new HashMap<>();
-        int amountOfIterations = byteBuffer.getInt();
-        for (int i = 0; i < amountOfIterations; i ++) {
-            byte[] rTreePolicyAsByteArray = new byte[byteBuffer.getInt()];
-            byteBuffer.get(rTreePolicyAsByteArray);
-            RTreePolicy rTreePolicy = ExportableUtils.deserialize(rTreePolicyAsByteArray, RTreePolicy.class);
-
-            byte[] privateKeyAsByteArray = new byte[byteBuffer.getInt()];
-            byteBuffer.get(privateKeyAsByteArray);
-            byteArrayInputStream = new ByteArrayInputStream(privateKeyAsByteArray);
-            objectInputStream = new ObjectInputStream(byteArrayInputStream);
-            PrivateKey privateKey = (PrivateKey) objectInputStream.readObject();
-
-            includedPrivateKeys.put(rTreePolicy, privateKey);
-        }
-
-        byte[] publicEntityIdentifierOfProverAsByteArray = new byte[byteBuffer.remaining()];
-        byteBuffer.get(publicEntityIdentifierOfProverAsByteArray);
-        PublicEntityIdentifier publicEntityIdentifierOfProver = ExportableUtils.deserialize(publicEntityIdentifierOfProverAsByteArray, PublicEntityIdentifier.class);
-
-        return new DisproofObject(includedPrivateKeys, publicEntityIdentifierOfProver);
     }
 }

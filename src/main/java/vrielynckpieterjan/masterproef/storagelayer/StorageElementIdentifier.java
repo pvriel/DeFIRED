@@ -3,10 +3,7 @@ package vrielynckpieterjan.masterproef.storagelayer;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.shared.serialization.Exportable;
-import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -20,8 +17,8 @@ public class StorageElementIdentifier implements Exportable {
 
     /**
      * Constructor for the {@link StorageElementIdentifier} class.
-     * @param   identifier
-     *          The actual value for the identifier of the {@link StorageElement}.
+     *
+     * @param identifier The actual value for the identifier of the {@link StorageElement}.
      */
     public StorageElementIdentifier(@NotNull String identifier) {
         this.identifier = identifier;
@@ -30,8 +27,8 @@ public class StorageElementIdentifier implements Exportable {
     /**
      * Constructor for the {@link StorageElementIdentifier} class.
      * This constructor initializes a {@link StorageElementIdentifier} instance for the provided length.
-     * @param   length
-     *          The provided length.
+     *
+     * @param length The provided length.
      */
     public StorageElementIdentifier(int length) {
         this(RandomStringUtils.randomAlphanumeric(length));
@@ -45,9 +42,16 @@ public class StorageElementIdentifier implements Exportable {
         this(128);
     }
 
+    @NotNull
+    public static StorageElementIdentifier deserialize(@NotNull ByteBuffer byteBuffer) {
+        String identifier = new String(byteBuffer.array(), StandardCharsets.UTF_8);
+        return new StorageElementIdentifier(identifier);
+    }
+
     /**
      * Getter for the identifier.
-     * @return  The identifier.
+     *
+     * @return The identifier.
      */
     public String getIdentifier() {
         return identifier;
@@ -76,11 +80,5 @@ public class StorageElementIdentifier implements Exportable {
     @Override
     public byte[] serialize() {
         return identifier.getBytes(StandardCharsets.UTF_8);
-    }
-
-    @NotNull
-    public static StorageElementIdentifier deserialize(@NotNull ByteBuffer byteBuffer) {
-        String identifier = new String(byteBuffer.array(), StandardCharsets.UTF_8);
-        return new StorageElementIdentifier(identifier);
     }
 }

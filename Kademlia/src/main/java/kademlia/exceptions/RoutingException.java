@@ -8,16 +8,13 @@ import java.io.IOException;
  * @author Joshua Kissoon
  * @created 20140219
  */
-public class RoutingException extends IOException
-{
+public class RoutingException extends IOException {
 
-    public RoutingException()
-    {
+    public RoutingException() {
         super();
     }
 
-    public RoutingException(String message)
-    {
+    public RoutingException(String message) {
         super(message);
     }
 }

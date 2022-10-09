@@ -15,11 +15,11 @@ import java.util.Set;
 /**
  * Class representing a revocation commitment,
  * which is a SHA-512 version of a {@link RevocationSecret}.
- * @implNote
- *          This class is implemented as a subclass of the {@link StorageElementIdentifier} class,
- *          due to the fact that {@link RevocationCommitment}s can also be used as identifiers
- *          for the {@link StorageLayer} to store {@link RevocationObject}s
- *          with.
+ *
+ * @implNote This class is implemented as a subclass of the {@link StorageElementIdentifier} class,
+ * due to the fact that {@link RevocationCommitment}s can also be used as identifiers
+ * for the {@link StorageLayer} to store {@link RevocationObject}s
+ * with.
  */
 public class RevocationCommitment extends StorageElementIdentifier {
 
@@ -35,8 +35,8 @@ public class RevocationCommitment extends StorageElementIdentifier {
 
     /**
      * Constructor for the {@link RevocationCommitment} class.
-     * @param   revocationSecret
-     *          The original {@link RevocationSecret}.
+     *
+     * @param revocationSecret The original {@link RevocationSecret}.
      */
     public RevocationCommitment(@NotNull RevocationSecret revocationSecret) {
         this(Hashing.sha512().hashString(revocationSecret.getSecret(), StandardCharsets.UTF_8).toString());
@@ -53,13 +53,17 @@ public class RevocationCommitment extends StorageElementIdentifier {
         this(new RevocationSecret());
     }
 
+    @NotNull
+    public static RevocationCommitment deserialize(@NotNull ByteBuffer byteBuffer) {
+        return new RevocationCommitment(new String(byteBuffer.array(), StandardCharsets.UTF_8));
+    }
+
     /**
      * Method to check if this {@link RevocationCommitment} is revealed in the {@link StorageLayer}.
-     * @param   storageLayer
-     *          The {@link StorageLayer}.
-     * @return  True if the {@link RevocationCommitment} is revealed; false otherwise.
-     * @throws  IOException
-     *          If the {@link StorageLayer} could not be consulted due to an IO-related problem.
+     *
+     * @param storageLayer The {@link StorageLayer}.
+     * @return True if the {@link RevocationCommitment} is revealed; false otherwise.
+     * @throws IOException If the {@link StorageLayer} could not be consulted due to an IO-related problem.
      */
     public boolean isRevealedInStorageLayer(@NotNull StorageLayer storageLayer) throws IOException {
         Set<RevocationObject> retrievedRevocationObjects = storageLayer.retrieve(this, RevocationObject.class);
@@ -72,10 +76,5 @@ public class RevocationCommitment extends StorageElementIdentifier {
     @Override
     public byte[] serialize() {
         return super.serialize();
-    }
-
-    @NotNull
-    public static RevocationCommitment deserialize(@NotNull ByteBuffer byteBuffer) {
-        return new RevocationCommitment(new String(byteBuffer.array(), StandardCharsets.UTF_8));
     }
 }

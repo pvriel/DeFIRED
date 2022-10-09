@@ -9,8 +9,8 @@ public class FileServerCreateDirectoryRequest extends FileServerWriteRequest {
 
     /**
      * Constructor for the {@link FileServerCreateDirectoryRequest} class.
-     * @param   resourceLocation
-     *          The path of the directory to create.
+     *
+     * @param resourceLocation The path of the directory to create.
      */
     public FileServerCreateDirectoryRequest(@NotNull String[] resourceLocation) {
         super(resourceLocation);

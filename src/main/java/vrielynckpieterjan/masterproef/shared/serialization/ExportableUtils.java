@@ -13,9 +13,9 @@ public abstract class ExportableUtils {
 
     /**
      * Static method to serialize {@link Exportable} instances.
-     * @param   exportable
-     *          The {@link Exportable} instance.
-     * @return  The {@link Exportable} instance as a byte array.
+     *
+     * @param exportable The {@link Exportable} instance.
+     * @return The {@link Exportable} instance as a byte array.
      */
     public static byte[] serialize(@NotNull Exportable exportable) throws IOException {
         return exportable.serialize();
@@ -23,15 +23,12 @@ public abstract class ExportableUtils {
 
     /**
      * Static method to deserialize a serialized {@link Exportable} instance.
-     * @param   bytes
-     *          The byte array.
-     * @param   clazz
-     *          The original class of the serialized {@link Exportable} instance.
-     * @return  The deserialized {@link Exportable} instance.
-     * @param   <T>
-     *          The original type of the serialized {@link Exportable} instance.
-     * @throws  IOException
-     *          If the given byte array could not be deserialized to the given {@link Exportable} realization.
+     *
+     * @param bytes The byte array.
+     * @param clazz The original class of the serialized {@link Exportable} instance.
+     * @param <T>   The original type of the serialized {@link Exportable} instance.
+     * @return The deserialized {@link Exportable} instance.
+     * @throws IOException If the given byte array could not be deserialized to the given {@link Exportable} realization.
      */
     @NotNull
     public static <T extends Exportable> T deserialize(byte[] bytes, @NotNull Class<T> clazz) throws IOException {

@@ -1,11 +1,12 @@
 package kademlia.message;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import kademlia.KadConfiguration;
 import kademlia.KadServer;
 import kademlia.KademliaNode;
 import kademlia.dht.KademliaDHT;
+
+import java.io.DataInputStream;
+import java.io.IOException;
 
 /**
  * Handles creating messages and receivers
@@ -13,25 +14,21 @@ import kademlia.dht.KademliaDHT;
  * @author Joshua Kissoon
  * @since 20140202
  */
-public class MessageFactory implements KademliaMessageFactory
-{
+public class MessageFactory implements KademliaMessageFactory {
 
     private final KademliaNode localNode;
     private final KademliaDHT dht;
     private final KadConfiguration config;
 
-    public MessageFactory(KademliaNode local, KademliaDHT dht, KadConfiguration config)
-    {
+    public MessageFactory(KademliaNode local, KademliaDHT dht, KadConfiguration config) {
         this.localNode = local;
         this.dht = dht;
         this.config = config;
     }
 
     @Override
-    public Message createMessage(byte code, DataInputStream in) throws IOException
-    {
-        switch (code)
-        {
+    public Message createMessage(byte code, DataInputStream in) throws IOException {
+        switch (code) {
             case AcknowledgeMessage.CODE:
                 return new AcknowledgeMessage(in);
             case ConnectMessage.CODE:
@@ -56,10 +53,8 @@ public class MessageFactory implements KademliaMessageFactory
     }
 
     @Override
-    public Receiver createReceiver(byte code, KadServer server)
-    {
-        switch (code)
-        {
+    public Receiver createReceiver(byte code, KadServer server) {
+        switch (code) {
             case ConnectMessage.CODE:
                 return new ConnectReceiver(server, this.localNode);
             case ContentLookupMessage.CODE:

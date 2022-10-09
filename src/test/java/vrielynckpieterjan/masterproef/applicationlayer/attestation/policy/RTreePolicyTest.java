@@ -6,7 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight.*;
+import static vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight.READ;
+import static vrielynckpieterjan.masterproef.applicationlayer.attestation.policy.PolicyRight.WRITE;
 
 class RTreePolicyTest {
 

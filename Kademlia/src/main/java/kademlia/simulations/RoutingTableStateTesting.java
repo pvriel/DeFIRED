@@ -1,10 +1,11 @@
 package kademlia.simulations;
 
-import java.io.IOException;
-import java.util.Scanner;
 import kademlia.JKademliaNode;
 import kademlia.dht.KadContent;
 import kademlia.node.KademliaId;
+
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * Testing how the routing table works and it's state after different operations
@@ -12,17 +13,13 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140426
  */
-public class RoutingTableStateTesting
-{
-
-    JKademliaNode[] kads;
+public class RoutingTableStateTesting {
 
     public int numKads = 10;
+    JKademliaNode[] kads;
 
-    public RoutingTableStateTesting()
-    {
-        try
-        {
+    public RoutingTableStateTesting() {
+        try {
             /* Setting up Kad networks */
             kads = new JKademliaNode[numKads];
 
@@ -37,81 +34,21 @@ public class RoutingTableStateTesting
             kads[8] = new JKademliaNode("user8", new KademliaId("ASAA5678947584567468"), 18104);
             kads[9] = new JKademliaNode("user9", new KademliaId("ASF456789475845674U9"), 18335);
 
-            for (int i = 1; i < numKads; i++)
-            {
+            for (int i = 1; i < numKads; i++) {
                 kads[i].bootstrap(kads[0].getNode());
             }
 
             /* Lets shut down a node and then try putting a content on the network. We'll then see how the un-responsive contacts work */
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public KadContent putContent(String content, JKademliaNode owner)
-    {
-        DHTContentImpl c = null;
-        try
-        {
-            c = new DHTContentImpl(owner.getOwnerId(), "Some Data");
-            owner.put(c);
-            return c;
-        }
-        catch (IOException e)
-        {
-            System.err.println("Error whiles putting content " + content + " from owner: " + owner.getOwnerId());
-        }
-
-        return c;
-    }
-
-    public void shutdownKad(JKademliaNode kad)
-    {
-        try
-        {
-            kad.shutdown(false);
-        }
-        catch (IOException ex)
-        {
-            System.err.println("Error whiles shutting down node with owner: " + kad.getOwnerId());
-        }
-    }
-
-    public void printRoutingTable(int kadId)
-    {
-        System.out.println(kads[kadId].getRoutingTable());
-    }
-
-    public void printRoutingTables()
-    {
-        for (int i = 0; i < numKads; i++)
-        {
-            this.printRoutingTable(i);
-        }
-    }
-
-    public void printStorage(int kadId)
-    {
-        System.out.println(kads[kadId].getDHT());
-    }
-
-    public void printStorage()
-    {
-        for (int i = 0; i < numKads; i++)
-        {
-            this.printStorage(i);
-        }
-    }
-
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
 
         RoutingTableStateTesting rtss = new RoutingTableStateTesting();
 
-        try
-        {
+        try {
             rtss.printRoutingTables();
 
             /* Lets shut down a node to test the node removal operation */
@@ -124,26 +61,63 @@ public class RoutingTableStateTesting
 
             /* kad3 should be removed from their routing tables by now. */
             rtss.printRoutingTables();
-        }
-        catch (InterruptedException ex)
-        {
+        } catch (InterruptedException ex) {
 
         }
 
         Scanner sc = new Scanner(System.in);
-        while (true)
-        {
+        while (true) {
             System.out.println("\n\n ************************* Options **************************** \n");
             System.out.println("1 i - Print routing table of node i");
             int val1 = sc.nextInt();
             int val2 = sc.nextInt();
 
-            switch (val1)
-            {
+            switch (val1) {
                 case 1:
                     rtss.printRoutingTable(val2);
                     break;
             }
+        }
+    }
+
+    public KadContent putContent(String content, JKademliaNode owner) {
+        DHTContentImpl c = null;
+        try {
+            c = new DHTContentImpl(owner.getOwnerId(), "Some Data");
+            owner.put(c);
+            return c;
+        } catch (IOException e) {
+            System.err.println("Error whiles putting content " + content + " from owner: " + owner.getOwnerId());
+        }
+
+        return c;
+    }
+
+    public void shutdownKad(JKademliaNode kad) {
+        try {
+            kad.shutdown(false);
+        } catch (IOException ex) {
+            System.err.println("Error whiles shutting down node with owner: " + kad.getOwnerId());
+        }
+    }
+
+    public void printRoutingTable(int kadId) {
+        System.out.println(kads[kadId].getRoutingTable());
+    }
+
+    public void printRoutingTables() {
+        for (int i = 0; i < numKads; i++) {
+            this.printRoutingTable(i);
+        }
+    }
+
+    public void printStorage(int kadId) {
+        System.out.println(kads[kadId].getDHT());
+    }
+
+    public void printStorage() {
+        for (int i = 0; i < numKads; i++) {
+            this.printStorage(i);
         }
     }
 }

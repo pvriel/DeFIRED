@@ -1,31 +1,20 @@
 package kademlia.operation;
 
-import kademlia.message.Receiver;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import kademlia.JKademliaNode;
-import kademlia.dht.GetParameter;
 import kademlia.KadConfiguration;
 import kademlia.KadServer;
+import kademlia.dht.GetParameter;
 import kademlia.dht.JKademliaStorageEntry;
-import kademlia.dht.KademliaStorageEntry;
 import kademlia.exceptions.ContentNotFoundException;
 import kademlia.exceptions.RoutingException;
 import kademlia.exceptions.UnknownMessageException;
-import kademlia.message.ContentLookupMessage;
-import kademlia.message.ContentMessage;
-import kademlia.message.Message;
-import kademlia.message.NodeReplyMessage;
+import kademlia.message.*;
 import kademlia.node.KeyComparator;
 import kademlia.node.Node;
 import kademlia.util.RouteLengthChecker;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Looks up a specified identifier and returns the value associated with it
@@ -33,8 +22,7 @@ import kademlia.util.RouteLengthChecker;
  * @author Joshua Kissoon
  * @since 20140226
  */
-public class ContentLookupOperation implements Operation, Receiver
-{
+public class ContentLookupOperation implements Operation, Receiver {
 
     /* Constants */
     private static final Byte UNASKED = (byte) 0x00;
@@ -44,24 +32,18 @@ public class ContentLookupOperation implements Operation, Receiver
 
     private final KadServer server;
     private final JKademliaNode localNode;
-    private JKademliaStorageEntry contentFound = null;
     private final KadConfiguration config;
-
     private final ContentLookupMessage lookupMessage;
-
-    private boolean isContentFound;
     private final SortedMap<Node, Byte> nodes;
-
     /* Tracks messages in transit and awaiting reply */
     private final Map<Integer, Node> messagesTransiting;
-
     /* Used to sort nodes */
     private final Comparator comparator;
-
     /* Statistical information */
     private final RouteLengthChecker routeLengthChecker;
+    private JKademliaStorageEntry contentFound = null;
+    private boolean isContentFound;
 
-    
     {
         messagesTransiting = new HashMap<>();
         isContentFound = false;
@@ -74,8 +56,7 @@ public class ContentLookupOperation implements Operation, Receiver
      * @param params    The parameters to search for the content which we need to find
      * @param config
      */
-    public ContentLookupOperation(KadServer server, JKademliaNode localNode, GetParameter params, KadConfiguration config)
-    {
+    public ContentLookupOperation(KadServer server, JKademliaNode localNode, GetParameter params, KadConfiguration config) {
         /* Construct our lookup message */
         this.lookupMessage = new ContentLookupMessage(localNode.getNode(), params);
 
@@ -96,10 +77,8 @@ public class ContentLookupOperation implements Operation, Receiver
      * @throws RoutingException
      */
     @Override
-    public synchronized void execute() throws IOException, RoutingException
-    {
-        try
-        {
+    public synchronized void execute() throws IOException, RoutingException {
+        try {
             /* Set the local node as already asked */
             nodes.put(this.localNode.getNode(), ASKED);
 
@@ -109,7 +88,7 @@ public class ContentLookupOperation implements Operation, Receiver
              */
             List<Node> allNodes = this.localNode.getRoutingTable().getAllNodes();
             this.addNodes(allNodes);
-            
+
             /* Also add the initial set of nodes to the routeLengthChecker */
             this.routeLengthChecker.addInitialNodes(allNodes);
 
@@ -119,21 +98,15 @@ public class ContentLookupOperation implements Operation, Receiver
              */
             int totalTimeWaited = 0;
             int timeInterval = 10;     // We re-check every n milliseconds
-            while (totalTimeWaited < this.config.operationTimeout())
-            {
-                if (!this.askNodesorFinish() && !isContentFound)
-                {
+            while (totalTimeWaited < this.config.operationTimeout()) {
+                if (!this.askNodesorFinish() && !isContentFound) {
                     wait(timeInterval);
                     totalTimeWaited += timeInterval;
-                }
-                else
-                {
+                } else {
                     break;
                 }
             }
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -143,13 +116,10 @@ public class ContentLookupOperation implements Operation, Receiver
      *
      * @param list The list from which to add nodes
      */
-    public void addNodes(List<Node> list)
-    {
-        for (Node o : list)
-        {
+    public void addNodes(List<Node> list) {
+        for (Node o : list) {
             /* If this node is not in the list, add the node */
-            if (!nodes.containsKey(o))
-            {
+            if (!nodes.containsKey(o)) {
                 nodes.put(o, UNASKED);
             }
         }
@@ -158,27 +128,24 @@ public class ContentLookupOperation implements Operation, Receiver
     /**
      * Asks some of the K closest nodes seen but not yet queried.
      * Assures that no more than DefaultConfiguration.CONCURRENCY messages are in transit at a time
-     *
+     * <p>
      * This method should be called every time a reply is received or a timeout occurs.
-     *
+     * <p>
      * If all K closest nodes have been asked and there are no messages in transit,
      * the algorithm is finished.
      *
      * @return <code>true</code> if finished OR <code>false</code> otherwise
      */
-    private boolean askNodesorFinish() throws IOException
-    {
+    private boolean askNodesorFinish() throws IOException {
         /* If >= CONCURRENCY nodes are in transit, don't do anything */
-        if (this.config.maxConcurrentMessagesTransiting() <= this.messagesTransiting.size())
-        {
+        if (this.config.maxConcurrentMessagesTransiting() <= this.messagesTransiting.size()) {
             return false;
         }
 
         /* Get unqueried nodes among the K closest seen that have not FAILED */
         List<Node> unasked = this.closestNodesNotFailed(UNASKED);
 
-        if (unasked.isEmpty() && this.messagesTransiting.isEmpty())
-        {
+        if (unasked.isEmpty() && this.messagesTransiting.isEmpty()) {
             /* We have no unasked nodes nor any messages in transit, we're finished! */
             return true;
         }
@@ -190,8 +157,7 @@ public class ContentLookupOperation implements Operation, Receiver
          * Send messages to nodes in the list;
          * making sure than no more than CONCURRENCY messsages are in transit
          */
-        for (int i = 0; (this.messagesTransiting.size() < this.config.maxConcurrentMessagesTransiting()) && (i < unasked.size()); i++)
-        {
+        for (int i = 0; (this.messagesTransiting.size() < this.config.maxConcurrentMessagesTransiting()) && (i < unasked.size()); i++) {
             Node n = (Node) unasked.get(i);
 
             int comm = server.sendMessage(n, lookupMessage, this);
@@ -209,26 +175,20 @@ public class ContentLookupOperation implements Operation, Receiver
      * From those K, get those that have the specified status
      *
      * @param status The status of the nodes to return
-     *
      * @return A List of the closest nodes
      */
-    private List<Node> closestNodesNotFailed(Byte status)
-    {
+    private List<Node> closestNodesNotFailed(Byte status) {
         List<Node> closestNodes = new ArrayList<>(this.config.k());
         int remainingSpaces = this.config.k();
 
-        for (Map.Entry e : this.nodes.entrySet())
-        {
-            if (!FAILED.equals(e.getValue()))
-            {
-                if (status.equals(e.getValue()))
-                {
+        for (Map.Entry e : this.nodes.entrySet()) {
+            if (!FAILED.equals(e.getValue())) {
+                if (status.equals(e.getValue())) {
                     /* We got one with the required status, now add it */
                     closestNodes.add((Node) e.getKey());
                 }
 
-                if (--remainingSpaces == 0)
-                {
+                if (--remainingSpaces == 0) {
                     break;
                 }
             }
@@ -238,15 +198,12 @@ public class ContentLookupOperation implements Operation, Receiver
     }
 
     @Override
-    public synchronized void receive(Message incoming, int comm) throws IOException, RoutingException
-    {
-        if (this.isContentFound)
-        {
+    public synchronized void receive(Message incoming, int comm) throws IOException, RoutingException {
+        if (this.isContentFound) {
             return;
         }
 
-        if (incoming instanceof ContentMessage)
-        {
+        if (incoming instanceof ContentMessage) {
             /* The reply received is a content message with the required content, take it in */
             ContentMessage msg = (ContentMessage) incoming;
 
@@ -257,9 +214,7 @@ public class ContentLookupOperation implements Operation, Receiver
             JKademliaStorageEntry content = msg.getContent();
             this.contentFound = content;
             this.isContentFound = true;
-        }
-        else
-        {
+        } else {
             /* The reply received is a NodeReplyMessage with nodes closest to the content needed */
             NodeReplyMessage msg = (NodeReplyMessage) incoming;
 
@@ -272,7 +227,7 @@ public class ContentLookupOperation implements Operation, Receiver
 
             /* Remove this msg from messagesTransiting since it's completed now */
             this.messagesTransiting.remove(comm);
-            
+
             /* Add the received nodes to the routeLengthChecker */
             this.routeLengthChecker.addNodes(msg.getNodes(), origin);
 
@@ -286,17 +241,14 @@ public class ContentLookupOperation implements Operation, Receiver
      * A node does not respond or a packet was lost, we set this node as failed
      *
      * @param comm
-     *
      * @throws IOException
      */
     @Override
-    public synchronized void timeout(int comm) throws IOException
-    {
+    public synchronized void timeout(int comm) throws IOException {
         /* Get the node associated with this communication */
         Node n = this.messagesTransiting.get(new Integer(comm));
 
-        if (n == null)
-        {
+        if (n == null) {
             throw new UnknownMessageException("Unknown comm: " + comm);
         }
 
@@ -307,28 +259,22 @@ public class ContentLookupOperation implements Operation, Receiver
 
         this.askNodesorFinish();
     }
-    
+
     /**
      * @return Whether the content was found or not.
      */
-    public boolean isContentFound()
-    {
+    public boolean isContentFound() {
         return this.isContentFound;
     }
 
     /**
      * @return The list of all content found during the lookup operation
-     *
      * @throws ContentNotFoundException
      */
-    public JKademliaStorageEntry getContentFound() throws ContentNotFoundException
-    {
-        if (this.isContentFound)
-        {
+    public JKademliaStorageEntry getContentFound() throws ContentNotFoundException {
+        if (this.isContentFound) {
             return this.contentFound;
-        }
-        else
-        {
+        } else {
             throw new ContentNotFoundException("No Value was found for the given key.");
         }
     }
@@ -336,8 +282,7 @@ public class ContentLookupOperation implements Operation, Receiver
     /**
      * @return How many hops it took in order to get to the content.
      */
-    public int routeLength()
-    {
+    public int routeLength() {
         return this.routeLengthChecker.getRouteLength();
     }
 }

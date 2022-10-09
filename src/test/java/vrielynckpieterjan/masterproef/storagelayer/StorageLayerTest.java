@@ -13,7 +13,7 @@ import vrielynckpieterjan.masterproef.storagelayer.map.MultiMappedStorageLayer;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StorageLayerTest {
 

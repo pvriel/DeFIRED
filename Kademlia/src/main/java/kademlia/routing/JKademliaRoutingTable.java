@@ -1,12 +1,13 @@
 package kademlia.routing;
 
+import kademlia.KadConfiguration;
+import kademlia.node.KademliaId;
+import kademlia.node.KeyComparator;
+import kademlia.node.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
-import kademlia.KadConfiguration;
-import kademlia.node.KeyComparator;
-import kademlia.node.Node;
-import kademlia.node.KademliaId;
 
 /**
  * Implementation of a Kademlia routing table
@@ -14,16 +15,14 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @created 20140215
  */
-public class JKademliaRoutingTable implements KademliaRoutingTable
-{
+public class JKademliaRoutingTable implements KademliaRoutingTable {
 
     private final Node localNode;  // The current node
     private transient KademliaBucket[] buckets;
 
     private transient KadConfiguration config;
 
-    public JKademliaRoutingTable(Node localNode, KadConfiguration config)
-    {
+    public JKademliaRoutingTable(Node localNode, KadConfiguration config) {
         this.localNode = localNode;
         this.config = config;
 
@@ -38,18 +37,15 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * Initialize the JKademliaRoutingTable to it's default state
      */
     @Override
-    public final void initialize()
-    {
+    public final void initialize() {
         this.buckets = new KademliaBucket[KademliaId.ID_LENGTH];
-        for (int i = 0; i < KademliaId.ID_LENGTH; i++)
-        {
+        for (int i = 0; i < KademliaId.ID_LENGTH; i++) {
             buckets[i] = new JKademliaBucket(i, this.config);
         }
     }
 
     @Override
-    public void setConfiguration(KadConfiguration config)
-    {
+    public void setConfiguration(KadConfiguration config) {
         this.config = config;
     }
 
@@ -59,8 +55,7 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * @param c The contact to add
      */
     @Override
-    public synchronized final void insert(Contact c)
-    {
+    public synchronized final void insert(Contact c) {
         this.buckets[this.getBucketId(c.getNode().getNodeId())].insert(c);
     }
 
@@ -70,8 +65,7 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * @param n The node to add
      */
     @Override
-    public synchronized final void insert(Node n)
-    {
+    public synchronized final void insert(Node n) {
         this.buckets[this.getBucketId(n.getNodeId())].insert(n);
     }
 
@@ -79,12 +73,10 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * Compute the bucket ID in which a given node should be placed; the bucketId is computed based on how far the node is away from the Local Node.
      *
      * @param nid The NodeId for which we want to find which bucket it belong to
-     *
      * @return Integer The bucket ID in which the given node should be placed.
      */
     @Override
-    public final int getBucketId(KademliaId nid)
-    {
+    public final int getBucketId(KademliaId nid) {
         int bId = this.localNode.getNodeId().getDistance(nid) - 1;
 
         /* If we are trying to insert a node into it's own routing table, then the bucket ID will be -1, so let's just keep it in bucket 0 */
@@ -96,12 +88,10 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      *
      * @param target           The NodeId to find contacts close to
      * @param numNodesRequired The number of contacts to find
-     *
      * @return List A List of contacts closest to target
      */
     @Override
-    public synchronized final List<Node> findClosest(KademliaId target, int numNodesRequired)
-    {
+    public synchronized final List<Node> findClosest(KademliaId target, int numNodesRequired) {
         TreeSet<Node> sortedSet = new TreeSet<>(new KeyComparator(target));
         sortedSet.addAll(this.getAllNodes());
 
@@ -109,11 +99,9 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
 
         /* Now we have the sorted set, lets get the top numRequired */
         int count = 0;
-        for (Node n : sortedSet)
-        {
+        for (Node n : sortedSet) {
             closest.add(n);
-            if (++count == numNodesRequired)
-            {
+            if (++count == numNodesRequired) {
                 break;
             }
         }
@@ -124,14 +112,11 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * @return List A List of all Nodes in this JKademliaRoutingTable
      */
     @Override
-    public synchronized final List<Node> getAllNodes()
-    {
+    public synchronized final List<Node> getAllNodes() {
         List<Node> nodes = new ArrayList<>();
 
-        for (KademliaBucket b : this.buckets)
-        {
-            for (Contact c : b.getContacts())
-            {
+        for (KademliaBucket b : this.buckets) {
+            for (Contact c : b.getContacts()) {
                 nodes.add(c.getNode());
             }
         }
@@ -143,12 +128,10 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * @return List A List of all Nodes in this JKademliaRoutingTable
      */
     @Override
-    public final List<Contact> getAllContacts()
-    {
+    public final List<Contact> getAllContacts() {
         List<Contact> contacts = new ArrayList<>();
 
-        for (KademliaBucket b : this.buckets)
-        {
+        for (KademliaBucket b : this.buckets) {
             contacts.addAll(b.getContacts());
         }
 
@@ -159,8 +142,7 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * @return Bucket[] The buckets in this Kad Instance
      */
     @Override
-    public final KademliaBucket[] getBuckets()
-    {
+    public final KademliaBucket[] getBuckets() {
         return this.buckets;
     }
 
@@ -169,8 +151,7 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      *
      * @param buckets
      */
-    public final void setBuckets(KademliaBucket[] buckets)
-    {
+    public final void setBuckets(KademliaBucket[] buckets) {
         this.buckets = buckets;
     }
 
@@ -180,14 +161,11 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * @param contacts The set of unresponsive contacts
      */
     @Override
-    public void setUnresponsiveContacts(List<Node> contacts)
-    {
-        if (contacts.isEmpty())
-        {
+    public void setUnresponsiveContacts(List<Node> contacts) {
+        if (contacts.isEmpty()) {
             return;
         }
-        for (Node n : contacts)
-        {
+        for (Node n : contacts) {
             this.setUnresponsiveContact(n);
         }
     }
@@ -198,8 +176,7 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
      * @param n
      */
     @Override
-    public synchronized void setUnresponsiveContact(Node n)
-    {
+    public synchronized void setUnresponsiveContact(Node n) {
         int bucketId = this.getBucketId(n.getNodeId());
 
         /* Remove the contact from the bucket */
@@ -207,14 +184,11 @@ public class JKademliaRoutingTable implements KademliaRoutingTable
     }
 
     @Override
-    public synchronized final String toString()
-    {
+    public synchronized final String toString() {
         StringBuilder sb = new StringBuilder("\nPrinting Routing Table Started ***************** \n");
         int totalContacts = 0;
-        for (KademliaBucket b : this.buckets)
-        {
-            if (b.numContacts() > 0)
-            {
+        for (KademliaBucket b : this.buckets) {
+            if (b.numContacts() > 0) {
                 totalContacts += b.numContacts();
                 sb.append("# nodes in Bucket with depth ");
                 sb.append(b.getDepth());

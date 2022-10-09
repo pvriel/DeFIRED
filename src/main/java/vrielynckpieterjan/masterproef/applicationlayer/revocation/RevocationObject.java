@@ -1,7 +1,6 @@
 package vrielynckpieterjan.masterproef.applicationlayer.revocation;
 
 import com.google.common.hash.Hashing;
-import org.apache.commons.lang3.SerializationUtils;
 import org.jetbrains.annotations.NotNull;
 import vrielynckpieterjan.masterproef.shared.serialization.ExportableUtils;
 import vrielynckpieterjan.masterproef.storagelayer.StorageElement;
@@ -21,8 +20,8 @@ public class RevocationObject extends StorageElement {
     /**
      * Constructor for the {@link RevocationObject} class.
      *
-     * @param identifier The {@link StorageElementIdentifier} for this {@link StorageElement}.
-     * @param revealedSecret    The revealed {@link RevocationSecret}.
+     * @param identifier     The {@link StorageElementIdentifier} for this {@link StorageElement}.
+     * @param revealedSecret The revealed {@link RevocationSecret}.
      */
     public RevocationObject(@NotNull StorageElementIdentifier identifier,
                             @NotNull RevocationSecret revealedSecret) {
@@ -30,9 +29,23 @@ public class RevocationObject extends StorageElement {
         this.revealedSecret = revealedSecret;
     }
 
+    @NotNull
+    public static RevocationObject deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
+        byte[] identifierAsByteArray = new byte[byteBuffer.getInt()];
+        byteBuffer.get(identifierAsByteArray);
+        StorageElementIdentifier storageElementIdentifier = ExportableUtils.deserialize(identifierAsByteArray, RevocationCommitment.class);
+
+        byte[] revealedSecretAsByteArray = new byte[byteBuffer.remaining()];
+        byteBuffer.get(revealedSecretAsByteArray);
+        RevocationSecret revealedSecret = ExportableUtils.deserialize(revealedSecretAsByteArray, RevocationSecret.class);
+
+        return new RevocationObject(storageElementIdentifier, revealedSecret);
+    }
+
     /**
      * Getter for the revealed {@link RevocationSecret}.
-     * @return  The revealed {@link RevocationSecret}.
+     *
+     * @return The revealed {@link RevocationSecret}.
      */
     public RevocationSecret getRevealedSecret() {
         return revealedSecret;
@@ -41,8 +54,9 @@ public class RevocationObject extends StorageElement {
     /**
      * Method to check if the revealed secret actually corresponds with the {@link RevocationCommitment}
      * which was used as {@link StorageElementIdentifier} for this {@link StorageElement}.
-     * @return  True if the revealed secret actually corresponds with the {@link RevocationCommitment}
-     *          used for the constructor of this instance; false otherwise.
+     *
+     * @return True if the revealed secret actually corresponds with the {@link RevocationCommitment}
+     * used for the constructor of this instance; false otherwise.
      */
     public boolean isValid() {
         String reconstructedRevocationCommitment = Hashing.sha512().hashString(revealedSecret.getSecret(), StandardCharsets.UTF_8)
@@ -69,19 +83,6 @@ public class RevocationObject extends StorageElement {
         byteBuffer.put(revealedSecretSerializationResult);
 
         return byteBuffer.array();
-    }
-
-    @NotNull
-    public static RevocationObject deserialize(@NotNull ByteBuffer byteBuffer) throws IOException {
-        byte[] identifierAsByteArray = new byte[byteBuffer.getInt()];
-        byteBuffer.get(identifierAsByteArray);
-        StorageElementIdentifier storageElementIdentifier = ExportableUtils.deserialize(identifierAsByteArray, RevocationCommitment.class);
-
-        byte[] revealedSecretAsByteArray = new byte[byteBuffer.remaining()];
-        byteBuffer.get(revealedSecretAsByteArray);
-        RevocationSecret revealedSecret = ExportableUtils.deserialize(revealedSecretAsByteArray, RevocationSecret.class);
-
-        return new RevocationObject(storageElementIdentifier, revealedSecret);
     }
 
     @Override

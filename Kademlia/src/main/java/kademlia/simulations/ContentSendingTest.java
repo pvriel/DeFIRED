@@ -1,12 +1,13 @@
 package kademlia.simulations;
 
-import java.io.IOException;
-import java.util.UUID;
-import kademlia.dht.GetParameter;
 import kademlia.JKademliaNode;
+import kademlia.dht.GetParameter;
 import kademlia.dht.KademliaStorageEntry;
 import kademlia.exceptions.ContentNotFoundException;
 import kademlia.node.KademliaId;
+
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Testing sending and receiving content between 2 Nodes on a network
@@ -14,13 +15,10 @@ import kademlia.node.KademliaId;
  * @author Joshua Kissoon
  * @since 20140224
  */
-public class ContentSendingTest
-{
+public class ContentSendingTest {
 
-    public static void main(String[] args)
-    {
-        try
-        {
+    public static void main(String[] args) {
+        try {
             /* Setting up 2 Kad networks */
             JKademliaNode kad1 = new JKademliaNode("JoshuaK", new KademliaId("ASF45678947584567467"), 7574);
             System.out.println("Created Node Kad 1: " + kad1.getNode().getNodeId());
@@ -32,8 +30,7 @@ public class ContentSendingTest
              * Lets create the content and share it
              */
             String data = "";
-            for (int i = 0; i < 500; i++)
-            {
+            for (int i = 0; i < 500; i++) {
                 data += UUID.randomUUID();
             }
             System.out.println(data);
@@ -51,9 +48,7 @@ public class ContentSendingTest
             System.out.println("Content Found: " + new DHTContentImpl().fromSerializedForm(conte.getContent()));
             System.out.println("Content Metadata: " + conte.getContentMetadata());
 
-        }
-        catch (IOException | ContentNotFoundException e)
-        {
+        } catch (IOException | ContentNotFoundException e) {
             e.printStackTrace();
         }
     }

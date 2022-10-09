@@ -1,7 +1,8 @@
 package kademlia.routing;
 
-import java.util.List;
 import kademlia.node.Node;
+
+import java.util.List;
 
 /**
  * A bucket used to store Contacts in the routing table.
@@ -9,8 +10,7 @@ import kademlia.node.Node;
  * @author Joshua Kissoon
  * @created 20140215
  */
-public interface KademliaBucket
-{
+public interface KademliaBucket {
 
     /**
      * Adds a contact to the bucket
@@ -30,7 +30,6 @@ public interface KademliaBucket
      * Checks if this bucket contain a contact
      *
      * @param c The contact to check for
-     *
      * @return boolean
      */
     public boolean containsContact(Contact c);
@@ -39,22 +38,20 @@ public interface KademliaBucket
      * Checks if this bucket contain a node
      *
      * @param n The node to check for
-     *
      * @return boolean
      */
     public boolean containsNode(Node n);
 
     /**
      * Remove a contact from this bucket.
-     * 
+     * <p>
      * If there are replacement contacts in the replacement cache,
      * select the last seen one and put it into the bucket while removing the required contact.
-     *
+     * <p>
      * If there are no contacts in the replacement cache, then we just mark the contact requested to be removed as stale.
      * Marking as stale would actually be incrementing the stale count of the contact.
      *
      * @param c The contact to remove
-     *
      * @return Boolean whether the removal was successful.
      */
     public boolean removeContact(Contact c);
@@ -63,7 +60,6 @@ public interface KademliaBucket
      * Remove the contact object related to a node from this bucket
      *
      * @param n The node of the contact to remove
-     *
      * @return Boolean whether the removal was successful.
      */
     public boolean removeNode(Node n);

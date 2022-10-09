@@ -9,8 +9,8 @@ public class FileServerListDirectoryRequest extends FileServerReadRequest {
 
     /**
      * Constructor for the {@link FileServerListDirectoryRequest} class.
-     * @param   resourceLocation
-     *          The specified directory.
+     *
+     * @param resourceLocation The specified directory.
      */
     public FileServerListDirectoryRequest(@NotNull String[] resourceLocation) {
         super(resourceLocation);
